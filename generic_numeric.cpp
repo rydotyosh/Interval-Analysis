@@ -222,7 +222,7 @@ interval exp(const interval& a)  { return a.exp(); }
 interval pow(const interval& a, int const& n)  { return a.pow(n); }
 interval abs(const interval& a)  { return a.abs(); }
 
-/*generic primitive numeric functions dispach*/
+/*generic numeric functions for primitive dispach*/
 /*Using Forwarding Reference & type_traits*/
 template <typename T, typename = typename std::enable_if<
   !std::is_same<interval, typename std::decay<T>::type>::value>::type>
