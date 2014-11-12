@@ -208,7 +208,7 @@ public:
     /*out put function*/
     std::ostream& print( std::ostream& s )
     {
-      s << "[" << this->low_value() << "," << this->up_value() << "]" ;
+      s << "[" << this->low_bound() << "," << this->up_bound() << "]" ;
       return s ;
     }
 private:
