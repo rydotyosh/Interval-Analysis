@@ -196,12 +196,12 @@ public:
       }
     }
     /*low bound getter*/
-    double low_value()
+    double low_bound()
     {
       return low ;
     }
     /*upper bound value*/
-    double up_value()
+    double up_bound()
     {
        return up ;
     }
