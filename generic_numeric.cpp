@@ -6,18 +6,23 @@
 using std::cout ;
 using std::endl ;
 
+/*PI*/
 template<typename T>
 constexpr T PI = static_cast<T>( 3.141592653589793238462643383279) ;
 
+/*maximum*/
 template<typename T>
 constexpr T max = std::numeric_limits<T>::max() ;
 
+/*minimum*/
 template<typename T>
 constexpr T min = std::numeric_limits<T>::min() ;
 
+/*new Interval class prototype*/
 class interval
 {
 public:
+    /*constexpr means it does not have the side effects*/
     constexpr interval()
     :low( double() )
     ,up( double() )
@@ -30,6 +35,8 @@ public:
     :low( l )
     ,up( u )
     {}
+
+    /*interval pow(int)*/
     const interval pow(int n) const
     {
       if (n < 0){
@@ -54,7 +61,7 @@ public:
       std::nextafter(std::pow(low, n), -max<double>),
       std::nextafter(std::pow(up, n),max<double>));
     }
-
+    /*interval sin*/
     const interval sin( ) const
     {
         int c;
@@ -112,7 +119,7 @@ public:
            std::nextafter(std::sin(b),max<double>)));
         }
     }
-
+    /*interval cos*/
     const interval cos() const
     {
       int c;
@@ -170,7 +177,7 @@ public:
       }
     }
 
-    /*	Interval exp	*/
+    /*	interval exp	*/
     const interval exp() const
     {
       return interval(
@@ -188,32 +195,35 @@ public:
         return *this;
       }
     }
-
+    /*low bound getter*/
     double low_value()
     {
       return low ;
     }
-
+    /*upper bound value*/
     double up_value()
     {
        return up ;
     }
+    /*out put function*/
     std::ostream& print( std::ostream& s )
     {
       s << "[" << this->low_value() << "," << this->up_value() << "]" ;
       return s ;
     }
 private:
-    double low ;
-    double up ;
+    double low ;//lower bound
+    double up ;//upper bound
 } ;
-
+/*generic ver interval numeric functions overload*/
 interval sin(const interval& a)  { return a.sin(); }
 interval cos(const interval& a)  { return a.cos(); }
 interval exp(const interval& a)  { return a.exp(); }
 interval pow(const interval& a, int const& n)  { return a.pow(n); }
 interval abs(const interval& a)  { return a.abs(); }
 
+/*generic primitive numeric functions dispach*/
+/*Using Forwarding Reference & type_traits*/
 template <typename T, typename = typename std::enable_if<
   !std::is_same<interval, typename std::decay<T>::type>::value>::type>
     double sin(T&& x)  { return std::sin(std::forward<T>(x)); }
@@ -234,6 +244,8 @@ template <typename T, typename = typename std::enable_if<
   !std::is_same<interval, typename std::decay<T>::type>::value>::type>
     double abs(T&& x)  { return std::abs(std::forward<T>(x)); }
 
+/*generic operator<< for classes have menber func print(ostream)*/
+/*Using SFINAE rule*/
 template<typename T>
 auto operator<<( std::ostream& s, T&& x )->decltype( x.print( s ) )
 {
@@ -244,7 +256,7 @@ auto operator<<( std::ostream& s, T&& x )->decltype( x.print( s ) )
 int main()
 {
     interval v(-3.1415926 / 4, 0);
-
+    /*test code*/
     cout << "sin" << endl;
     cout << sin(v) << endl;
     cout << sin(3.1415926 / 3) << endl;
