@@ -27,7 +27,7 @@ public:
     :low( double( ) )
     , up( double( ) )
     {}
-    constexpr interval( double Initializer )
+    explicit constexpr interval( double Initializer )
     :low( Initializer )
     , up( Initializer )
     {}
@@ -214,7 +214,7 @@ public:
        return up ;
     }
     /*out put function*/
-    std::ostream& print( std::ostream& s )
+    std::ostream& print( std::ostream& s ) const
     {
       s << "[ " << low << " , " << up << " ]" ;
       return s ;
