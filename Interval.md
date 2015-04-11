@@ -125,7 +125,7 @@ interval class で再定義された演算子はこちら.
 		bool operator==(interval const&) const;
 		bool operator!=(interval const&) const;
 
-子息演算については区間同士の演算でしかも複合代入演算子のみ再定義される.  
+四則演算については区間同士の演算でしかも複合代入演算子のみ再定義される.  
 その他はすべてグローバル関数で定義されている.  
 operator+　を例にとる以下のようなコードだ  
 
@@ -147,6 +147,86 @@ operator+　を例にとる以下のようなコードだ
 		}
 
 つまり、`interval<U> + T` や `T + interval<U>` が可能である.  
-返り値は`interval<U>`なのでTはUに変換されることに注意が必要だ.  
-また、パフォーマンスを優先して複合代入演算子を呼び出すか直感的にわかりやすいコードかを選択することができる.  
+返り値は`interval<U>`なので`T`は`U`に型変換されることに注意が必要だ.  
+また、パフォーマンスを優先して複合代入演算子を呼び出すか、直感的にわかりやすいコードか、いずれかを選択することができる.  
+つまり、こういうことだ.  
 
+		interval<double> a , b , c ;
+		
+		// pattern 1
+		auto x = a + b + c ;
+		
+		// pattern 2
+		auto y(a) ;
+		y+=b ;
+		y+=c ;
+		
+パターン1はわかりやすいし数学ではこう書く.  
+このとき、コードはどう解釈されるか？
+答えはこうだ
+
+		x = interval<double>( ) ;
+		interval<double> tmp1 = a + b ;
+		interval<double> tmp2 = tmp1 + c ;
+		x = tmp2 ;
+
+デフォルトコンストラクタがxを初期化する.  
+次に左結合性に従い１つづつオブジェクトがたされ一時オブジェクトがスタックに入る.  
+つxに代入したあとにスコープを抜けると一時オブジェクトは２つ破棄される.  
+実にたくさんの無駄がある.  
+
+パターン2はどうか
+
+		y = interval<doubel>( a ) ;
+		y += b ;
+		y += c ;
+
+まずコピーコンストラクタが呼び出されている.  
+次に複合代入演算子を使うので新しいオブジェクトはできない.  
+yだけが新しいオブジェクトなのでこれが最小のコストだといえる.  
+
+ただし、コードは3行にわたっているし、わかりにくい.  
+
+まとめると以下のようになる.  
+
+		x++ ;			// postfix increment operator
+		++x ;			// prefix increment operator
+		x-- ;			// postfix decrement operator
+		--x ;			// prefix decrement operator
+		x + y ;			// interval<T> + interval<T>
+		x - y ;			// interval<T> - interval<T>
+		x * y ;			// interval<T> * interval<T>
+		x / y ;			// interval<T> / interval<T>
+		x += y ;		// interval<T> += interval<T>
+		x -= y ;		// interval<T> -= interval<T>
+		x *= y ;		// interval<T> *= interval<T>
+		x /= y ;		// interval<T> /= interval<T>
+
+		x += 2.0 ;		// interval<T> += T
+		x -= 2.0 ;		// interval<T> -= T
+		x *= 2.0 ;		// interval<T> *= T
+		x /= 2.0 ;		// interval<T> /= T
+		2.0 += a ;		// compile error! 
+		2.0 -= a ;		// compile error!
+		2.0 *= a ;		// compile error!
+		2.0 /= a ;		// compile error!
+		2.0 + x ;		// T + interval<T>
+		2.0 - x ;		// T + interval<T>
+		2.0 * x ;		// T + interval<T>
+		2.0 / x ;		// T + interval<T>
+		x * 2.0 ;		// interval<T> + T
+		x / 2.0 ;		// interval<T> + T
+		x + 2.0 ;		// interval<T> + T
+		x - 2.0 ;		// interval<T> + T
+
+注意が必要なのは複合代入演算子である.  
+
+		T += interval<T>
+
+はコンパイルエラーだ. 理由は少し考えればわかる.  
+複合代入演算子は呼び出し元のオブジェクトを返すので.  
+`T += interva<T>`の返り値は`T`である.  
+しかし区間演算の結果は区間でなければならない.  
+矛盾している. このことからこのようなよびだしはしてはならない.
+
+   
