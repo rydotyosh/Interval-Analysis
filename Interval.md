@@ -59,7 +59,7 @@ interval classは内部クラスimplのインスタンスをスマートポイ�
 		auto X = interval( ) ; // error! needs to template argument.
 
 とはいえ、いちいちテンプレート引数を明示的に指定するのは甚だ面倒である.  
-そこで、hullをつかう.すると初期の上下限から型が推測されinterval classが返される.
+そこで、hullをつかう. すると初期の上下限から型が推測されinterval classが返される.
 
 
 		auto x = hull( 1.0 , 2.0 ) ; // x は interval<double>
@@ -83,3 +83,29 @@ interval classは内部クラスimplのインスタンスをスマートポイ�
 		// y.low_bound = x.low_bound , y.upper_bound = x.upper_bound となる
 		auto y = x ;
 
+区間の定義の方法とコンストラクタ等のポリシーの解説は以上である.  
+次に区間演算について解説する.  
+
+
+##区間の四則演算
+
+区間演算の定義について確認する.  
+
+区間 X は連続する数の集合であると定義され. 上限と下限から
+
+		X = [ a , b ]
+
+と表す.  
+
+ある実数の演算子●を考える. 区間 X , Y についてこの演算子は
+
+		X ● Y = { x ● y |　x∈X, y∈Y }
+
+と定義される. これを区間拡張という.  
+このライブラリには区間拡張された演算子や関数が含まれる.  
+
+###区間のオーバーロードされた演算子
+
+
+
+		
