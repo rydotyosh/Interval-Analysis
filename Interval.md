@@ -25,7 +25,7 @@ Interval.h に宣言、Interval.cpp に定義が記述されている.
 ##クラス宣言
 
 intervalは次のように宣言されている.  
-~~~c++
+```cpp
 namespace Interval
 {
 
@@ -49,27 +49,27 @@ namespace Interval
 		std::unique_ptr<impl> pimpl;
 	};
 }//end namespace Interval
-~~~
+```
 第1にinterval classは内部クラスに上限（upper bound）と下限（lower bound）を保持します.  
 interval classは内部クラスimplのインスタンスをスマートポインタで保持する.  
 
 第2にinterval class はクラステンプレートになっており、宣言や定義にはテンプレート仮引数が必要である.  
 区間の上下限をどの型で保持するのかを指定しなければならない.
-~~~c++
+```cpp
 auto x = interval<double>( ) ; // OK
 auto x = interval( ) ; // error! needs to template argument.
 
-~~~
+```
 とはいえ、いちいちテンプレート引数を明示的に指定するのは甚だ面倒である.  
 そこで、hullをつかう. すると初期の上下限から型が推測されinterval classが返される.
-~~~c++
+```cpp
 
 auto x = hull( 1.0 , 2.0 ) ; // x は interval<double>
 
-~~~
+```
 デフォルトコンストラクタ、2引数（左辺値）コンストラクタ、2引数（右辺値）コンストラクタ  
 コピーコンストラクタ、ムーブコンストラクタ、コピー代入演算子が使えます.  
-~~~c++
+```cpp
 // デフォルトコンストラクタ 上下限はdouble()で初期化される
 auto v = interval<double>( ) ;
 
@@ -84,7 +84,7 @@ auto x(v) ;
 // コピー代入演算子 まずデフォルトコンストラクタが呼ばれ
 // y.low_bound = x.low_bound , y.upper_bound = x.upper_bound となる
 auto y = x ;
-~~~
+```
 区間の定義の方法とコンストラクタ等のポリシーの解説は以上である.  
 次に区間演算について解説する.  
 
@@ -94,22 +94,22 @@ auto y = x ;
 区間演算の定義について確認する.  
 
 区間 X は連続する数の集合であると定義され. 上限と下限から
-~~~math
+```
 X = [ a , b ]
-~~~
+```
 と表す.  
 
 ある実数の演算子●を考える. 区間 X , Y についてこの演算子は
-~~~math
+```
 X ● Y = { x ● y |　x ∈ X , y ∈ Y }
-~~~
+```
 と定義される. これを区間拡張という.  
 このライブラリには区間拡張された演算子や関数が含まれる.  
 
 ###区間のオーバーロードされた演算子
 
 interval class で再定義された演算子はこちら.
-~~~c++
+```cpp
 const interval operator +=(const interval&);
 const interval operator -=(const interval&);
 const interval operator *=(const interval&);
@@ -126,11 +126,11 @@ bool operator<=(interval const&) const;
 bool operator>=(interval const&) const;
 bool operator==(interval const&) const;
 bool operator!=(interval const&) const;
-~~~
+```
 四則演算については区間同士の演算でしかも複合代入演算子のみ再定義される.  
 その他はすべてグローバル関数で定義されている.  
 `operator+`を例にとる以下のようなコードだ  
-~~~c++
+```cpp
 //interval addition operator
 template <typename T,typename U, typename = typename std::enable_if <
 !std::is_same<interval<U>, typename std::decay<T>::type>::value>::type>
@@ -147,12 +147,12 @@ const interval<T> operator +(const interval<T>& x, const interval<T>& y)
 {
 return interval<T>(x) += y;
 }
-~~~
+```
 つまり、`interval<U> + T` や `T + interval<U>` が可能である.  
 返り値は`interval<U>`なので`T`は`U`に型変換されることに注意が必要だ.  
 また、パフォーマンスを優先して複合代入演算子を呼び出すか、直感的にわかりやすいコードか、いずれかを選択することができる.  
 つまり、こういうことだ.  
-~~~c++
+```cpp
 interval<double> a , b , c ;
 
 // pattern 1
@@ -162,27 +162,27 @@ auto x = a + b + c ;
 auto y(a) ;
 y+=b ;
 y+=c ;
-~~~
+```
 パターン1はわかりやすいし数学ではこう書く.  
 このとき、コードはどう解釈されるか？
 答えはこうだ
-~~~c++
+```cpp
 x = interval<double>( ) ;
 interval<double> tmp1 = a + b ;
 interval<double> tmp2 = tmp1 + c ;
 x = tmp2 ;
-~~~
+```
 デフォルトコンストラクタがxを初期化する.  
 次に左結合性に従い１つづつオブジェクトがたされ一時オブジェクトがスタックに入る.  
 つxに代入したあとにスコープを抜けると一時オブジェクトは２つ破棄される.  
 実にたくさんの無駄がある.  
 
 パターン2はどうか
-~~~c++
+```cpp
 y = interval<double>( a ) ;
 y += b ;
 y += c ;
-~~~
+```
 まずコピーコンストラクタが呼び出されている.  
 次に複合代入演算子を使うので新しいオブジェクトはできない.  
 yだけが新しいオブジェクトなのでこれが最小のコストだといえる.  
@@ -190,7 +190,7 @@ yだけが新しいオブジェクトなのでこれが最小のコストだと�
 ただし、コードは3行にわたっているし、わかりにくい.  
 
 四則演算についてまとめると以下のようになる.  
-~~~c++
+```cpp
 x++ ;			// postfix increment operator
 ++x ;			// prefix increment operator
 x-- ;			// postfix decrement operator
@@ -220,11 +220,11 @@ x * 2.0 ;		// interval<T> + T
 x / 2.0 ;		// interval<T> + T
 x + 2.0 ;		// interval<T> + T
 x - 2.0 ;		// interval<T> + T
-~~~
+```
 注意が必要なのは複合代入演算子である.  
-~~~c++
+```cpp
 T += interval<T>
-~~~
+```
 はコンパイルエラーだ. 理由は少し考えればわかる.  
 複合代入演算子は呼び出し元のオブジェクトを返すので.  
 `T += interva<T>`の返り値は`T`である.  
@@ -239,7 +239,7 @@ T += interval<T>
 数学関数、setter / getter、関係性判定だ.  
 そのすべてを以下に列挙する.  
 
-~~~c++
+```cpp
 //interval numeric
 const interval sin() const;
 const interval cos() const;
@@ -268,36 +268,45 @@ bool partial_less(interval const&, flag const& f = flag::off) const;
 bool is_contain(interval const&) const;
 bool is_part_of(interval const&) const;
 Interval_Relation relation(interval const&) const;
-~~~
+```
 ###数学関数
 この章では説明に際して
-~~~math
+```
 X = [ a , b ]
-~~~
+```
 を用いる.  
 
 はじめに、区間に特有の関数2つを紹介する.  
 ####wid
 `wid`はwidthの意味であり区間の幅を返す関数.  
-~~~math
+```
 wid( X ) = b - a
-~~~
+```
 である.
 
 ####mid
 `mid`はmiddleの意味であり、区間の中間を返す関数.  
-~~~math
+```
 mid( X ) = ( a + b ) / 2
-~~~
+```
 である.
 
 ほかは区間拡張された関数である.  
 ####sin
 sinの区間拡張. 区間内におけるsinの上下限を返す関数.
-~~~math
-sin( X ) = {sin( x ) | }
-~~~
+```
+sin( X ) = {sin( x ) |  x ∈ X }
+```
+であり、最大値は
+```
+π/2 + 2n ∈ X {n ∈ N}
+```
+のとき
+```
+sin( x ) = 1
+```
 ####cos
+
 ####pow
 ####exp
 ####abs
