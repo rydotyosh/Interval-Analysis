@@ -269,3 +269,35 @@ bool is_contain(interval const&) const;
 bool is_part_of(interval const&) const;
 Interval_Relation relation(interval const&) const;
 ~~~
+###数学関数
+この章では説明に際して
+~~~math
+X = [ a , b ]
+~~~
+を用いる.  
+
+はじめに、区間に特有の関数2つを紹介する.  
+####wid
+`wid`はwidthの意味であり区間の幅を返す関数.  
+~~~math
+wid( X ) = b - a
+~~~
+である.
+
+####mid
+`mid`はmiddleの意味であり、区間の中間を返す関数.  
+~~~math
+mid( X ) = ( a + b ) / 2
+~~~
+である.
+
+ほかは区間拡張された関数である.  
+####sin
+sinの区間拡張. 区間内におけるsinの上下限を返す関数.
+~~~math
+sin( X ) = {sin( x ) | }
+~~~
+####cos
+####pow
+####exp
+####abs
