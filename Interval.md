@@ -293,20 +293,115 @@ mid( X ) = ( a + b ) / 2
 
 ほかは区間拡張された関数である.  
 ####sin
-sinの区間拡張. 区間内におけるsinの上下限を返す関数.
+sinの区間拡張. 区間Xにおけるsin(x)の上下限を返す関数.
 ```
 sin( X ) = {sin( x ) |  x ∈ X }
 ```
 であり、最大値は
 ```
-π/2 + 2n ∈ X {n ∈ N}
+π/2 + 2πn ∈ X {n ∈ N}
 ```
 のとき
 ```
 sin( x ) = 1
 ```
+最小値は
+```
+3π/2 + 2πn ∈ X {n ∈ N}
+```
+のとき
+```
+sin( x ) = -1
+```
+となる.
 ####cos
-
+cosの区間拡張. 区間Xにおけるcos(x)の上下限を返す関数.
+```
+cos( X ) = {cos( x ) |  x ∈ X }
+```
+であり、最大値は
+```
+2πn ∈ X {n ∈ N}
+```
+のとき
+```
+cos( x ) = 1
+```
+最小値は
+```
+π + 2πn ∈ X {n ∈ N}
+```
+のとき
+```
+cos( x ) = -1
+```
+となる.
 ####pow
+powの区間拡張. 区間Xにおけるpow(x,n)の上下限を返す関数.  
+整数乗のみの実装です.  
+実数乗は実装されていない.  
+```
+pow( X ) = {pow( x , n ) |  x ∈ X , n ∈ N}
+```
+注意が必要なのは
+```
+n < 0
+```
+のときである.  
+
+```
+n < 0 のとき
+pow( X , n ) => pow( 1/X , -n )
+```
+と再帰呼び出しされる.  
+このとき、Xが0を含んでいた場合は0割となり  
+Interval::logic_errorがthrowされる.
+
 ####exp
+expの区間拡張. 区間Xにおけるexp(x)の上下限を返す関数.
+```
+exp( X ) = {exp( x , n ) |  x ∈ X }
+```
+expは単調増加の関数なので
+```
+exp( X ) = [ exp(a) , exp(b) ]
+```
+である.
+
 ####abs
+absの区間拡張. 区間Xにおけるabs(x)の上下限を返す関数.
+```
+abs( X ) = {abs( x , n ) |  x ∈ X }
+```
+
+```
+if a > 0 -> exp( X ) = [ a , b ]
+if b < 0 -> exp( X ) = [ -b , -a ]
+if a < 0 < b -> exp( X ) = [ 0 , max( -a , b ) ]
+```
+となる.  
+
+###setterとgetter
+####setter
+区間の上下限は`set_up()`と`set_low()`を使って再設定できる.  
+このとき上限が下限を下回る、または下限が上限を上回るような呼び出しをした場合には  
+Interval::invalid_errorがthrowされる.  
+
+```cpp
+auto x = hull( 1.0 , 2.0 ) ;
+x.set_low( 0.0 ) ; // OK
+x.set_up( 0.0 ) ; // throw Interval::invalid_error!
+```
+####getter
+区間の上下限は`get_up()`と`get_low()`を使って取得できる.  
+```cpp
+auto x = hull( 0.0 , 1.0 ) ;
+auto up = x.get_up() ; // up = x.upper_bound
+auto low = x.get_low() ; // low = x.low_bound
+```
+
+###関係性判定関数
+区間の関係は大小関係だけでなく包含関係もあり複雑である.  
+大小比較にはそもそもweak、partial、totalの3種類があり  
+イコールにはequalityとequivalentがある.  
+加えて区間には包含関係がある.  
