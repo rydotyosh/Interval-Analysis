@@ -179,7 +179,7 @@ x = tmp2 ;
 
 パターン2はどうか
 ~~~c++
-y = interval<doubel>( a ) ;
+y = interval<double>( a ) ;
 y += b ;
 y += c ;
 ~~~
@@ -228,5 +228,44 @@ T += interval<T>
 はコンパイルエラーだ. 理由は少し考えればわかる.  
 複合代入演算子は呼び出し元のオブジェクトを返すので.  
 `T += interva<T>`の返り値は`T`である.  
-しかし区間演算の結果は区間でなければならない.  
+しかし区間演算の結果は区間でなければならないので`interval<T>`である.  
 矛盾している. したがってこのようなよびだしはしてはならない.
+
+四則演算の解説は以上である.  
+次に、メンバ関数について解説する.  
+
+##メンバ関数
+区間のメンバ関数は大きく分けて3種類ある.
+数学関数、setter / getter、関係性判定だ.  
+そのすべてを以下に列挙する.  
+
+~~~c++
+//interval numeric
+const interval sin() const;
+const interval cos() const;
+const interval pow(int n) const;
+const interval exp() const;
+const interval abs() const;
+const T mid() const;
+const T wid() const;
+
+// getter and setter
+const T get_low() const;
+const T get_up() const;
+void set_up(T&);
+void set_low(T&);
+void set_up(T&&);
+void set_low(T&&);
+
+//interval relation functions
+bool is_equal_to(interval const&) const;
+bool is_weak_greater(interval const&,flag const& f = flag::off) const;
+bool is_weak_less(interval const&, flag const& f = flag::off) const;
+bool is_absolute_greater(interval const&, flag const& f = flag::off) const;
+bool is_absolute_less(interval const&, flag const& f = flag::off) const;
+bool partial_greater(interval const&, flag const& f = flag::off) const;
+bool partial_less(interval const&, flag const& f = flag::off) const;
+bool is_contain(interval const&) const;
+bool is_part_of(interval const&) const;
+Interval_Relation relation(interval const&) const;
+~~~
