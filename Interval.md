@@ -8,9 +8,9 @@
 1. このライブラリでできること
 2. クラス宣言
 2. 区間の四則演算
-3. メンバ関数
+3. 関数
 4. 例外
-5. koi
+5. 出力
 
 
 ##このライブラリでできること
@@ -234,40 +234,54 @@ T += interval<T>
 四則演算の解説は以上である.  
 次に、メンバ関数について解説する.  
 
-##メンバ関数
-区間のメンバ関数は大きく分けて3種類ある.
-数学関数、setter / getter、関係性判定だ.  
+##関数
+区間の関数は大きく分けて3種類ある.
+数学関数、setter / getter、関係性だ.  
 そのすべてを以下に列挙する.  
 
 ```cpp
-//interval numeric
-const interval sin() const;
-const interval cos() const;
-const interval pow(int n) const;
-const interval exp() const;
-const interval abs() const;
-const T mid() const;
-const T wid() const;
+template<typename T>
+class interval
+{
+	//interval numeric
+	const interval sin() const;
+	const interval cos() const;
+	const interval pow(int n) const;
+	const interval exp() const;
+	const interval abs() const;
+	const T mid() const;
+	const T wid() const;
 
-// getter and setter
-const T get_low() const;
-const T get_up() const;
-void set_up(T&);
-void set_low(T&);
-void set_up(T&&);
-void set_low(T&&);
+	// getter and setter
+	const T get_low() const;
+	const T get_up() const;
+	void set_up(T&);
+	void set_low(T&);
+	void set_up(T&&);
+	void set_low(T&&);
 
-//interval relation functions
-bool is_equal_to(interval const&) const;
-bool is_weak_greater(interval const&,flag const& f = flag::off) const;
-bool is_weak_less(interval const&, flag const& f = flag::off) const;
-bool is_absolute_greater(interval const&, flag const& f = flag::off) const;
-bool is_absolute_less(interval const&, flag const& f = flag::off) const;
-bool partial_greater(interval const&, flag const& f = flag::off) const;
-bool partial_less(interval const&, flag const& f = flag::off) const;
-bool is_contain(interval const&) const;
-bool is_part_of(interval const&) const;
-Interval_Relation relation(interval const&) const;
+	//interval relation functions
+	Interval_Relation relational(interval const&) const;
+}
+
+template<typename T>
+bool total_less(interval<T> const&,interval<T> const&);
+template<typename T>
+bool total_greater(interval<T> const&,interval<T> const&);
+template<typename T>
+bool weak_less(interval<T> const&,interval<T> const&);
+template<typename T>
+bool weak_greater(interval<T> const&,interval<T> const&);
+template<typename T>
+bool partial_less(interval<T> const&,interval<T> const&);
+template<typename T>
+bool partial_greater(interval<T> const&,interval<T> const&);
+template<typename T>
+bool total_equal(interval<T> const&,interval<T> const&);
+template<typename T>
+bool weak_equal(interval<T> const&,interval<T> const&);
+template<typename T>
+bool partial_unordered(interval<T> const&,interval<T> const&);
 ```
 ###数学関数
 この章では説明に際して
@@ -400,8 +414,41 @@ auto up = x.get_up() ; // up = x.upper_bound
 auto low = x.get_low() ; // low = x.low_bound
 ```
 
-###関係性判定関数
+###Relational Functions
 区間の関係は大小関係だけでなく包含関係もあり複雑である.  
-大小比較にはそもそもweak、partial、totalの3種類があり  
+大小比較にはtotal、weak、partialの3種類があり、
 イコールにはequalityとequivalentがある.  
-加えて区間には包含関係がある.  
+
+これらすべてを  
+```cpp
+operator>  
+operator<  
+operator>=  
+operator<=
+operator==
+```
+で表すことは不可能なので関数を提供する.  
+
+```cpp
+template<typename T>
+bool total_less(interval<T> const&,interval<T> const&);
+template<typename T>
+bool total_greater(interval<T> const&,interval<T> const&);
+template<typename T>
+bool weak_less(interval<T> const&,interval<T> const&);
+template<typename T>
+bool weak_greater(interval<T> const&,interval<T> const&);
+template<typename T>
+bool partial_less(interval<T> const&,interval<T> const&);
+template<typename T>
+bool partial_greater(interval<T> const&,interval<T> const&);
+template<typename T>
+bool total_equal(interval<T> const&,interval<T> const&);
+template<typename T>
+bool weak_equal(interval<T> const&,interval<T> const&);
+template<typename T>
+bool partial_unordered(interval<T> const&,interval<T> const&);
+```
+
+これらの挙動を解説する前に、なぜこのような種類の関数が用意されているのかを説明せねばならない.  
+ここからは集合論とアルゴリズムと区間の少し長い話になる.  
