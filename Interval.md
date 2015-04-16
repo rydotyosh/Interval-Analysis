@@ -1,9 +1,15 @@
 #Systax and Features of Interval Library
 ---
-##はじめに
-記載されたコードはファイルインクルードや名前空間の修飾が省略されており、そのままでは動作しない.  
-了承ください.
-##index
+##はじめに[]
+本ライブラリの開発環境はVisual Studio 2013 Ultimate(compiler=VC12)です.  
+clangでコンパイルすることはありますが、基本的にしていないと心得てください.  
+記載されたコードはファイルインクルードや名前空間の修飾が省略されており、そのままではほぼ動作しません.  
+あらかじめ了承ください.  
+
+##まえがき
+これ必要かな...
+---
+##目次[Index]
 
 1. このライブラリでできること
 2. クラス宣言
@@ -13,7 +19,7 @@
 5. 出力
 
 
-##このライブラリでできること
+##このライブラリでできること[What This Library Allows?]
 
 このライブラリは区間数を扱うためのライブラリである.  
 区間を用いた数値計算をおこなえる.  
@@ -22,7 +28,7 @@
 Interval.h に宣言、Interval.cpp に定義が記述されている.  
 すべてのコードはInterval名前空間にはいっている.
 
-##クラス宣言
+##クラス宣言[Class Declaration]
 
 intervalは次のように宣言されている.  
 ```cpp
@@ -89,7 +95,7 @@ auto y = x ;
 次に区間演算について解説する.  
 
 
-##区間の四則演算
+##区間の四則演算[Interval Four Arithmetic Operations]
 
 区間演算の定義について確認する.  
 
@@ -106,7 +112,7 @@ X ● Y = { x ● y |　x ∈ X , y ∈ Y }
 と定義される. これを区間拡張という.  
 このライブラリには区間拡張された演算子や関数が含まれる.  
 
-###区間のオーバーロードされた演算子
+###区間のオーバーロードされた演算子[Interval Overloaded Functions]
 
 interval class で再定義された演算子はこちら.
 ```cpp
@@ -127,6 +133,7 @@ bool operator>=(interval const&) const;
 bool operator==(interval const&) const;
 bool operator!=(interval const&) const;
 ```
+Relational operator については、関数のrelational functionsの項目で桑あしく解説するのでそちらを参照してもらいたい.  
 四則演算については区間同士の演算でしかも複合代入演算子のみ再定義される.  
 その他はすべてグローバル関数で定義されている.  
 `operator+`を例に挙げる.  
@@ -234,7 +241,7 @@ T += interval<T>
 四則演算の解説は以上である.  
 次に、メンバ関数について解説する.  
 
-##関数
+##区間関数[Interval Functions]
 区間の関数は大きく分けて3種類ある.
 数学関数、setter / getter、関係性だ.  
 そのすべてを以下に列挙する.  
@@ -283,7 +290,7 @@ bool weak_equal(interval<T> const&,interval<T> const&);
 template<typename T>
 bool partial_unordered(interval<T> const&,interval<T> const&);
 ```
-###数学関数
+###数学関数[Interval Arithmetic Functions]
 この章では説明に際して
 ```
 X = [ a , b ]
@@ -403,7 +410,7 @@ if a < 0 < b -> exp( X ) = [ 0 , max( -a , b ) ]
 ```
 となる.  
 
-###setterとgetter
+###セッターとゲッター[Setter and Getter]
 ####setter
 区間の上下限は`set_up()`と`set_low()`を使って再設定できる.  
 このとき上限が下限を下回る、または下限が上限を上回るような呼び出しをした場合には  
@@ -422,7 +429,7 @@ auto up = x.get_up() ; // up = x.upper_bound
 auto low = x.get_low() ; // low = x.low_bound
 ```
 
-###Relational Functions
+###区間の関係性関数[Interval Relational Functions]
 区間の関係は大小関係だけでなく包含関係もあり複雑である.  
 大小比較にはtotal、weak、partialの3種類があり、
 イコールにはequalityとequivalentがある.  
@@ -438,6 +445,30 @@ operator==
 で表すことは不可能なので関数を提供する.  
 
 ```cpp
+// - interval.h
+enum class partial_ordering { less, unordered, greater };
+enum class weak_ordering { less, equivalent, greater };
+enum class total_ordering { less, equal, greater };
+enum class interval_ordering { less, unordered, greater };
+
+enum class Interval_Relation
+{
+	equal,
+	interval_less,
+	interval_greater,
+	partial_less,
+	partial_greater,
+	weak_less,
+	weak_greater,
+	total_less,
+	total_greater,
+	contain,
+	part_of,
+	niether,
+};
+
+// - interval.cpp
+
 template<typename T>
 bool total_less(interval<T> const&,interval<T> const&);
 template<typename T>
@@ -456,11 +487,48 @@ template<typename T>
 bool weak_equal(interval<T> const&,interval<T> const&);
 template<typename T>
 bool partial_unordered(interval<T> const&,interval<T> const&);
+template<typename T>
+bool interval_less(interval<T> const&,interval<T> const&);
+template<typename T>
+bool interval_greater(interval<T> const&,interval<T> const&);
+template<typename T>
+bool interval_unordered(interval<T> const&,interval<T> const&);
+
+
+template<typename T>
+Interval::partial_ordering partial_order(Interval::interval<T>& x, Interval::interval<T>& y)
+{
+	if (partial_less(x, y)){ return partial_ordering::less; }
+	else if (partial_greater(x, y)){ return partial_ordering::greater; }
+	else{ return partial_ordering::unordered; }
+}
+template<typename T>
+Interval::weak_ordering weak_order(Interval:: interval<T>& x, Interval::interval<T>& y)
+{
+	if (weak_less(x, y)){ return weak_ordering::less; }
+	else if (weak_greater(x, y)){ return weak_ordering::greater; }
+	else{ return weak_ordering::equivalent; }
+}
+template<typename T>
+Interval::total_ordering total_order(Interval::interval<T>& x, Interval::interval<T>& y)
+{
+	if (total_less(x, y)){ return total_ordering::less; }
+	else if (total_greater(x, y)){ return total_ordering::greater; }
+	else{ return total_ordering::equal; }
+}
+template<typename T>
+Interval::interval_ordering interval_order(Interval::interval<T>& x, Interval::interval<T>& y)
+{
+	if (interval_less(x, y)){ return Interval::interval_ordering::less; }
+	else if (interval_greater(x, y)){ return Interval::interval_ordering::greater; }
+	else{ return Interval::interval_ordering::unordered; }
+}
+
 ```
 
 これらの挙動を解説する前に、なぜこのような種類の関数が用意されているのかを説明せねばならない.  
 ここからは集合論とアルゴリズムの少し長い話になる.  
-それが区間においてはどう定義されるのかという話だ.  
+それは区間においてはどう定義されるのかという話だ.  
 __これはとても重要なので読みとばすことはおすすめしない__
 
 ####順序[Ordering]
@@ -474,7 +542,7 @@ assert( a != c ); // `a' is not equal to `c'
 ```
 上の例では，aとbはequalである，と言える．
 
-何のことは無い「値が等しい」という関係を表しているだけだ（詳しく議論するとこれはこれで曲者でだが）．
+何のことは無い「値が等しい」という関係を表しているだけだ（詳しく議論するとこれはこれで曲者であるが）．
 
 なぜこれを確認してもらったかというと，後でこのequalityと似たような概念である"equivalence"という概念が出てくるからだ．そして，このequivalenceという概念がSTLにおけるsort（広く言えば順序付け全般）において非常に重要な意味を持つからである．  
 
@@ -588,7 +656,7 @@ a < b , b と c が equivalent -> a < c
 すべての隣接要素を比較するようなソートでは問題ないが、クイックソートのようにすべての隣接要素を比較しないソートではソートが正しく行われなくなってしまうためこの条件が必要となる.  
 言い換えればソートの複雑性が`O(NlogN)`であるための最低限の条件がequivalenceに対する推移性ということになる.  
 
-####Interval Ordering Problem
+####区間の順序問題[Interval Ordering Problem]
 
 区間の順序について考えることにしよう.  
 区間の順序の付け方については3つの候補が考えられる.  
@@ -624,6 +692,8 @@ X∈Y
 ソートにはweak orderingがいつ用なのでこれらを直接用いることはできない.  
 
 そこで、本ライブラリでは3.をpartial orderingとして採用しweak orderingとtotal orderingを定義する.  
+また、1.は重要なためinterval orderingとして採用する.  
+
 
 weak orderingでは
 条件を
@@ -720,13 +790,13 @@ X > Y = false
 ド・モルガンの法則により
 X < Y と X > Yの補集合を考える.
 ￢(X < Y)
-=￢(a < c ∨ b < d)
-=￢(a < c) ∨ ￢(b < d)
-= a>=c ∧ b >=c (1)
+={ ￢(a < c ∨ b < d) }
+={ ￢(a < c) ∧ ￢(b < d) }
+={ a>=c ∧ b >=c } (1)
 である.  
 同様に
 ￢(X > Y)
-= a<=c ∧ b <=c (2)
+={ a<=c ∧ b <=c } (2)
 (1),(2)を同時に満たすためには
 a=c ∧ b=d
 でなければならない
