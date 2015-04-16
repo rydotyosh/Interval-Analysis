@@ -690,10 +690,10 @@ or
 という定義である.  
 
 証明は割愛する(簡単な反例を挙げるだけだが)がこの3つの定義すべてがpartial orderingになっている.  
-ソートにはweak orderingがいつ用なのでこれらを直接用いることはできない.  
+ソートにはweak orderingが必要なのでこれらを直接用いることはできない.  
 
 そこで、本ライブラリでは3.をpartial orderingとして採用しweak orderingとtotal orderingを定義する.  
-また、1.は重要なためinterval orderingとして採用する.  
+また、1.は重要な概念のためinterval orderingとして採用する.  
 
 
 weak orderingでは
