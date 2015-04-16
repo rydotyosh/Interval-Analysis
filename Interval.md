@@ -60,7 +60,7 @@ auto x = interval<double>( ) ; // OK
 auto x = interval( ) ; // error! needs to template argument.
 
 ```
-とはいえ、ちテンプレート引数を明示的に指定するのは甚だ面倒である.  
+とはいえ、テンプレート引数を明示的に指定するのは甚だ面倒である.  
 そこで、hullをつかう. 引数から型が推測されinterval classが返される.
 ```cpp
 
