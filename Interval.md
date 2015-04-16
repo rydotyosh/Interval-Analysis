@@ -60,8 +60,8 @@ auto x = interval<double>( ) ; // OK
 auto x = interval( ) ; // error! needs to template argument.
 
 ```
-とはいえ、いちいちテンプレート引数を明示的に指定するのは甚だ面倒である.  
-そこで、hullをつかう. すると初期の上下限から型が推測されinterval classが返される.
+とはいえ、ちテンプレート引数を明示的に指定するのは甚だ面倒である.  
+そこで、hullをつかう. 引数から型が推測されinterval classが返される.
 ```cpp
 
 auto x = hull( 1.0 , 2.0 ) ; // x は interval<double>
@@ -129,7 +129,7 @@ bool operator!=(interval const&) const;
 ```
 四則演算については区間同士の演算でしかも複合代入演算子のみ再定義される.  
 その他はすべてグローバル関数で定義されている.  
-`operator+`を例にとる以下のようなコードだ  
+`operator+`を例に挙げる.  
 ```cpp
 //interval addition operator
 template <typename T,typename U, typename = typename std::enable_if <
@@ -357,6 +357,14 @@ powの区間拡張. 区間Xにおけるpow(x,n)の上下限を返す関数.
 ```
 pow( X ) = {pow( x , n ) |  x ∈ X , n ∈ N}
 ```
+```
+if n<0 -> pow( X , n) ->pow( X , n) = pow( 1/X , -n )
+if n=0 -> pow( X , n) = [ 1 , 1 ]
+if a>=0 or if n is odd -> pow( X , n ) = [ a^n , b^n ]
+if b<=0 and n is even -> pow( X , n ) = [ b^n , a^n ]
+if a <= 0 <= b and n is even -> pow( X , n ) = [ 0 , max( a^n , b^n ) ]
+```
+
 注意が必要なのは
 ```
 n < 0
@@ -402,9 +410,9 @@ if a < 0 < b -> exp( X ) = [ 0 , max( -a , b ) ]
 Interval::invalid_errorがthrowされる.  
 
 ```cpp
-auto x = hull( 1.0 , 2.0 ) ;
-x.set_low( 0.0 ) ; // OK
-x.set_up( 0.0 ) ; // throw Interval::invalid_error!
+auto x = hull( 2.0 , 3.0 ) ;
+x.set_low( 1.0 ) ; // OK
+x.set_up( 0.0 ) ; // error [ 1.0 , 0.0] is invalid!
 ```
 ####getter
 区間の上下限は`get_up()`と`get_low()`を使って取得できる.  
@@ -654,7 +662,13 @@ XとYがequivalentであることを
 ```
 X EQ Y
 ```
-とあらわします.  
+とあらわし、
+XとYがequalityであることは
+```
+a = b ∧ b = d iff X = Y
+```  
+と定義します.
+
 
 weak ordering がequivalenceに対する推移性を満たすことの証明を行います.  
 ```
@@ -698,9 +712,13 @@ a < c ∨ b < d iff X < Y
 とすると
 X < Y = false かつ
 X > Y = false
-となるためには
+であることは
+￢(X < Y) = true かつ
+￢(X > Y) = true
+と同値である.
+
 ド・モルガンの法則により
-X < Y の補集合を考える.
+X < Y と X > Yの補集合を考える.
 ￢(X < Y)
 =￢(a < c ∨ b < d)
 =￢(a < c) ∨ ￢(b < d)
@@ -712,6 +730,12 @@ X < Y の補集合を考える.
 (1),(2)を同時に満たすためには
 a=c ∧ b=d
 でなければならない
+つまり
+X = Y
+である.
+よって、
+X < Y = false ∧ X > Y = false ならば X=Y
+である.
 これはtotal orderingの4つ目の条件を満たす
 Q.E.D.
 
