@@ -2,12 +2,14 @@
 ---
 ##はじめに[]
 本ライブラリの開発環境はVisual Studio 2013 Ultimate(compiler=VC12)です.  
-clangでコンパイルすることはありますが、基本的にしていないと心得てください.  
-記載されたコードはファイルインクルードや名前空間の修飾が省略されており、そのままではほぼ動作しません.  
+clangでコンパイルすることはありますが,基本的にしていないと心得てください.  
+記載されたコードはファイルインクルードや名前空間の修飾が省略されており,そのままではほぼ動作しません.  
 あらかじめ了承ください.  
 
 ##まえがき
+
 これ必要かな...
+
 ---
 ##目次[Index]
 
@@ -23,9 +25,9 @@ clangでコンパイルすることはありますが、基本的にしていな
 
 このライブラリは区間数を扱うためのライブラリである.  
 区間を用いた数値計算をおこなえる.  
-区間の四則演算、数学関数、区間の関係性判定など.  
+区間の四則演算,数学関数,区間の関係性判定など.  
 
-Interval.h に宣言、Interval.cpp に定義が記述されている.  
+Interval.h に宣言,Interval.cpp に定義が記述されている.  
 すべてのコードはInterval名前空間にはいっている.
 
 ##クラス宣言[Class Declaration]
@@ -59,22 +61,22 @@ namespace Interval
 第1にinterval classは内部クラスに上限（upper bound）と下限（lower bound）を保持する.  
 interval classは内部クラスimplのインスタンスをスマートポインタで保持する.  
 
-第2にinterval class はクラステンプレートになっており、宣言や定義にはテンプレート仮引数が必要である.  
+第2にinterval class はクラステンプレートになっており,宣言や定義にはテンプレート仮引数が必要である.  
 区間の上下限をどの型で保持するのかを指定しなければならない.
 ```cpp
 auto x = interval<double>( ) ; // OK
 auto x = interval( ) ; // error! needs to template argument.
 
 ```
-とはいえ、テンプレート引数を明示的に指定するのは甚だ面倒である.  
-そこで、hullをつかう. 引数から型が推測されinterval classが返される.
+とはいえ,テンプレート引数を明示的に指定するのは甚だ面倒である.  
+そこで,hullをつかう. 引数から型が推測されinterval classが返される.
 ```cpp
 
 auto x = hull( 1.0 , 2.0 ) ; // x は interval<double>
 
 ```
-デフォルトコンストラクタ、2引数（左辺値）コンストラクタ、2引数（右辺値）コンストラクタ  
-コピーコンストラクタ、ムーブコンストラクタ、コピー代入演算子が使える.  
+デフォルトコンストラクタ,2引数（左辺値）コンストラクタ,2引数（右辺値）コンストラクタ  
+コピーコンストラクタ,ムーブコンストラクタ,コピー代入演算子が使える.  
 ```cpp
 // デフォルトコンストラクタ 上下限はdouble()で初期化される
 auto v = interval<double>( ) ;
@@ -84,7 +86,7 @@ auto v = interval<double>( ) ;
 auto w = interval<double>( 1.0 , 2.0 ) ;
 
 // コピーコンストラクタ 上下限が v.low_bound v.upper_bound で初期化される
-// つまり深いコピーが行われ、内部クラスは共有しない
+// つまり深いコピーが行われ,内部クラスは共有しない
 auto x(v) ;
 
 // コピー代入演算子 まずデフォルトコンストラクタが呼ばれ
@@ -133,7 +135,7 @@ bool operator>=(interval const&) const;
 bool operator==(interval const&) const;
 bool operator!=(interval const&) const;
 ```
-Relational operator については、関数のrelational functionsの項目で桑あしく解説するのでそちらを参照してもらいたい.  
+Relational operator については,関数のrelational functionsの項目で詳細に解説するのでそちらを参照してもらいたい.  
 四則演算については区間同士の演算でしかも複合代入演算子のみ再定義される.  
 その他はすべてグローバル関数で定義されている.  
 `operator+`を例に挙げる.  
@@ -155,10 +157,10 @@ const interval<T> operator +(const interval<T>& x, const interval<T>& y)
 return interval<T>(x) += y;
 }
 ```
-つまり、`interval<U> + T` や `T + interval<U>` が可能である.  
+つまり,`interval<U> + T` や `T + interval<U>` が可能である.  
 返り値は`interval<U>`なので`T`は`U`に型変換されることに注意が必要だ.  
-また、パフォーマンスを優先して複合代入演算子を呼び出すか、直感的にわかりやすいコードか、いずれかを選択することができる.  
-つまり、こういうことだ.  
+また,パフォーマンスを優先して複合代入演算子を呼び出すか,直感的にわかりやすいコードか,いずれかを選択することができる.  
+つまり,こういうことだ.  
 ```cpp
 interval<double> a , b , c ;
 
@@ -171,7 +173,7 @@ y+=b ;
 y+=c ;
 ```
 パターン1はわかりやすいし数学ではこう書く.  
-このとき、コードはどう解釈されるか？
+このとき,コードはどう解釈されるか？
 答えはこうだ
 ```cpp
 x = interval<double>( ) ;
@@ -194,7 +196,7 @@ y += c ;
 次に複合代入演算子を使うので新しいオブジェクトはできない.  
 yだけが新しいオブジェクトなのでこれが最小のコストだといえる.  
 
-ただし、コードは3行にわたっているし、わかりにくい.  
+ただし,コードは3行にわたっているし,わかりにくい.  
 
 四則演算についてまとめると以下のようになる.  
 ```cpp
@@ -239,11 +241,11 @@ T += interval<T>
 矛盾している. したがってこのようなよびだしはしてはならない.
 
 四則演算の解説は以上である.  
-次に、メンバ関数について解説する.  
+次に,メンバ関数について解説する.  
 
 ##区間関数[Interval Functions]
 区間の関数は大きく分けて3種類ある.
-数学関数、setter / getter、関係性だ.  
+数学関数,setter / getter,関係性だ.  
 そのすべてを以下に列挙する.  
 
 ```cpp
@@ -297,7 +299,7 @@ X = [ a , b ]
 ```
 を用いる.  
 
-はじめに、区間に特有の関数2つを紹介する.  
+はじめに,区間に特有の関数2つを紹介する.  
 ####wid
 `wid`はwidthの意味であり区間の幅を返す関数.  
 ```
@@ -306,7 +308,7 @@ wid( X ) = b - a
 である.
 
 ####mid
-`mid`はmiddleの意味であり、区間の中間を返す関数.  
+`mid`はmiddleの意味であり,区間の中間を返す関数.  
 ```
 mid( X ) = ( a + b ) / 2
 ```
@@ -318,7 +320,7 @@ sinの区間拡張. 区間Xにおけるsin(x)の上下限を返す関数.
 ```
 sin( X ) = {sin( x ) |  x ∈ X }
 ```
-であり、最大値は
+であり,最大値は
 ```
 π/2 + 2πn ∈ X {n ∈ N}
 ```
@@ -340,7 +342,7 @@ cosの区間拡張. 区間Xにおけるcos(x)の上下限を返す関数.
 ```
 cos( X ) = {cos( x ) |  x ∈ X }
 ```
-であり、最大値は
+であり,最大値は
 ```
 2πn ∈ X {n ∈ N}
 ```
@@ -383,7 +385,7 @@ n < 0 のとき
 pow( X , n ) => pow( 1/X , -n )
 ```
 と再帰呼び出しされる.  
-このとき、Xが0を含んでいた場合は0割となり  
+このとき,Xが0を含んでいた場合は0割となり  
 Interval::logic_errorがthrowされる.
 
 ####exp
@@ -413,7 +415,7 @@ if a < 0 < b -> exp( X ) = [ 0 , max( -a , b ) ]
 ###セッターとゲッター[Setter and Getter]
 ####setter
 区間の上下限は`set_up()`と`set_low()`を使って再設定できる.  
-このとき上限が下限を下回る、または下限が上限を上回るような呼び出しをした場合には  
+このとき上限が下限を下回る,または下限が上限を上回るような呼び出しをした場合には  
 Interval::invalid_errorがthrowされる.  
 
 ```cpp
@@ -431,7 +433,7 @@ auto low = x.get_low() ; // low = x.low_bound
 
 ###区間の関係性関数[Interval Relational Functions]
 区間の関係は大小関係だけでなく包含関係もあり複雑である.  
-大小比較にはtotal、weak、partialの3種類があり、
+大小比較にはtotal,weak,partialの3種類があり,
 イコールにはequalityとequivalentがある.  
 
 これらすべてを  
@@ -496,37 +498,17 @@ bool interval_unordered(interval<T> const&,interval<T> const&);
 
 
 template<typename T>
-Interval::partial_ordering partial_order(Interval::interval<T>& x, Interval::interval<T>& y)
-{
-	if (partial_less(x, y)){ return partial_ordering::less; }
-	else if (partial_greater(x, y)){ return partial_ordering::greater; }
-	else{ return partial_ordering::unordered; }
-}
+Interval::partial_ordering partial_order(Interval::interval<T>& x, Interval::interval<T>& y);
 template<typename T>
-Interval::weak_ordering weak_order(Interval:: interval<T>& x, Interval::interval<T>& y)
-{
-	if (weak_less(x, y)){ return weak_ordering::less; }
-	else if (weak_greater(x, y)){ return weak_ordering::greater; }
-	else{ return weak_ordering::equivalent; }
-}
+Interval::weak_ordering weak_order(Interval:: interval<T>& x, Interval::interval<T>& y);
 template<typename T>
-Interval::total_ordering total_order(Interval::interval<T>& x, Interval::interval<T>& y)
-{
-	if (total_less(x, y)){ return total_ordering::less; }
-	else if (total_greater(x, y)){ return total_ordering::greater; }
-	else{ return total_ordering::equal; }
-}
+Interval::total_ordering total_order(Interval::interval<T>& x, Interval::interval<T>& y);
 template<typename T>
-Interval::interval_ordering interval_order(Interval::interval<T>& x, Interval::interval<T>& y)
-{
-	if (interval_less(x, y)){ return Interval::interval_ordering::less; }
-	else if (interval_greater(x, y)){ return Interval::interval_ordering::greater; }
-	else{ return Interval::interval_ordering::unordered; }
-}
+Interval::interval_ordering interval_order(Interval::interval<T>& x, Interval::interval<T>& y);
 
 ```
 
-これらの挙動を解説する前に、なぜこのような種類の関数が用意されているのかを説明せねばならない.  
+これらの挙動を解説する前に,なぜこのような種類の関数が用意されているのかを説明せねばならない.  
 ここからは集合論とアルゴリズムの少し長い話になる.  
 それは区間においてはどう定義されるのかという話だ.  
 __これはとても重要なので読みとばすことはおすすめしない__
@@ -645,7 +627,7 @@ assert( ci_less("ABC", "acb") );
 という条件はなぜ必要なのか？
 1~3の条件だけでは何が困るのか？
 
-結論をいうと、この条件はソートの事後条件として非常に重要である.  
+結論をいうと,この条件はソートの事後条件として非常に重要である.  
 ソートは隣接要素を比較するため  
 ```
 a < b , b と c が equivalent -> a < c
@@ -653,7 +635,7 @@ a < b , b と c が equivalent -> a < c
 とならなければならない.  
 このことが実はweak orderingの最後の条件と同値なのである.  
 
-すべての隣接要素を比較するようなソートでは問題ないが、クイックソートのようにすべての隣接要素を比較しないソートではソートが正しく行われなくなってしまうためこの条件が必要となる.  
+すべての隣接要素を比較するようなソートでは問題ないが,クイックソートのようにすべての隣接要素を比較しないソートではソートが正しく行われなくなってしまうためこの条件が必要となる.  
 言い換えればソートの複雑性が`O(NlogN)`であるための最低限の条件がequivalenceに対する推移性ということになる.  
 
 ####区間の順序問題[Interval Ordering Problem]
@@ -667,8 +649,8 @@ X = [ a , b ] , Y = [ c , d ]　について
 2. X < Y iff c < a < b < d
 3. X < Y iff a < c ∧ b < d
 ```
-1.はInterval Orderingと呼ばれており、自然に区間拡張された順序といえる.  
-もう少し厳密に定義すると、
+1.はInterval Orderingと呼ばれており,自然に区間拡張された順序といえる.  
+もう少し厳密に定義すると,
 ```
 X < Y iff ∀x,y (x < y)
 ```
@@ -692,8 +674,8 @@ or
 証明は割愛する(簡単な反例を挙げるだけだが)がこの3つの定義すべてがpartial orderingになっている.  
 ソートにはweak orderingが必要なのでこれらを直接用いることはできない.  
 
-そこで、本ライブラリでは3.をpartial orderingとして採用しweak orderingとtotal orderingを定義する.  
-また、1.は重要な概念のためinterval orderingとして採用する.  
+そこで,本ライブラリでは3.をpartial orderingとして採用しweak orderingとtotal orderingを定義する.  
+また,1.は重要な概念のためinterval orderingとして採用する.  
 
 
 weak orderingでは
@@ -715,7 +697,7 @@ a < c ∨ b < d iff X < Y
 とする.  
 厳密にいうと
 ```
-∃x∀y,x<y ∨ ∃x∀y,x>y iff X <Y
+∃x∀y,x<y ∨ ∃y∀x,y<x iff X <Y
 ```
 と定義します.  
 
@@ -727,13 +709,13 @@ x < y
 ```
 
 がtotal orderingであることを自明として証明を行います.  
-このことを議論するのは楽しいですが、非常に厄介なので避けます.  
-また
+このことを議論するのは楽しいですが,非常に厄介なので避けます.  
+また,
 XとYがequivalentであることを
 ```
 X EQ Y
 ```
-とあらわし、
+とあらわし,
 XとYがequalityであることは
 ```
 a = b ∧ b = d iff X = Y
@@ -741,7 +723,11 @@ a = b ∧ b = d iff X = Y
 と定義します.
 
 
-weak ordering がequivalenceに対する推移性を満たすことの証明を行います.  
+weak ordering がequivalenceに対する推移性
+```
+X EQ Y ∧ Y EQ Z ならば X EQ Z
+```
+を満たすことの証明を行います.  
 ```
 a < c iff X < Y
 とすると
@@ -770,10 +756,14 @@ X EQ Z
 の条件
 a = e
 を満たす.
+よって,
+X EQ Y ∧ Y EQ Z ならば X EQ Z
+である
+よって,weak orderingの4つめの条件を満たす
 Q.E.D.
 
 ```
-つぎに、total orderingが4つめの条件
+つぎに,total orderingが4つめの条件
 ```
 less(x,y)=false かつ less(y,x)=falseならば x=y
 ```
@@ -804,10 +794,10 @@ a=c ∧ b=d
 つまり
 X = Y
 である.
-よって、
+よって,
 X < Y = false ∧ X > Y = false ならば X=Y
 である.
-これはtotal orderingの4つ目の条件を満たす
+よってtotal orderingの4つ目の条件を満たす
 Q.E.D.
 
 ```
