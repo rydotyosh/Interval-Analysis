@@ -682,22 +682,26 @@ weak orderingでは
 条件を
 ```
 a < c iff X < Y
+a > c iff X > Y
 ```
 とする.  
 厳密にいうと
 ```
-∃x∀y,x<y iff X <Y
+∃x∀y, x < y iff X < Y
+∃y∀x, y < x iff X > Y
 ```
 と定義する.  
 
 total orderingでは
 ```
 a < c ∨ b < d iff X < Y
+a > c ∨ b > d iff X > Y
 ```
 とする.  
 厳密にいうと
 ```
-∃x∀y,x<y ∨ ∃y∀x,y<x iff X <Y
+∃x∀y, x < y ∨ ∃y∀x, y < x iff X < Y
+∃y∀x, y < x ∨ ∃y∀x, x < y iff X < Y
 ```
 と定義します.  
 
@@ -706,6 +710,7 @@ a < c ∨ b < d iff X < Y
 以下の証明では実数の順序
 ```
 x < y
+x > y
 ```
 
 がtotal orderingであることを自明として証明を行います.  
@@ -730,6 +735,7 @@ X EQ Y ∧ Y EQ Z ならば X EQ Z
 を満たすことの証明を行います.  
 ```
 a < c iff X < Y
+a > c iff X > Y
 とすると
 X EQ Y
 であるためには
@@ -770,6 +776,7 @@ less(x,y)=false かつ less(y,x)=falseならば x=y
 を満たすことを証明する.  
 ```
 a < c ∨ b < d iff X < Y
+a > c ∨ b > d iff X < Y
 とすると
 X < Y = false かつ
 X > Y = false
