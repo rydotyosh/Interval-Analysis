@@ -6,8 +6,3 @@ boostよりモダンコードでよりで便利な関数をサポートするこ
 開発環境はVisual Studio 2013 ,コンパイラは MSVC　と　clang head
 で動作確認しています。
 
-This is a library for Interval Analysis.
-More modern , typesafe and useful library.
-For example,Boost::interval don't have sin().
-But ,it's available for sin(),cos(),exp().
-
