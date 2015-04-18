@@ -8,7 +8,7 @@ clangでコンパイルすることはありますが,基本的にしていな�
 
 ##まえがき[Introduce]
 
-これ必要かな...
+この章必要かな...
 
 ---
 ##目次[Index]
@@ -649,7 +649,7 @@ X = [ a , b ] , Y = [ c , d ]　について
 2. X < Y iff c < a < b < d
 3. X < Y iff a < c ∧ b < d
 ```
-1.はInterval Orderingと呼ばれており,自然に区間拡張された順序といえる.  
+1.はInterval Orderingと呼ばれており,区間拡張された順序といえる.  
 もう少し厳密に定義すると,
 ```
 X < Y iff ∀x,y (x < y)
@@ -659,15 +659,15 @@ X < Y iff ∀x,y (x < y)
 2.は包含関係である.  
 つまり
 ```
-X∈Y
+X < Y iff X∈Y
 or
-∃x∀y , (x=y)
+X < Y iff ∃x∀y , (x=y)
 ```
 という定義だ.  
 
 3.は1.を弱めた定義で
 ```
-∃x∀y, (x<y) ∨　∃x∀y, (x>y)
+X < Y iff ∃x∀y, (x<y) ∨　∃x∀y, (x>y)
 ```
 という定義である.  
 
@@ -681,27 +681,27 @@ or
 weak orderingでは
 条件を
 ```
-a < c iff X < Y
-a > c iff X > Y
+X < Y iff a < c
+X > Y iff a > c
 ```
 とする.  
 厳密にいうと
 ```
-∃x∀y, x < y iff X < Y
-∃y∀x, y < x iff X > Y
+X < Y iff ∃x∀y, x < y
+X > Y iff ∃y∀x, y < x
 ```
 と定義する.  
 
 total orderingでは
 ```
-a < c ∨ b < d iff X < Y
-a > c ∨ b > d iff X > Y
+X < Y iff a < c ∨ b < d
+X > Y iff a > c ∨ b > d
 ```
 とする.  
 厳密にいうと
 ```
-∃x∀y, x < y ∨ ∃y∀x, y < x iff X < Y
-∃y∀x, y < x ∨ ∃y∀x, x < y iff X < Y
+X < Y iff ∃x∀y, x < y ∨ ∃y∀x, y < x
+X < Y iff ∃y∀x, y < x ∨ ∃y∀x, x < y
 ```
 と定義します.  
 
@@ -734,8 +734,8 @@ X EQ Y ∧ Y EQ Z ならば X EQ Z
 ```
 を満たすことの証明を行います.  
 ```
-a < c iff X < Y
-a > c iff X > Y
+X < Y iff a < c
+X > Y iff a > c
 とすると
 X EQ Y
 であるためには
@@ -775,8 +775,8 @@ less(x,y)=false かつ less(y,x)=falseならば x=y
 ```
 を満たすことを証明する.  
 ```
-a < c ∨ b < d iff X < Y
-a > c ∨ b > d iff X < Y
+X < Y iff a < c ∨ b < d
+X < Y iff a > c ∨ b > d
 とすると
 X < Y = false かつ
 X > Y = false
