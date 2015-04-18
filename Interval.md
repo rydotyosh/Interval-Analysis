@@ -1,12 +1,12 @@
 #Systax and Features of Interval Library
 ---
-##はじめに[]
-本ライブラリの開発環境はVisual Studio 2013 Ultimate(compiler=VC12)です.  
+##はじめに[Readme]
+本ライブラリの開発はC++11でおこなわれている.開発環境はVisual Studio 2013 Ultimate(compiler=VC13)です.  
 clangでコンパイルすることはありますが,基本的にしていないと心得てください.  
 記載されたコードはファイルインクルードや名前空間の修飾が省略されており,そのままではほぼ動作しません.  
 あらかじめ了承ください.  
 
-##まえがき
+##まえがき[Introduce]
 
 これ必要かな...
 
