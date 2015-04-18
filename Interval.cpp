@@ -2,6 +2,7 @@
 #define INTERVAL_CPP
 
 #include "Interval.h"
+#include "exception.h"
 #include <exception>
 #include <cmath>
 #include <typeinfo>
@@ -28,80 +29,7 @@ namespace Interval{
 	T min(){ return static_cast<T>(2.2250738585072014e-308); }
 
 	template<>
-	int min(){ return 1; }
-
-	class interval_error
-	{
-	public:
-		interval_error(char* string)
-			:mes(std::string(string))
-		{}
-		interval_error(std::string string)
-			:mes(string)
-		{}
-
-		const char* what()
-		{
-			return mes.c_str();
-		}
-	private:
-		std::string mes;
-
-	};
-	class interval_except : public interval_error
-	{
-	public:
-		interval_except(std::string& cause)
-			:interval_error("Error massage : " + cause)
-		{}
-		interval_except(const char *cause)
-			:interval_error(std::string("Error massage : ") + std::string(cause))
-		{}
-	};
-
-	class range_error : public interval_except
-	{
-	public:
-		range_error(std::string& cause)
-			:interval_except(cause)
-		{}
-		range_error(const char *cause)
-			:interval_except(cause)
-		{}
-	};
-
-	class domain_error : public interval_except
-	{
-	public:
-		domain_error(std::string& cause)
-			:interval_except(cause)
-		{}
-		domain_error(const char *cause)
-			:interval_except(cause)
-		{}
-	};
-
-	class logic_error : public interval_except
-	{
-	public:
-		logic_error(std::string& cause)
-			:interval_except(cause)
-		{}
-		logic_error(const char *cause)
-			:interval_except(cause)
-		{}
-	};
-
-	class invalid_argument : public interval_except
-	{
-	public:
-		invalid_argument(std::string& cause)
-			:interval_except(cause)
-		{}
-		invalid_argument(const char *cause)
-			:interval_except(cause)
-		{}
-	};
+	int min<int>(){ return 1; }
 
 
 
@@ -268,39 +196,195 @@ namespace Interval{
 	/*	interval numeric	*/
 
 	template<typename T>
-	const interval<T> interval<T>::sin() const
-	{
-		return pimpl->sin();
-	}
-	template<typename T>
 	const interval<T> interval<T>::cos() const
 	{
-		return pimpl->cos();
+		int c;
+		auto a = pimpl->get_low(), b = pimpl->get_up();
+		if (b - a >= 2.0*PI<T>())
+		{
+			return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+		}
+		/*  base point set  */
+		c = static_cast<int>(nextafter(b / 2.0 / PI<T>(), max<T>()));
+		/* checking  */
+		if (nextafter(PI<T>()*2.0*c, max<T>()) >= a &&
+			nextafter(PI<T>()*2.0*c, -max<T>()) <= b)
+		{
+			if (nextafter(PI<T>()*(1.0 + 2.0*c), max<T>()) >= a &&
+				nextafter(PI<T>()*(1.0 + 2.0*c), -max<T>()) <= b)
+			{
+				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+			}
+			else if (nextafter((c*2.0 - 1.0)*PI<T>(), max<T>()) >= a &&
+				nextafter((c*2.0 - 1.0)*PI<T>(), -max<T>()) <= b)
+			{
+				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+			}
+			else
+			{
+				return interval<T>(
+					std::fmin(nextafter(std::cos(a), -max<T>()),
+					nextafter(std::cos(b), -max<T>())), static_cast<T>(1.0));
+			}
+		}
+		else if (nextafter(PI<T>()*(2.0*c + 1.0), max<T>()) >= a &&
+			nextafter(PI<T>()*(2.0*c + 1.0), -max<T>()) <= b)
+		{
+			return interval<T>(static_cast<T>(-1.0),
+				std::fmax(nextafter(std::cos(a), max<T>()),
+				nextafter(std::cos(b), max<T>())));
+		}
+		else if (nextafter((c*2.0 - 1.0)*PI<T>(), max<T>()) >= a &&
+			nextafter((c*2.0 - 1.0)*PI<T>(), -max<T>()) <= b)
+		{
+			return interval<T>(static_cast<T>(-1.0),
+				std::fmax(nextafter(std::cos(a), max<T>()),
+				nextafter(std::cos(b), max<T>())));
+		}
+		else
+		{
+			return interval<T>(
+				std::fmin(nextafter(std::cos(a), -max<T>()),
+				nextafter(std::cos(b), -max<T>())),
+				std::fmax(nextafter(std::cos(a), max<T>()),
+				nextafter(std::cos(b), max<T>())));
+		}
+	}
+	template<typename T>
+	const interval<T> interval<T>::sin() const
+	{
+		int c;
+		auto a = pimpl->get_low(), b = pimpl->get_up();
+		if (b - a >= 2.0*PI<T>())
+		{
+			return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+		}
+		/*  base point set  */
+		c = static_cast<int>(nextafter((b * 2.0 / PI<T>() - 1.0) / 4.0, max<T>()));
+		/* checking  */
+		if (nextafter(PI<T>() / 2.0*(1.0 + c*4.0), max<T>()) >= a &&
+			nextafter(PI<T>() / 2.0*(1 + c*4.0), -max<T>()) <= b)
+		{
+			if (nextafter(PI<T>() / 2.0*(3.0 + c*4.0), max<T>()) >= a &&
+				nextafter(PI<T>() / 2.0*(3.0 + c*4.0), -max<T>()) <= b)
+			{
+				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+			}
+			else if (nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, max<T>()) >= a &&
+				nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, -max<T>()) <= b)
+			{
+				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+			}
+			else
+			{
+				return interval<T>(
+					std::fmin(nextafter(std::sin(a), -max<T>()),
+					nextafter(std::sin(b), -max<T>())), static_cast<T>(1.0));
+			}
+		}
+		else if (nextafter(PI<T>() / 2.0*(3.0 + c*4.0), max<T>()) >= a &&
+			nextafter(PI<T>() / 2.0*(3.0 + c*4.0), -max<T>()) <= b)
+		{
+			return interval<T>(static_cast<T>(-1.0),
+				std::fmax(nextafter(std::sin(a), max<T>()),
+				nextafter(std::sin(b), max<T>())));
+		}
+		else if (nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, max<T>()) >= a &&
+			nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, -max<T>()) <= b)
+		{
+			return interval<T>(static_cast<T>(-1.0),
+				std::fmax(nextafter(std::sin(a), max<T>()),
+				nextafter(std::sin(b), max<T>())));
+		}
+		else
+		{
+			return interval<T>(
+				std::fmin(nextafter(std::sin(a), -max<T>()),
+				nextafter(std::sin(b), -max<T>())),
+				std::fmax(nextafter(std::sin(a), max<T>()),
+				nextafter(std::sin(b), max<T>())));
+		}
 	}
 	template<typename T>
 	const interval<T> interval<T>::pow(int n) const
 	{
-		return interval<T>(pimpl->pow(n));
+		if (n < 0){
+			return this->pow(-1 * n);
+		}
+		else if (n == 0){
+			return interval<T>(static_cast<T>(1.0), static_cast<T>(1.0));
+		}
+		else if (n % 2 == 0){
+			if (pimpl->get_low() <= 0.0){
+				return interval<T>(
+					nextafter(std::pow(pimpl->get_up(), n), -max<T>()),
+					nextafter(std::pow(pimpl->get_low(), n), max<T>()));
+			}
+			else if (pimpl->get_low() <= T() && pimpl->get_up() >= T()){
+				return interval<T>(T(), std::fmax(
+					nextafter(std::pow(pimpl->get_low(), n), -max<T>()),
+					nextafter(std::pow(pimpl->get_up(), n), max<T>())));
+			}
+		}
+		return interval<T>(
+			nextafter(std::pow(pimpl->get_low(), n), -max<T>()),
+			nextafter(std::pow(pimpl->get_up(), n), max<T>()));
+	}
+	template<typename T>
+	const interval<T> interval<T>::sqrt() const
+	{
+		if (pimpl->get_low() < T()){ throw Interval::logic_error("sqrt arg requires positive number"); }
+		return interval<T>(
+			nextafter(std::sqrt(pimpl->get_low()),-max<T>()),
+			nextafter(std::sqrt(pimpl->get_up()),max<T>()));
 	}
 	template<typename T>
 	const interval<T> interval<T>::exp() const
 	{
-		return interval<T>(pimpl->exp());
+		return interval<T>(
+			nextafter(std::exp(pimpl->get_low()), -max<T>()),
+			nextafter(std::exp(pimpl->get_up()), max<T>()));
+	}
+	template<typename T>
+	const interval<T> interval<T>::log() const
+	{
+		if (pimpl->get_low() <= 0.0){ throw Interval::logic_error("anti-logarithm less than or equal to zero"); }
+		return interval<T>(
+			nextafter(std::log(pimpl->get_low()),-max<T>()),
+			nextafter(std::log(pimpl->get_up()),max<T>()));
+	}
+	template<typename T>
+	const interval<T> interval<T>::log10() const
+	{
+		if (pimpl->get_low() <= 0.0){ throw Interval::logic_error("anti-logarithm less than or equal to zero"); }
+		return interval<T>(
+			nextafter(std::log(pimpl->get_low()), -max<T>()),
+			nextafter(std::log(pimpl->get_up()), max<T>()));
 	}
 	template<typename T>
 	const interval<T> interval<T>::abs() const
 	{
-		return interval<T>(pimpl->abs());
+		if (pimpl->get_low() < T() && pimpl->get_up() > T())
+		{
+			return interval<T>(T(), nextafter(std::fmax(std::abs(pimpl->get_low()), std::abs(pimpl->get_up())),max<T>()));
+		}
+		if (pimpl->get_up() < T())
+		{
+			return interval<T>(-pimpl->get_up(), -pimpl->get_low());
+		}
+		else{
+			return interval<T>(*this);
+		}
 	}
 	template<typename T>
 	const T interval<T>::mid() const
 	{
-		return pimpl->mid();
+		return ( pimpl->get_up() + pimpl->get_low() ) / static_cast<T>(2.0);
 	}
 	template<typename T>
 	const T interval<T>::wid() const
 	{
-		return pimpl->wid();
+		return pimpl->get_up() - pimpl->get_low();
 	}
 
 	/*	interval getter and setter	*/
@@ -635,177 +719,7 @@ namespace Interval{
 		return tmp;
 	}
 
-	//////////////////////////
-	/*						*/
-	/*	interval numeric	*/
-	/*						*/
-	//////////////////////////
 
-
-	template<typename T>
-	const typename interval<T> interval<T>::impl::cos() const
-	{
-		int c;
-		auto a = lower_bound, b = upper_bound;
-		if (b - a >= 2.0*PI<T>())
-		{
-			return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
-		}
-		/*  base point set  */
-		c = static_cast<int>(nextafter(b / 2.0 / PI<T>(), max<T>()));
-		/* checking  */
-		if (nextafter(PI<T>()*2.0*c, max<T>()) >= a &&
-			nextafter(PI<T>()*2.0*c, -max<T>()) <= b)
-		{
-			if (nextafter(PI<T>()*(1.0 + 2.0*c), max<T>()) >= a &&
-				nextafter(PI<T>()*(1.0 + 2.0*c), -max<T>()) <= b)
-			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
-			}
-			else if (nextafter((c*2.0 - 1.0)*PI<T>(), max<T>()) >= a &&
-				nextafter((c*2.0 - 1.0)*PI<T>(), -max<T>()) <= b)
-			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
-			}
-			else
-			{
-				return interval<T>(
-					std::fmin(nextafter(std::cos(a), -max<T>()),
-					nextafter(std::cos(b), -max<T>())), static_cast<T>(1.0));
-			}
-		}
-		else if (nextafter(PI<T>()*(2.0*c + 1.0), max<T>()) >= a &&
-			nextafter(PI<T>()*(2.0*c + 1.0), -max<T>()) <= b)
-		{
-			return interval<T>(static_cast<T>(-1.0),
-				std::fmax(nextafter(std::cos(a), max<T>()),
-				nextafter(std::cos(b), max<T>())));
-		}
-		else if (nextafter((c*2.0 - 1.0)*PI<T>(), max<T>()) >= a &&
-			nextafter((c*2.0 - 1.0)*PI<T>(), -max<T>()) <= b)
-		{
-			return interval<T>(static_cast<T>(-1.0),
-				std::fmax(nextafter(std::cos(a), max<T>()),
-				nextafter(std::cos(b), max<T>())));
-		}
-		else
-		{
-			return interval<T>(
-				std::fmin(nextafter(std::cos(a), -max<T>()),
-				nextafter(std::cos(b), -max<T>())),
-				std::fmax(nextafter(std::cos(a), max<T>()),
-				nextafter(std::cos(b), max<T>())));
-		}
-	}	
-	template<typename T>
-	const typename interval<T> interval<T>::impl::sin() const
-	{
-		int c;
-		auto a = lower_bound, b = upper_bound;
-		if (b - a >= 2.0*PI<T>())
-		{
-			return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
-		}
-		/*  base point set  */
-		c = static_cast<int>(nextafter((b * 2.0 / PI<T>() - 1.0) / 4.0, max<T>()));
-		/* checking  */
-		if (nextafter(PI<T>() / 2.0*(1.0 + c*4.0), max<T>()) >= a &&
-			nextafter(PI<T>() / 2.0*(1 + c*4.0), -max<T>()) <= b)
-		{
-			if (nextafter(PI<T>() / 2.0*(3.0 + c*4.0), max<T>()) >= a &&
-				nextafter(PI<T>() / 2.0*(3.0 + c*4.0), -max<T>()) <= b)
-			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
-			}
-			else if (nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, max<T>()) >= a &&
-				nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, -max<T>()) <= b)
-			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
-			}
-			else
-			{
-				return interval<T>(
-					std::fmin(nextafter(std::sin(a), -max<T>()),
-					nextafter(std::sin(b), -max<T>())), static_cast<T>(1.0));
-			}
-		}
-		else if (nextafter(PI<T>() / 2.0*(3.0 + c*4.0), max<T>()) >= a &&
-			nextafter(PI<T>() / 2.0*(3.0 + c*4.0), -max<T>()) <= b)
-		{
-			return interval<T>(static_cast<T>(-1.0),
-				std::fmax(nextafter(std::sin(a), max<T>()),
-				nextafter(std::sin(b), max<T>())));
-		}
-		else if (nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, max<T>()) >= a &&
-			nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, -max<T>()) <= b)
-		{
-			return interval<T>(static_cast<T>(-1.0),
-				std::fmax(nextafter(std::sin(a), max<T>()),
-				nextafter(std::sin(b), max<T>())));
-		}
-		else
-		{
-			return interval<T>(
-				std::fmin(nextafter(std::sin(a), -max<T>()),
-				nextafter(std::sin(b), -max<T>())),
-				std::fmax(nextafter(std::sin(a), max<T>()),
-				nextafter(std::sin(b), max<T>())));
-		}
-	}
-
-	template<typename T>
-	const typename interval<T> interval<T>::impl::pow(int n) const
-	{
-		if (n < 0){
-			return this->pow(-1 * n);
-		}
-		else if (n == 0){
-			return interval<T>(static_cast<T>(1.0), static_cast<T>(1.0));
-		}
-		else if (n % 2 == 0){
-			if (upper_bound <= 0.0){
-				return interval<T>(
-					nextafter(std::pow(upper_bound, n), -max<T>()),
-					nextafter(std::pow(lower_bound, n), max<T>()));
-			}
-			else if (lower_bound <= T() && upper_bound >= T()){
-				return interval<T>(T(), std::fmax(
-					nextafter(std::pow(lower_bound, n), max<T>()),
-					nextafter(std::pow(upper_bound, n), max<T>())));
-			}
-		}
-		return interval<T>(
-			nextafter(std::pow(lower_bound, n), -max<T>()),
-			nextafter(std::pow(upper_bound, n), max<T>()));
-	}	
-	template<typename T>
-	const interval<T> interval<T>::impl::exp() const
-	{
-		return interval<T>(
-			nextafter(std::exp(lower_bound), -max<T>()),
-			nextafter(std::exp(upper_bound), max<T>()));
-	}
-	template<typename T>
-	const interval<T> interval<T>::impl::abs() const
-	{
-		if (lower_bound < T())
-		{
-			return interval<T>(T(), std::fmax(std::abs(lower_bound), std::abs(upper_bound)));
-		}
-		else{
-			return interval<T>(static_cast<T>(lower_bound),static_cast<T>(upper_bound));
-		}
-	}	
-	template<typename T>
-	const T interval<T>::impl::mid() const
-	{
-		return ( upper_bound + lower_bound ) / static_cast<T>(2.0);
-	}
-	template<typename T>
-	const T interval<T>::impl::wid() const
-	{
-		return upper_bound - lower_bound;
-	}
 
 	/*	getter and setter	*/
 
@@ -854,6 +768,12 @@ namespace Interval{
 	interval<T> pow(const interval<T>& a, int const& n) { return a.pow(n); }
 	template<typename T>
 	interval<T> abs(const interval<T>& a) { return a.abs(); }
+	template<typename T>
+	interval<T> log(const interval<T>& a) { return a.log(); }
+	template<typename T>
+	interval<T> log10(const interval<T>& a) { return a.log10(); }
+	template<typename T>
+	interval<T> sqrt(const interval<T>& a) { return a.sqrt(); }
 
 	/*	generalized numeric functions for primitive dispach	*/
 	template <typename T, typename = typename std::enable_if <
@@ -1082,9 +1002,9 @@ namespace Interval{
 		return (s->c_str());
 	}
 
-	//////////////////////////////
-	/*argument dependent factory*/
-	//////////////////////////////
+	//////////////////////////////////
+	/*	argument dependent factory	*/
+	//////////////////////////////////
 
 	template<typename T>
 	interval<T> hull(T& low, T& up)

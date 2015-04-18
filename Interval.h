@@ -51,6 +51,9 @@ namespace Interval{
 		const interval sin() const;
 		const interval cos() const;
 		const interval pow(int n) const;
+		const interval log() const;
+		const interval log10() const;
+		const interval sqrt() const;
 		const interval exp() const;
 		const interval abs() const;
 		const T mid() const;
@@ -84,6 +87,7 @@ namespace Interval{
 
 		std::ostream& print(std::ostream&) const;
 		const char* c_str() const;
+
 	private:
 		class impl;
 		std::unique_ptr<impl> pimpl;
