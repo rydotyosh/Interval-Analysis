@@ -13,7 +13,7 @@ using std::nextafter;
 
 namespace Interval{
 
-	/*	functin fefault for meta programming	*/
+	/*  functin fefault for meta programming  */
 	extern void* enabler;
 
 	//---------------------//
@@ -50,7 +50,7 @@ namespace Interval{
 	/*       Class Declaration          */
 	/*                                  */
 	/*        Interval Class            */
-	/*	      (Body)                    */
+	/*        (Body)                    */
 	/*                                  */
 	//----------------------------------//
 
@@ -600,7 +600,7 @@ namespace Interval{
 	}
 
 
-	/*  Interval Relational Op Difinition	*/
+	/*  Interval Relational Op Difinition  */
 
 	template<typename T>
 	bool interval<T>::operator<(interval<T> const& x) const
@@ -921,7 +921,7 @@ namespace Interval{
 	template<typename T>
 	interval<T> sqrt(const interval<T>& a) { return a.sqrt(); }
 
-	/*	Generic numeric func for primitive dispach	*/
+	/*  Generic numeric func for primitive dispach  */
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value >>
 	double sin(T&& x) { return std::sin(std::forward<T>(x)); }
 
