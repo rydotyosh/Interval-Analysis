@@ -12,6 +12,7 @@
 using std::nextafter;
 
 namespace Interval{
+	extern void* enabler;
 
 	enum class partial_ordering { less, unordered, greater };
 	enum class weak_ordering { less, equivalent, greater };
@@ -75,17 +76,9 @@ namespace Interval{
 		void set_low(T&&);
 
 		Interval_Relation relational(interval const&) const;
-		bool is_equal(interval const&) const;
-		bool is_interval_less(interval const&) const;
-		bool is_interval_greater(interval const&) const;
-		bool is_partial_less(interval const&) const;
-		bool is_partial_greater(interval const&) const;
-		bool is_weak_less(interval const&) const;
-		bool is_weak_greater(interval const&) const;
-		bool is_total_less(interval const&) const;
-		bool is_total_greater(interval const&) const;
 		bool is_contain(interval const&) const;
 		bool is_part_of(interval const&) const;
+
 
 		bool operator<(interval const&) const;
 		bool operator>(interval const&) const;
@@ -101,7 +94,6 @@ namespace Interval{
 		class impl;
 		std::unique_ptr<impl> pimpl;
 	};
-	extern void* enabler;
 
 
 	/*PI*/
@@ -810,7 +802,6 @@ namespace Interval{
 		lower_bound++;
 		upper_bound++;
 		return tmp;
-
 	}
 	template<typename T>
 	const typename interval<T>::impl interval<T>::impl::operator --()
@@ -1005,13 +996,11 @@ namespace Interval{
 		return (s << enum2string(x));
 	}
 
-	template<typename T>
+	template <typename T>
 	auto operator<<(std::ostream& s, T&& x)->decltype(x.print(s))
 	{
-		return (x.print(s));
+		return x.print(s);
 	}
-
-
 	/*	generic wid	*/
 
 	template< typename T >
@@ -1029,13 +1018,13 @@ namespace Interval{
 
 	/*	interval addition operator	*/
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator +(T&& x, const interval<U>& y)
 	{
 		return (interval<U>(y.get_low() + x, y.get_up() + x));
 	}
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator +(const interval<U>& x, T&& y)
 	{
 		return (interval<U>(x.get_low() + y, x.get_up() + y));
@@ -1049,13 +1038,13 @@ namespace Interval{
 
 	/*	interval subtraction operator	*/
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator -(T&& x, const interval<U>& y)
 	{
 		return (interval<U>(y.get_low() - x, y.get_up() - x));
 	}
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator -(const interval<U>& x, T&& y)
 	{
 		return (interval<U>(x.get_low() - y, x.get_up() - y));
@@ -1069,7 +1058,7 @@ namespace Interval{
 
 	/*	interval multiplication operator	*/
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator *(T&& x, const interval<U>& y)
 	{
 		if (x >= T())
@@ -1078,7 +1067,7 @@ namespace Interval{
 			return (interval<U>(y.get_up() * x, y.get_low() * x));
 	}
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator *(const interval<U>& x, T&& y)
 	{
 		if (y >= T())
@@ -1095,7 +1084,7 @@ namespace Interval{
 
 	/*	interval division operator	*/
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator /(T&& x, const interval<U>& y)
 	{
 		if (y.get_low() <= T() && T() <= y.get_up())
@@ -1107,7 +1096,7 @@ namespace Interval{
 	}
 
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator /(const interval<U>& x, T&& y)
 	{
 		if (y == T())
@@ -1126,55 +1115,33 @@ namespace Interval{
 
 	/*	compound assignment operator	*/
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator +=(interval<U>& x, T&& y)
 	{
 		return x.operator+=(interval<U>(y, y));
 	}
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator -=(interval<U>& x, T&& y)
 	{
 		return x.operator-=(interval<U>(y, y));
 	}
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator *=(interval<U>& x, T&& y)
 	{
 		return x.operator*=(interval<U>(y, y));
 	}
 
-	template <typename T, typename U, typename = std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>>
+	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator /=(interval<U>& x, T&& y)
 	{
 		return x.operator/=(interval<U>(y, y));
 	}
 
-	/*	shared_ptr ver. operator	*/
 
-	template<typename T>
-	std::shared_ptr<T> operator +(std::shared_ptr<T> x, std::shared_ptr<T> y)
-	{
-		return std::shared_ptr<T>(new T(std::forward<T>(*x) + std::forward<T>(*y)));
-	}
 
-	template<typename T>
-	std::shared_ptr<T> operator -(std::shared_ptr<T> x, std::shared_ptr<T> y)
-	{
-		return std::shared_ptr<T>(new T(std::forward<T>(*x) - std::forward<T>(*y)));
-	}
 
-	template<typename T>
-	std::shared_ptr<T> operator *(std::shared_ptr<T> x, std::shared_ptr<T> y)
-	{
-		return std::shared_ptr<T>(new T(std::forward<T>(*x) * std::forward<T>(*y)));
-	}
-
-	template<typename T>
-	std::shared_ptr<T> operator /(std::shared_ptr<T> x, std::shared_ptr<T> y)
-	{
-		return std::shared_ptr<T>(new T(std::forward<T>(*x) / std::forward<T>(*y)));
-	}
 
 	//////////////////////
 	/*	interval output */
@@ -1183,7 +1150,7 @@ namespace Interval{
 	/*	iostream	*/
 
 	template<typename T>
-	std::ostream& operator<<(std::ostream& s, std::shared_ptr<T> x)
+	std::ostream& operator<<(std::ostream& s, std::unique_ptr<T> x)
 	{
 		s << (*x);
 		return (s);
@@ -1214,6 +1181,19 @@ namespace Interval{
 	{
 		if (low > up){ throw invalid_argument("upper_bound less than lower_bound!"); }
 		return interval<T>(low, up);
+	}
+	template<typename T>
+	std::unique_ptr<interval<T>> hull_ptr(T& low, T& up)
+	{
+		if (low > up){ throw invalid_argument("upper_bound less than lower_bound!"); }
+		return std::unique_ptr<interval<T>>(new interval<T>(low, up));
+	}
+
+	template<typename T>
+	std::unique_ptr<interval<T>> hull_ptr(T&& low, T&& up)
+	{
+		if (low > up){ throw invalid_argument("upper_bound less than lower_bound!"); }
+		return std::unique_ptr<interval<T>>(new interval<T>(low, up));
 	}
 
 
@@ -1347,6 +1327,16 @@ namespace Interval{
 		if (total_less(x, y)){ return total_ordering::less; }
 		else if (total_greater(x, y)){ return total_ordering::greater; }
 		else{ return total_ordering::equal; }
+	}
+	template<typename T>
+	bool interval<T>::is_contain(interval const& x) const
+	{
+		return (this->relational(x) == Interval_Relation::contain);
+	}
+	template<typename T>
+	bool interval<T>::is_part_of(interval const& x) const
+	{
+		return (this->relational(x) == Interval_Relation::part_of);
 	}
 
 
