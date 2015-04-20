@@ -658,11 +658,11 @@ namespace Interval{
 	}
 
 
-	//////////////////////////////
-	/*							*/
-	/*	impl member functions	*/
-	/*							*/
-	//////////////////////////////
+	//--------------------------//
+	/*                          */
+	/*   impl member function   */
+	/*                          */
+	//--------------------------//
 
 
 	/*	four arithmetic compound assignment operators	*/
@@ -845,16 +845,11 @@ namespace Interval{
 
 
 
-
-
-
-	//////////////////////////////////////////////////////
-	/*													*/
-	/*	generic ver interval numeric functions overload	*/
-	/*													*/
-	//////////////////////////////////////////////////////
-
-
+	//---------------------------------------------------//
+	/*                                                   */
+	/*  generic ver interval numeric functions overload  */
+	/*                                                   */
+	//---------------------------------------------------//
 
 
 
@@ -1143,9 +1138,9 @@ namespace Interval{
 
 
 
-	//////////////////////
-	/*	interval output */
-	//////////////////////
+	//-------------------//
+	/*  interval output  */
+	//-------------------//
 
 	/*	iostream	*/
 
@@ -1165,9 +1160,9 @@ namespace Interval{
 		return (s->c_str());
 	}
 
-	//////////////////////////////////
-	/*	argument dependent factory	*/
-	//////////////////////////////////
+	//------------------------------//
+	/*  argument dependent factory  */
+	//------------------------------//
 
 	template<typename T>
 	interval<T> hull(T& low, T& up)
@@ -1197,9 +1192,9 @@ namespace Interval{
 	}
 
 
-	//////////////////////////////////////
-	/*	interval relational functions	*/
-	//////////////////////////////////////
+	//-----------------------------------//
+	/*   interval relational functions   */
+	//-----------------------------------//
 
 
 
@@ -1285,9 +1280,9 @@ namespace Interval{
 	}
 
 
-	//////////////////////////////
-	/*	ordering discriminator	*/
-	//////////////////////////////
+	//--------------------------//
+	/*  ordering discriminator  */
+	//--------------------------//
 
 	/*	interval ordering	*/
 
