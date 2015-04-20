@@ -48,10 +48,10 @@ namespace Interval{
 	//----------------------------------//
 	/*                                  */
 	/*       Class Declaration          */
-	/*									*/
+	/*                                  */
 	/*        Interval Class            */
 	/*	      (Body)                    */
-	/*									*/
+	/*                                  */
 	//----------------------------------//
 
 
@@ -157,10 +157,10 @@ namespace Interval{
 	//----------------------------------//
 	/*                                  */
 	/*       class declaration          */
-	/*									*/
+	/*                                  */
 	/*   interval implementaion class   */
 	/*   (internal class of interval)   */
-	/*									*/
+	/*                                  */
 	//----------------------------------//
 
 
@@ -252,11 +252,11 @@ namespace Interval{
 
 
 
-	//////////////////////////////////
-	/*								*/
-	/*	interval member functions	*/
-	/*								*/
-	//////////////////////////////////
+	//------------------------------//
+	/*                              */
+	/*  Interval Member Functions   */
+	/*                              */
+	//------------------------------//
 
 
 	/*  Interval Compound Assignment Op Definition  */
@@ -519,7 +519,7 @@ namespace Interval{
 		return pimpl->get_up() - pimpl->get_low();
 	}
 
-	/*	Interval Getter and Setter	*/
+	/*  Interval Getter and Setter  */
 
 	template<typename T>
 	const T interval<T>::get_low() const
@@ -636,11 +636,11 @@ namespace Interval{
 	}
 
 
-	//////////////////////////////////////
-	/*									*/
-	/*	interval constructor/destructor	*/
-	/*									*/
-	//////////////////////////////////////
+	//-----------------------------//
+	/*                             */
+	/*      Interval Ctor/Dtor     */
+	/*                             */
+	//-----------------------------//
 
 
 	/*  Default Ctor  */
@@ -700,7 +700,7 @@ namespace Interval{
 	template<typename T>
 	interval<T>& interval<T>::operator=(interval&&) = default;
 
-	/*  Interval Output	Func  */
+	/*  Interval Output Func  */
 
 	template<typename T>
 	std::ostream& interval<T>::print(std::ostream& s) const
@@ -885,7 +885,7 @@ namespace Interval{
 		return upper_bound;
 	}
 
-	/*  Interval Output	Func  */
+	/*  Interval Output Func  */
 
 	template<typename T>
 	std::ostream& interval<T>::impl::print(std::ostream& s) const
@@ -1041,21 +1041,21 @@ namespace Interval{
 		return (s << enum2string(x));
 	}
 
-	/*	Generic operator<< for class has menber func print( ostream& )	*/
+	/*  Generic operator<< for class has menber func print( ostream& )  */
 
 	template <typename T>
 	auto operator<<(std::ostream& s, T&& x)->decltype(x.print(s))
 	{
 		return x.print(s);
 	}
-	/*	Generic Wid	*/
+	/*  Generic Wid  */
 
 	template< typename T >
 	auto wid(T&& x)->decltype(x.wid())
 	{
 		return x.wid();
 	}
-	/*	Generic Mid	*/
+	/*  Generic Mid  */
 
 	template< typename T >
 	auto mid(T&& x)->decltype(x.mid())
@@ -1207,7 +1207,7 @@ namespace Interval{
 	/*  interval output  */
 	//-------------------//
 
-	/*	iostream	*/
+	/*  Generic Output Stream  */
 
 	template<typename T>
 	std::ostream& operator<<(std::ostream& s, std::unique_ptr<T> x)
@@ -1216,7 +1216,7 @@ namespace Interval{
 		return (s);
 	}
 
-	/*	C string	*/
+	/*  C string  */
 
 	template<typename T>
 	const char* Interval::interval<T>::c_str() const
