@@ -12,13 +12,21 @@
 using std::nextafter;
 
 namespace Interval{
+
+	/*	functin fefault for meta programming	*/
 	extern void* enabler;
 
+	//---------------------//
+	/*   Ordering Simbol   */
+	//---------------------//
+
+	/*  3 Values of Ordering  */
 	enum class partial_ordering { less, unordered, greater };
 	enum class weak_ordering { less, equivalent, greater };
 	enum class total_ordering { less, equal, greater };
 	enum class interval_ordering { less, unordered, greater };
 
+	/*  Advanced Interval Ordering  */
 	enum class Interval_Relation
 	{
 		equal,
@@ -35,29 +43,52 @@ namespace Interval{
 		niether,
 	};
 
+
+
+	//----------------------------------//
+	/*                                  */
+	/*       Class Declaration          */
+	/*									*/
+	/*        Interval Class            */
+	/*	      (Body)                    */
+	/*									*/
+	//----------------------------------//
+
+
+
 	template<typename T>
 	class interval
 	{
 	public:
+
+		/*  ctor  */
 		interval();
 		interval(T&, T&);
 		interval(T&&, T&&);
+
+		/*  dtor  */
 		~interval();
 
+		/*  copy ctor  */
 		interval(const interval&);
+		/*  move ctor  */
 		interval(interval&&);
+		/*  copy assignment Op  */
 		interval& operator=(interval&&);
 
+		/*  compound assignment Op  */
 		const interval operator +=(const interval&);
 		const interval operator -=(const interval&);
 		const interval operator *=(const interval&);
 		const interval operator /=(const interval&);
 
+		/*  increment/decremnt Op  */
 		const interval operator ++();
 		const interval operator ++(int);
 		const interval operator --();
 		const interval operator --(int);
 
+		/*  numeric func  */
 		const interval sin() const;
 		const interval cos() const;
 		const interval pow(int n) const;
@@ -68,6 +99,8 @@ namespace Interval{
 		const interval abs() const;
 		const T mid() const;
 		const T wid() const;
+
+		/*  getter/setter  */
 		const T get_low() const;
 		const T get_up() const;
 		void set_up(T&);
@@ -75,11 +108,12 @@ namespace Interval{
 		void set_up(T&&);
 		void set_low(T&&);
 
+		/*  Advenced Relational Op  */
 		Interval_Relation relational(interval const&) const;
 		bool is_contain(interval const&) const;
 		bool is_part_of(interval const&) const;
 
-
+		/*  Relatinal Op  */
 		bool operator<(interval const&) const;
 		bool operator>(interval const&) const;
 		bool operator<=(interval const&) const;
@@ -87,11 +121,15 @@ namespace Interval{
 		bool operator==(interval const&) const;
 		bool operator!=(interval const&) const;
 
+		/*  output stream func  */
 		std::ostream& print(std::ostream&) const;
+		/*  For printf  */
 		const char* c_str() const;
 
 	private:
+		/*  Internal Class  */
 		class impl;
+		/*  Keep lower & upper bound Value   */
 		std::unique_ptr<impl> pimpl;
 	};
 
@@ -116,51 +154,49 @@ namespace Interval{
 
 
 
-	//////////////////////////////////////
+	//----------------------------------//
+	/*                                  */
+	/*       class declaration          */
 	/*									*/
-	/*		class declaration			*/
+	/*   interval implementaion class   */
+	/*   (internal class of interval)   */
 	/*									*/
-	/*	interval implementaion class	*/
-	/*	(interval internal class)		*/
-	/*									*/
-	//////////////////////////////////////
+	//----------------------------------//
 
 
 	template<typename T>
 	class interval<T>::impl
 	{
 	public:
+		/*  Set Zero Value  */
 		void do_internal_work()
 		{
 			lower_bound = T();
 			upper_bound = T();
 		}
+		/*  Set Initial Value */
 		void do_internal_work(T& low, T& up)
 		{
 			lower_bound = low;
 			upper_bound = up;
 		}
+		/*  Compound Assignment Op Implementation */
 		const impl operator +=(const impl&);
 		const impl operator -=(const impl&);
 		const impl operator *=(const impl&);
 		const impl operator /=(const impl&);
 
+		/*  Increment/decrement Op Implementation */
 		const impl operator ++();
 		const impl operator ++(int);
 		const impl operator --();
 		const impl operator --(int);
 
-		const interval<T> sin() const;
-		const interval<T> cos() const;
-		const interval<T> pow(int n) const;
-		const interval<T> exp() const;
-		const interval<T> abs() const;
-		const T mid() const;
-		const T wid() const;
+		/*  getter Imprementation  */
 		const T get_low() const;
 		const T get_up() const;
 
-
+		/*  Relational Op Imprementation  */
 		bool operator<(impl const&) const;
 		bool operator>(impl const&) const;
 		bool operator<=(impl const&) const;
@@ -168,7 +204,10 @@ namespace Interval{
 		bool operator==(impl const&) const;
 		bool operator!=(impl const&) const;
 
+		/*  Output Ostream Func  */
 		std::ostream& print(std::ostream&) const;
+
+		/*  setter Imprementation */
 		void set_low(T& x)
 		{
 			if (x > upper_bound){
@@ -203,7 +242,10 @@ namespace Interval{
 			upper_bound = x.upper_bound;
 		}
 	private:
+		/*  Lower Bound  */
 		T lower_bound = T();
+
+		/*  Upper Bound  */
 		T upper_bound = T();
 	};
 
@@ -217,7 +259,7 @@ namespace Interval{
 	//////////////////////////////////
 
 
-	/*	interval four compound assignment operator	*/
+	/*  Interval Compound Assignment Op Definition  */
 
 	template<typename T>
 	const interval<T> interval<T>::operator +=(const interval& x)
@@ -244,14 +286,16 @@ namespace Interval{
 		return *this;
 	}
 
-	/*	interval increment/decrement operator	*/
+	/*  Interval Increment/Decrement Op Difinition  */
 
+	//pretfix
 	template<typename T>
 	const interval<T> interval<T>::operator ++()
 	{
 		(*pimpl)++;
 		return *this;
 	}
+	//postfix
 	template<typename T>
 	const interval<T> interval<T>::operator ++(int)
 	{
@@ -260,12 +304,14 @@ namespace Interval{
 		return tmp;
 
 	}
+	//prefix
 	template<typename T>
 	const interval<T> interval<T>::operator --()
 	{
 		(*pimpl)--;
 		return *this;
 	}
+	//postfix
 	template<typename T>
 	const interval<T> interval<T>::operator --(int)
 	{
@@ -274,8 +320,9 @@ namespace Interval{
 		return tmp;
 	}
 
-	/*	interval numeric	*/
+	/*  Interval Numeric Func Dfinition  */
 
+	/*  Interval Cos  */
 	template<typename T>
 	const interval<T> interval<T>::cos() const
 	{
@@ -287,7 +334,7 @@ namespace Interval{
 		}
 		/*  base point set  */
 		c = static_cast<int>(nextafter(b / 2.0 / PI<T>(), max<T>()));
-		/* checking  */
+		/*  checking phase  */
 		if (nextafter(PI<T>()*2.0*c, max<T>()) >= a &&
 			nextafter(PI<T>()*2.0*c, -max<T>()) <= b)
 		{
@@ -331,6 +378,8 @@ namespace Interval{
 				nextafter(std::cos(b), max<T>())));
 		}
 	}
+
+	/*  Interval Sin  */
 	template<typename T>
 	const interval<T> interval<T>::sin() const
 	{
@@ -342,7 +391,7 @@ namespace Interval{
 		}
 		/*  base point set  */
 		c = static_cast<int>(nextafter((b * 2.0 / PI<T>() - 1.0) / 4.0, max<T>()));
-		/* checking  */
+		/*  checking phase  */
 		if (nextafter(PI<T>() / 2.0*(1.0 + c*4.0), max<T>()) >= a &&
 			nextafter(PI<T>() / 2.0*(1 + c*4.0), -max<T>()) <= b)
 		{
@@ -386,6 +435,8 @@ namespace Interval{
 				nextafter(std::sin(b), max<T>())));
 		}
 	}
+
+	/*  Interval Pow  */
 	template<typename T>
 	const interval<T> interval<T>::pow(int n) const
 	{
@@ -468,7 +519,7 @@ namespace Interval{
 		return pimpl->get_up() - pimpl->get_low();
 	}
 
-	/*	interval getter and setter	*/
+	/*	Interval Getter and Setter	*/
 
 	template<typename T>
 	const T interval<T>::get_low() const
@@ -501,7 +552,7 @@ namespace Interval{
 		pimpl->set_low(x);
 	}
 
-	/*	interval relational discriminator	*/
+	/*  Interval Advanced Relational Discriminator Func  */
 
 	template<typename T>
 	Interval_Relation interval<T>::relational(interval<T> const& x) const
@@ -549,7 +600,7 @@ namespace Interval{
 	}
 
 
-	/*	interval relational operator	*/
+	/*  Interval Relational Op Difinition	*/
 
 	template<typename T>
 	bool interval<T>::operator<(interval<T> const& x) const
@@ -592,7 +643,7 @@ namespace Interval{
 	//////////////////////////////////////
 
 
-	/*	default	constructor	*/
+	/*  Default Ctor  */
 
 	template<typename T>
 	interval<T>::interval()
@@ -601,7 +652,7 @@ namespace Interval{
 		pimpl->do_internal_work();
 	}
 
-	/*	two lvalue arg constructor	*/
+	/*  Two Lvalue Arg Ctor  */
 
 	template<typename T>
 	interval<T>::interval(T& low, T& up)
@@ -611,7 +662,7 @@ namespace Interval{
 		pimpl->do_internal_work(low, up);
 	}
 
-	/*	two rvalue arg constructor	*/
+	/*  Two Rvalue Arg Ctor  */
 
 	template<typename T>
 	interval<T>::interval(T&& low, T&& up)
@@ -621,12 +672,12 @@ namespace Interval{
 		pimpl->do_internal_work(low, up);
 	}
 
-	/*	default destructor	*/
+	/*  Default Dtor  */
 
 	template<typename T>
 	interval<T>::~interval() = default;
 
-	/*	move constructor	*/
+	/*  Move Ctor  */
 
 	template<typename T>
 	interval<T>::interval(interval&& x)
@@ -635,7 +686,7 @@ namespace Interval{
 		pimpl->deep_copy(*(x.pimpl));
 	}
 
-	/*	copy constructor	*/
+	/*  Copy Ctor  */
 
 	template<typename T>
 	interval<T>::interval(const interval& x)
@@ -644,12 +695,12 @@ namespace Interval{
 		pimpl->deep_copy(*(x.pimpl));
 	}
 
-	/*	copy assinment operator	*/
+	/*  Copy Assinment Op  */
 
 	template<typename T>
 	interval<T>& interval<T>::operator=(interval&&) = default;
 
-	/*	interval output	*/
+	/*  Interval Output	Func  */
 
 	template<typename T>
 	std::ostream& interval<T>::print(std::ostream& s) const
@@ -660,12 +711,12 @@ namespace Interval{
 
 	//--------------------------//
 	/*                          */
-	/*   impl member function   */
+	/*     Impl Member Func     */
 	/*                          */
 	//--------------------------//
 
 
-	/*	four arithmetic compound assignment operators	*/
+	/*  Compound Assignment Op Difinition  */
 
 	template<typename T>
 	const typename interval<T>::impl interval<T>::impl::operator+=(const typename interval<T>::impl& x)
@@ -786,7 +837,7 @@ namespace Interval{
 		}
 	}
 
-	/*	increment / decrement operator	*/
+	/*  Increment/Decrement Op  */
 
 	template<typename T>
 	const typename interval<T>::impl interval<T>::impl::operator ++()
@@ -821,7 +872,7 @@ namespace Interval{
 
 
 
-	/*	getter and setter	*/
+	/*  Getter and Setter  */
 
 	template<typename T>
 	const T interval<T>::impl::get_low() const
@@ -834,7 +885,7 @@ namespace Interval{
 		return upper_bound;
 	}
 
-	/*	interval output	*/
+	/*  Interval Output	Func  */
 
 	template<typename T>
 	std::ostream& interval<T>::impl::print(std::ostream& s) const
@@ -847,12 +898,12 @@ namespace Interval{
 
 	//---------------------------------------------------//
 	/*                                                   */
-	/*  generic ver interval numeric functions overload  */
+	/*  Generic Type Interval Numeric Func Overloading   */
 	/*                                                   */
 	//---------------------------------------------------//
 
 
-
+	/*  Generic Interval Numeric  */
 	template<typename T>
 	interval<T> sin(const interval<T>& a) { return a.sin(); }
 	template<typename T>
@@ -870,7 +921,7 @@ namespace Interval{
 	template<typename T>
 	interval<T> sqrt(const interval<T>& a) { return a.sqrt(); }
 
-	/*	generalized numeric functions for primitive dispach	*/
+	/*	Generic numeric func for primitive dispach	*/
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value >>
 	double sin(T&& x) { return std::sin(std::forward<T>(x)); }
 
@@ -886,7 +937,6 @@ namespace Interval{
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value >>
 	double abs(T&& x) { return std::abs(std::forward<T>(x)); }
 
-	/*	generalized operator<< for classes have menber func print( ostream& )	*/
 	template <typename T, std::enable_if_t<std::is_same<Interval::interval_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::string enum2string(T&& x)
 	{
@@ -991,19 +1041,21 @@ namespace Interval{
 		return (s << enum2string(x));
 	}
 
+	/*	Generic operator<< for class has menber func print( ostream& )	*/
+
 	template <typename T>
 	auto operator<<(std::ostream& s, T&& x)->decltype(x.print(s))
 	{
 		return x.print(s);
 	}
-	/*	generic wid	*/
+	/*	Generic Wid	*/
 
 	template< typename T >
 	auto wid(T&& x)->decltype(x.wid())
 	{
 		return x.wid();
 	}
-	/*	generic mid	*/
+	/*	Generic Mid	*/
 
 	template< typename T >
 	auto mid(T&& x)->decltype(x.mid())
@@ -1011,7 +1063,20 @@ namespace Interval{
 		return x.mid();
 	}
 
-	/*	interval addition operator	*/
+
+	//-------------------------------//
+	/*                               */
+	/*     Four Arithmetic Op        */
+	/*     3 Type Overloading        */
+	/*                               */
+	/*     T Op Interval<U> ,        */
+	/*     Interval<U> Op T , and    */
+	/*   Interval<T> Op Interval<T>  */
+	/*                               */
+	//-------------------------------//
+
+
+	/*  Interval Addition Op  */
 
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator +(T&& x, const interval<U>& y)
@@ -1031,7 +1096,7 @@ namespace Interval{
 		return interval<T>(x) += y;
 	}
 
-	/*	interval subtraction operator	*/
+	/*  Interval Subtraction Op */
 
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator -(T&& x, const interval<U>& y)
@@ -1051,7 +1116,7 @@ namespace Interval{
 		return interval<T>(x) -= y;
 	}
 
-	/*	interval multiplication operator	*/
+	/*  Interval Multiplication Op  */
 
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator *(T&& x, const interval<U>& y)
@@ -1077,7 +1142,7 @@ namespace Interval{
 		return interval<T>(x) *= y;
 	}
 
-	/*	interval division operator	*/
+	/*  Interval Division Op  */
 
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator /(T&& x, const interval<U>& y)
@@ -1108,7 +1173,7 @@ namespace Interval{
 		return interval<T>(x) /= y;
 	}
 
-	/*	compound assignment operator	*/
+	/*  Interval Compound Assignment Op  */
 
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
 	interval<U> operator +=(interval<U>& x, T&& y)
@@ -1177,6 +1242,8 @@ namespace Interval{
 		if (low > up){ throw invalid_argument("upper_bound less than lower_bound!"); }
 		return interval<T>(low, up);
 	}
+
+	/*  Unique_Ptr  */
 	template<typename T>
 	std::unique_ptr<interval<T>> hull_ptr(T& low, T& up)
 	{
@@ -1198,7 +1265,7 @@ namespace Interval{
 
 
 
-	/*	interval ordering	*/
+	/*  Interval Ordering  */
 
 	template<typename T>
 	bool interval_less(interval<T> const& x, interval<T> const& y)
@@ -1217,7 +1284,7 @@ namespace Interval{
 	}
 
 
-	/*	partial ordering	*/
+	/*  Partial Ordering  */
 
 	template<typename T>
 	bool partial_less(interval<T> const& x, interval<T> const& y)
@@ -1238,7 +1305,7 @@ namespace Interval{
 	}
 
 
-	/*	weak ordering	*/
+	/*  Weak Ordering  */
 
 	template<typename T>
 	bool weak_less(interval<T> const& x, interval<T> const& y)
@@ -1259,7 +1326,7 @@ namespace Interval{
 	}
 
 
-	/*	total ordering	*/
+	/*  Total Ordering  */
 
 	template<typename T>
 	bool total_less(interval<T> const& x, interval<T> const& y)
@@ -1281,10 +1348,10 @@ namespace Interval{
 
 
 	//--------------------------//
-	/*  ordering discriminator  */
+	/*  Ordering Discriminator  */
 	//--------------------------//
 
-	/*	interval ordering	*/
+	/*  Interval Ordering  */
 
 	template<typename T>
 	Interval::interval_ordering interval_order(Interval::interval<T>& x, Interval::interval<T>& y)
@@ -1294,7 +1361,7 @@ namespace Interval{
 		else{ return Interval::interval_ordering::unordered; }
 	}
 
-	/*	partial ordering	*/
+	/*  Partial Ordering  */
 
 	template<typename T>
 	Interval::partial_ordering partial_order(Interval::interval<T>& x, Interval::interval<T>& y)
@@ -1304,7 +1371,7 @@ namespace Interval{
 		else{ return partial_ordering::unordered; }
 	}
 
-	/*	weak ordering	*/
+	/*  Weak ordering  */
 
 	template<typename T>
 	Interval::weak_ordering weak_order(Interval::interval<T>& x, Interval::interval<T>& y)
@@ -1314,7 +1381,7 @@ namespace Interval{
 		else{ return weak_ordering::equivalent; }
 	}
 
-	/*	total ordering	*/
+	/*  Total Ordering  */
 
 	template<typename T>
 	Interval::total_ordering total_order(Interval::interval<T>& x, Interval::interval<T>& y)
