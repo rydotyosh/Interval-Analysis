@@ -95,7 +95,7 @@ auto x(v) ;
 auto y = x ;
 ```
 
-また、inteval class はムーブコンストラクタとムーブ代入演算子が定義されている.  
+また,inteval class はムーブコンストラクタとムーブ代入演算子が定義されている.  
 ムーブセマンティクスが利用できる.  
 MoveはRvalue Referenceと対になるC++11のコア言語機能である.解説はしない.  
 
@@ -876,3 +876,124 @@ X < Y = false ∧ X > Y = false ならば X=Y
 Q.E.D.
 
 ```
+
+つまらない話はこれくらいにして実装の話に移ろう.  
+まとめると以下のようになる.  
+
+```
+X = [ a , b ] , Y = [ c , d ]
+とする。
+
+interval_less(X,Y)
+b < c のとき true
+
+interval_greater(X,Y)
+a < d のとき true
+
+interval_unordered(X,Y)
+interval_less(X,Y)==false ∧ interval_greater(X,Y)==false のとき true
+
+partial_less(X,Y)
+a < c ∧ b < d のとき true
+
+partial_greater(X,Y)
+a > c ∧ b > d のとき true
+
+partial_unordered(X,Y)
+partial_less(X,Y)==false ∧ partial_greater(X,Y)==false のとき true
+
+weak_less(X,Y) <- operator<のデフォルト
+a < c のとき true
+
+weak_greater(X,Y) <- operator>のデフォルト
+a > c のとき true
+
+weal_equal(X,Y)
+a == c のとき true
+
+total_less(X,Y)
+a < b ∨ b < d のとき true
+
+total_greater(X,Y)
+a > b ∨ b > d のとき true
+
+total_equal(X,Y) <- operator=(!=)のデフォルト
+a == c ∧ b == d のとき true
+```
+
+また,順序の三値を返す関数を提供する.  
+
+```cpp
+interval_ordering interval_order(x,y);
+partial_ordering partial_order(x,y);
+weak_ordering weak_order(x,y);
+total_ordering total_order(x,y);
+```
+
+この三値はstrong typed enum class で以下のように定義される.  
+```cpp
+enum class partial_ordering { less, unordered, greater };
+enum class weak_ordering { less, equivalent, greater };
+enum class total_ordering { less, equal, greater };
+enum class interval_ordering { less, unordered, greater };
+```
+
+これにより,オーダーの種類を間違えるミスを型安全に防ぐことができる.  
+
+
+####Advanced Interval Relational Function
+
+```cpp
+x.relational(y)
+relational(x,y)
+```
+と呼び出す.  
+
+この関数を使うと最も特殊化されたxとyの関係を返す.  
+
+最も特殊化されたといってもわかりにくいであろうから具体的に説明すると
+
+```
+包含関係を調べる
+包含関係でないなら
+interval ordering を試す
+interval unordered なら
+partial ordering を試す
+partial unordered なら
+weak ordering を試す
+equivalence なら
+total ordering を試す
+
+```
+
+という具合である.  
+要するに,xとyの順序における最も小さな集合を判定している.  
+
+包含関係を調べる関数も提供される.
+```cpp
+x.is_contain(y)
+x.is_part_of(y)
+```
+である.  
+
+```
+x = [ a , b ] , y = [ c , d ]
+
+x.is_contain(y)は
+y ∈ x
+つまり
+a <= c < d <= b
+のときにtrueとなる.  
+
+x.is_part_of(y)は
+x ∈ y
+つまり
+c <= a < b <= d
+のときにtrueとなる.  
+```
+
+これにて、区間の関数についての解説は終了である.  
+次に,例外クラスと例外を送出する可能性のある関数について解説する.  
+
+
+###例外
