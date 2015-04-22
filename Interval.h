@@ -73,7 +73,9 @@ namespace Interval{
 		interval(const interval&);
 		/*  move ctor  */
 		interval(interval&&);
-		/*  copy assignment Op  */
+		/*  Copy Assigment Op  */
+		interval& operator=(const interval&);
+		/*  Move assignment Op  */
 		interval& operator=(interval&&);
 
 		/*  compound assignment Op  */
@@ -681,9 +683,10 @@ namespace Interval{
 
 	template<typename T>
 	interval<T>::interval(interval&& x)
-		: pimpl{ std::make_unique<impl>() }
+		:pimpl{ std::make_unique<impl>() }
 	{
-		pimpl->deep_copy(*(x.pimpl));
+		std::swap(this->pimpl,x.pimpl);
+		x.pimpl = nullptr;
 	}
 
 	/*  Copy Ctor  */
@@ -698,7 +701,22 @@ namespace Interval{
 	/*  Copy Assinment Op  */
 
 	template<typename T>
-	interval<T>& interval<T>::operator=(interval&&) = default;
+	interval<T>& interval<T>::operator=(const interval<T>& x)
+	{
+		std::swap(this->pimpl, x.pimpl);
+		pimpl->deep_copy(*(x.pimpl));
+		return this;
+	}
+
+	/*  Move Assignment Op  */
+
+	template<typename T>
+	interval<T>& interval<T>::operator=(interval<T>&& x)
+	{
+		std::swap(this->pimpl,x.pimpl);
+		x.pimpl = nullptr;
+		return this;
+	}
 
 	/*  Interval Output Func  */
 
