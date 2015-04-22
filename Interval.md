@@ -1,9 +1,9 @@
 #Systax and Features of Interval Library
 ---
 ##はじめに[Readme]
-本ライブラリの開発はプログラミング言語C++11でおこなわれている.開発環境はVisual Studio 2013 Ultimate(compiler=VC13)です.  
-clangでコンパイルすることはありますが,基本的にしていないと心得てください.  
-記載されたコードはファイルインクルードや名前空間の修飾が省略されており,そのままではほぼ動作しません.  
+本ライブラリの開発はプログラミング言語C++11でおこなわれている.開発環境はVisual Studio 2013 Ultimate(compiler=VC12)である.  
+clangでコンパイルすることはあるが,基本的にしていないと心得ておくこと.  
+記載されたコードはファイルインクルードや名前空間の修飾が省略されており,そのままではほぼ動作しない.  
 あらかじめ了承ください.  
 
 ##まえがき[Introduce]
@@ -82,9 +82,9 @@ auto x = hull( 1.0 , 2.0 ) ; // x は interval<double>
 // デフォルトコンストラクタ 上下限はdouble()で初期化される
 auto v = interval<double>( ) ;
 
-// 2引数コンストラクタ 上下限は double(1.0), double(2.0)で初期化される
+// 2引数コンストラクタ 上下限は double(1), double(2)で初期化される
 // つまり暗黙の型変換が起こるため注意されたし
-auto w = interval<double>( 1.0 , 2.0 ) ;
+auto w = interval<double>( 1 , 2 ) ;
 
 // コピーコンストラクタ 上下限が v.low_bound v.upper_bound で初期化される
 // つまり深いコピーが行われ,内部クラスは共有しない
@@ -94,6 +94,12 @@ auto x(v) ;
 // y.low_bound = x.low_bound , y.upper_bound = x.upper_bound となる
 auto y = x ;
 ```
+
+また、inteval class はムーブコンストラクタとムーブ代入演算子が定義されている.  
+ムーブセマンティクスが利用できる.  
+MoveはRvalue Referenceと対になるC++11のコア言語機能である.解説はしない.  
+
+
 区間の定義の方法とコンストラクタ等のポリシーの解説は以上である.  
 次に区間演算について解説する.  
 
@@ -115,7 +121,7 @@ X ● Y = { x ● y |　x ∈ X , y ∈ Y }
 と定義される. これを区間拡張という.  
 このライブラリには区間拡張された演算子や関数が含まれる.  
 
-###区間のオーバーロードされた演算子[Interval Overloaded Functions]
+###区間のオーバーロードされた演算子[Overloaded Interval Operations]
 
 interval class で再定義された演算子はこちら.
 ```cpp
@@ -244,9 +250,10 @@ T += interval<T>
 四則演算の解説は以上である.  
 次に,メンバ関数について解説する.  
 
-##区間関数[Interval Functions]
+##区間関数[Interval Expanded Functions]
+
 区間の関数は大きく分けて3種類ある.
-数学関数,setter / getter,関係性だ.  
+数学関数,セッターとゲッター,関係性だ.  
 そのすべてを以下に列挙する.  
 
 ```cpp
@@ -259,6 +266,9 @@ class interval
 	const interval pow(int n) const;
 	const interval exp() const;
 	const interval abs() const;
+	const interval log() const;
+	const interval log10() const;
+	const interval sqrt() const;
 	const T mid() const;
 	const T wid() const;
 
@@ -272,6 +282,8 @@ class interval
 
 	//interval relation functions
 	Interval_Relation relational(interval const&) const;
+	bool is_contain(const interval&) const;
+	bool is_part_of(const interval&) const;
 }
 
 template<typename T>
@@ -294,7 +306,7 @@ template<typename T>
 bool partial_unordered(interval<T> const&,interval<T> const&);
 ```
 ###数学関数[Interval Arithmetic Functions]
-この章では説明に際して
+この節では説明に際して
 ```
 X = [ a , b ]
 ```
@@ -400,6 +412,58 @@ exp( X ) = [ exp(a) , exp(b) ]
 ```
 である.
 
+####sqrt
+sqrtの区間拡張. 区間Xにおけるsqrt(x)の上下限を返す関数.  
+実数範囲の関数なので`X >= 0` でなければならない.  
+
+```
+sqrt( X ) = {sqrt(x) | x ∈ X }
+```
+
+sqrtは単調増加の関数なので
+
+```
+sqrt( X ) = [ sqrt(a) , sqrt(b) ]
+```
+である.  
+
+a < 0 である場合にはInterval::logic_errorがスローされる.  
+
+####log
+logの区間拡張. 区間Xにおけるlog(x)の上下限を返す関数.  
+`X > 0` でなければならない.  
+
+```
+log( X ) = {log(x) | x ∈ X }
+```
+
+logは単調増加の関数なので
+
+```
+log( X ) = [ log(a) , log(b) ]
+```
+である.  
+
+a <= 0 である場合にはInterval::logic_errorがスローされる.  
+
+####log10
+log10の区間拡張. 区間Xにおけるlog(x)の上下限を返す関数.  
+`X > 0` でなければならない.  
+
+```
+log10( X ) = {log10(x) | x ∈ X }
+```
+
+log10は単調増加の関数なので
+
+```
+log10( X ) = [ log10(a) , log10(b) ]
+```
+である.  
+
+a <= 0 である場合にはInterval::logic_errorがスローされる.  
+
+
 ####abs
 absの区間拡張. 区間Xにおけるabs(x)の上下限を返す関数.
 ```
@@ -433,6 +497,7 @@ auto low = x.get_low() ; // low = x.low_bound
 ```
 
 ###区間の関係性関数[Interval Relational Functions]
+__この節はとても重要なので一読するべきである__
 区間の関係は大小関係だけでなく包含関係もあり複雑である.  
 大小比較にはtotal,weak,partialの3種類があり,
 イコールにはequalityとequivalentがある.  
@@ -542,24 +607,25 @@ assert( less<int>()(a, b) ); // STLがデフォルトで使う「順序」であ
 順序には様々な種類があり，厳密で弱い順序はこの種類の中の一つだ．まず先に代表的な順序の種類である「全順序（Total Order）」を説明した方が良いと思われるので，そちらから説明する．
 
 全順序とは以下の性質を満たしている順序だ（より正確には「厳密な（strict）」全順序の定義）．ここで，f(x, y)は2つの要素xとyの順序を定義する関数とする．
-1. （非）反射性：f(x, x)は常にfalseである
-2. （非）対称性：f(x, y)がtrueならば!f(y, x)もtrueである
-3. 推移性：f(x, y)がtrueでありf(y, z)がtrueであるならf(x, z)はtrueである
-4.  f(x, y)がfalseでありf(y, x)もfalseであるならば，xとyは等しい(equal)
+1. 非反射律:f(x, x)は常にfalseである
+2. 非対称律:f(x, y)がtrueならば!f(y, x)もtrueである
+3. 推移律:f(x, y)がtrueでありf(y, z)がtrueであるならf(x, z)はtrueである
+4. 反対称律:f(x, y)がfalseでありf(y, x)もfalseであるならば，xとyは等しい(equal)
+
 
 よく分からないので具体的な全順序の例としてless<int>に登場してもらって，条件の意味を順に追っていく．
 
-（非）反射性
+非反射律
 ```cpp
 int i = 3;
 assert( !less<int>()(i, i) );
 ```
-要するに同じ値に対して常にfalseを返す，というのが一つ目の条件「（非）反射性」である．
+要するに同じ値に対して常にfalseを返す，というのが一つ目の条件「（非）反射律」である．
 
 この条件に関して非常に重要な指摘として，less_equal<int>やgreater_equal<int>はこの条件を満たさないということだ．これらの「順序」は同じ値に対してtrueを返してしまう．このような「順序」はSTLにおける比較の条件として絶対に使えない.  
 
 
-（非）対称性
+非対称律
 ```cpp
 int i;
 int j;
@@ -570,7 +636,7 @@ if( less<int>()(i, j) ){
 ```
 これは「順序」という言葉から直感的に分かる条件だ．具体的には例えば「aはbより小さい」なら「bはaより小さくない」と言えるのは当然でしょう，ということだ．
 
-推移性
+推移律
 ```cpp
 int i;
 int j;
@@ -582,7 +648,7 @@ if( less<int>()(i, j) && less<int>()(j, k) ){
 ```
 これまた「順序」という言葉から直感的に理解できる条件だ．言葉で言えば「aはbより小さい」かつ「bはcより小さい」なら「aはcより小さい」ということだ．
 
-最後の条件
+反対称律
 ```cpp
 int i, j;
 ...
@@ -594,12 +660,12 @@ if( !less<int>()(i, j) && !less<int>()(j, i) ){
 
 さて，これを踏まえた上で，次に厳密で弱い順序の定義を見ていく．
 
-厳密で弱い順序では全順序の最後の条件だけが緩められている．
+厳密で弱い順序では全順序の反対称律だけが緩められている．
 
-1. （非）反射性：f(x, x)は常にfalseである
-2. （非）対称性：xとyが（equalityの意味で）等しくないとき，f(x, y)がtrueならば!f(y, x)もtrueである
-3.  推移性：f(x, y)がtrueでありf(y, z)がtrueであるならf(x, z)はtrueである
-4. equivalenceに対する推移性：xとyがequivalentでありyとzもequivalentであるとき，xとzもequivalentである
+1. 非反射律:f(x, x)は常にfalseである
+2. 非対称律:xとyが（equalityの意味で）等しくないとき，f(x, y)がtrueならば!f(y, x)もtrueである
+3.  推移律:f(x, y)がtrueでありf(y, z)がtrueであるならf(x, z)はtrueである
+4. equivalenceに対する推移律:xとyがequivalentでありyとzもequivalentであるとき，xとzもequivalentである
 
 ここで初めてequivalenceという言葉が出てきる．xとyがequivalentであるというのは，f(x, y)がfalseでありかつf(y, x)がfalseである，ということだ．  
 
@@ -615,15 +681,15 @@ assert( ci_less("ABC", "acb") );
 
 さて，もう一度厳密で弱い順序の定義に戻る．
 
-1. （非）反射性：f(x, x)は常にfalseである
-2. （非）対称性：xとyが等しくないとき，f(x, y)がtrueならば!f(y, x)もtrueである
-3.  推移性：f(x, y)がtrueでありf(y, z)がtrueであるならf(x, z)はtrueである
-4. equivalenceに対する推移性：xとyがequivalentでありyとzもequivalentであるとき，xとzもequivalentである
+1. 非反射律:f(x, x)は常にfalseである
+2. 非対称律:xとyが等しくないとき，f(x, y)がtrueならば!f(y, x)もtrueである
+3. 推移律:f(x, y)がtrueでありf(y, z)がtrueであるならf(x, z)はtrueである
+4. equivalenceに対する推移律:xとyがequivalentでありyとzもequivalentであるとき，xとzもequivalentである
 
 実はさっき例に出したci_lessは4番目の条件を満たす．具体的に言うと，ci_lessでは"abc"と"abC"の順序を決められない．同時に，"abC"と"aBc"の順序も決められない．このとき，"abc"と"aBc"の順序も決められない，というのが最後の条件だ．
 
 このweak ordering の最後の条件である.  
-4. equivalenceに対する推移性：xとyがequivalentでありyとzもequivalentであるとき，xとzもequivalentである  
+4. equivalenceに対する推移律:xとyがequivalentでありyとzもequivalentであるとき，xとzもequivalentである  
 
 という条件はなぜ必要なのか？
 1~3の条件だけでは何が困るのか？
@@ -637,7 +703,7 @@ a < b , b と c が equivalent -> a < c
 このことが実はweak orderingの最後の条件と同値なのである.  
 
 すべての隣接要素を比較するようなソートでは問題ないが,クイックソートのようにすべての隣接要素を比較しないソートではソートが正しく行われなくなってしまうためこの条件が必要となる.  
-言い換えればソートの複雑性が`O(NlogN)`であるための最低限の条件がequivalenceに対する推移性ということになる.  
+言い換えればソートの複雑性が`O(NlogN)`であるための必要十分条件がequivalenceに対する推移律ということになる.  
 
 ####区間の順序問題[Interval Ordering Problem]
 
@@ -676,7 +742,8 @@ X < Y iff ∃x∀y, (x<y) ∨　∃x∀y, (x>y)
 ソートにはweak orderingが必要なのでこれらを直接用いることはできない.  
 
 そこで,本ライブラリでは3.をpartial orderingとして採用しweak orderingとtotal orderingを定義する.  
-また,1.は重要な概念のためinterval orderingとして採用する.  
+1.は重要な概念のためinterval_orderingとして採用する.  
+2.の順序が使用したいときはAdvenced Ordering Func が提供される.  
 
 
 weak orderingでは
@@ -729,7 +796,7 @@ a = b ∧ b = d iff X = Y
 と定義します.
 
 
-weak ordering がequivalenceに対する推移性
+weak ordering がequivalenceに対する推移律
 ```
 X EQ Y ∧ Y EQ Z ならば X EQ Z
 ```
@@ -772,7 +839,7 @@ Q.E.D.
 ```
 つぎに,total orderingが4つめの条件
 ```
-less(x,y)=false かつ less(y,x)=falseならば x=y
+反対称律:less(x,y)=false かつ less(y,x)=falseならば x=y
 ```
 を満たすことを証明する.  
 ```
