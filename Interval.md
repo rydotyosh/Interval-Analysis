@@ -1,7 +1,7 @@
 #Systax and Features of Interval Library
 ---
 ##はじめに[Readme]
-本ライブラリの開発はC++11でおこなわれている.開発環境はVisual Studio 2013 Ultimate(compiler=VC13)です.  
+本ライブラリの開発はプログラミング言語C++11でおこなわれている.開発環境はVisual Studio 2013 Ultimate(compiler=VC13)です.  
 clangでコンパイルすることはありますが,基本的にしていないと心得てください.  
 記載されたコードはファイルインクルードや名前空間の修飾が省略されており,そのままではほぼ動作しません.  
 あらかじめ了承ください.  
@@ -48,6 +48,7 @@ namespace Interval
 
 		interval(const interval&);
 		interval(interval&&);
+		interval& operator=(const interval&);
 		interval& operator=(interval&&);
 
 	//メンバ関数...
