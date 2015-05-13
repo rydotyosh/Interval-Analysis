@@ -940,6 +940,7 @@ enum class interval_ordering { less, unordered, greater };
 
 これにより,オーダーの種類を間違えるミスを型安全に防ぐことができる.  
 
+因みに、これらは出力ストリームに出力すると文字列として出力できる.
 
 ####Advanced Interval Relational Function
 
@@ -969,6 +970,29 @@ total ordering を試す
 という具合である.  
 要するに,xとyの順序における最も小さな集合を判定している.  
 
+返却値はstrong typed enum class で以下のように定義される.  
+
+```cpp
+enum class Interval_Relation
+{
+	equal,
+	interval_less,
+	interval_greater,
+	partial_less,
+	partial_greater,
+	weak_less,
+	weak_greater,
+	total_less,
+	total_greater,
+	contain,
+	part_of,
+	niether,
+};
+```
+
+なお、これらも出力ストリームで文字列として出力できる.  
+
+
 包含関係を調べる関数も提供される.
 ```cpp
 x.is_contain(y)
@@ -982,13 +1006,13 @@ x = [ a , b ] , y = [ c , d ]
 x.is_contain(y)は
 y ∈ x
 つまり
-a <= c < d <= b
+a <= c <= d <= b
 のときにtrueとなる.  
 
 x.is_part_of(y)は
 x ∈ y
 つまり
-c <= a < b <= d
+c <= a <= b <= d
 のときにtrueとなる.  
 ```
 
