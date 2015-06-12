@@ -1,7 +1,8 @@
 #ifndef EXCEPTION
 #define EXCEPTION
+#include <string>
 
-namespace Interval{
+namespace Cranberries{
 
 	class interval_error
 	{
@@ -39,6 +40,17 @@ namespace Interval{
 			:interval_except(cause)
 		{}
 		range_error(const char *cause)
+			:interval_except(cause)
+		{}
+	};
+
+	class over_flow : public interval_except
+	{
+	public:
+		over_flow(std::string& cause)
+			:interval_except(cause)
+		{}
+		over_flow(const char *cause)
 			:interval_except(cause)
 		{}
 	};
