@@ -9,13 +9,17 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <initializer_list>
+#include <numeric>
+#include <algorithm>
+#include <functional>
 
 using std::nextafter;
 
-namespace Interval{
-
+namespace Cranberries
+{
 	/*  function default for meta programming  */
-	extern void* enabler;
+		extern std::nullptr_t enabler;
 
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -28,7 +32,7 @@ namespace Interval{
 	enum class interval_ordering { less, unordered, greater };
 
 	/*  Advanced Interval Ordering  */
-	enum class Interval_Relation
+	enum class Cranberries_Relation
 	{
 		equal,
 		interval_less,
@@ -63,9 +67,9 @@ namespace Interval{
 	public:
 
 		/*  ctor  */
-		interval();
-		interval(T&, T&);
-		interval(T&&, T&&);
+		constexpr interval();
+		constexpr interval(T&, T&);
+		constexpr interval(T&&, T&&);
 
 		/*  dtor  */
 		~interval();
@@ -94,6 +98,16 @@ namespace Interval{
 		/*  numeric func  */
 		const interval sin() const;
 		const interval cos() const;
+		const interval tan() const;
+		const interval asin() const;
+		const interval acos() const;
+		const interval atan() const;
+		const interval sinh() const;
+		const interval cosh() const;
+		const interval tanh() const;
+		const interval asinh() const;
+		const interval acosh() const;
+		const interval atanh() const;
 		const interval pow(int n) const;
 		const interval log() const;
 		const interval log10() const;
@@ -104,15 +118,15 @@ namespace Interval{
 		const T wid() const;
 
 		/*  getter/setter  */
-		const T low() const;
-		const T up() const;
+		constexpr T low() const;
+		constexpr T up() const;
 		void set_up(T&);
 		void set_low(T&);
 		void set_up(T&&);
 		void set_low(T&&);
 
 		/*  Advanced Relational Op  */
-		Interval_Relation relational(interval const&) const;
+		Cranberries_Relation relational(interval const&) const;
 		bool is_contain(interval const&) const;
 		bool is_part_of(interval const&) const;
 
@@ -139,16 +153,16 @@ namespace Interval{
 
 	/*PI*/
 	template<typename T>
-	T PI(){ return static_cast<T>(3.141592653589793238462643383279); }
+	constexpr T PI(){ return static_cast<T>(3.141592653589793238462643383279); }
 
 
 	/*maximum*/
 	template<typename T>
-	T max(){ return std::numeric_limits<T>::max(); }
+	constexpr T max(){ return std::numeric_limits<T>::max(); }
 
 	/*minimum*/
 	template<typename T>
-	T min(){ return std::numeric_limits<T>::min(); }
+	constexpr T min(){ return std::numeric_limits<T>::min(); }
 
 
 
@@ -194,16 +208,8 @@ namespace Interval{
 		const impl operator --(int);
 
 		/*  getter Implementation  */
-		const T low() const;
-		const T up() const;
-
-		/*  Relational Op Implementation  */
-		bool operator<(impl const&) const;
-		bool operator>(impl const&) const;
-		bool operator<=(impl const&) const;
-		bool operator>=(impl const&) const;
-		bool operator==(impl const&) const;
-		bool operator!=(impl const&) const;
+		constexpr T low() const;
+		constexpr T up() const;
 
 		/*  Output Stream Func  */
 		std::ostream& print(std::ostream&) const;
@@ -212,28 +218,28 @@ namespace Interval{
 		void set_low(T& x)
 		{
 			if (x > upper_bound){
-				throw invalid_argument("lower_bound greater than upper_bound!");
+				throw invalid_argument("lower_bound must be less than upper_bound!");
 			}
 			lower_bound = x;
 		}
 		void set_low(T&& x)
 		{
 			if (x > upper_bound){
-				throw invalid_argument("lower_bound greater than upper_bound!");
+				throw invalid_argument("lower_bound must be less than upper_bound!");
 			}
 			lower_bound = std::move(x);
 		}
 		void set_up(T& x)
 		{
 			if (x < lower_bound){
-				throw invalid_argument("upper_bound less than lower_bound!");
+				throw invalid_argument("upper_bound must be greater than lower_bound!");
 			}
 			upper_bound = x;
 		}
 		void set_up(T&& x)
 		{
 			if (x < lower_bound){
-				throw invalid_argument("upper_bound less than lower_bound!");
+				throw invalid_argument("upper_bound must be greater than lower_bound!");
 			}
 			upper_bound = std::move(x);
 		}
@@ -266,24 +272,40 @@ namespace Interval{
 	const interval<T> interval<T>::operator +=(const interval& x)
 	{
 		pimpl->operator+=(*(x.pimpl));
+		if (this->up() == max<double>() || this->low() == -max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return *this;
 	}
 	template<typename T>
 	const interval<T> interval<T>::operator -=(const interval& x)
 	{
 		pimpl->operator-=(*(x.pimpl));
+		if (this->up() == max<double>() || this->low() == -max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return *this;
 	}
 	template<typename T>
 	const interval<T> interval<T>::operator *=(const interval& x)
 	{
 		pimpl->operator*=(*(x.pimpl));
+		if (this->up() == max<double>() || this->low() == -max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return *this;
 	}
 	template<typename T>
 	const interval<T> interval<T>::operator /=(const interval& x)
 	{
 		pimpl->operator/=(*(x.pimpl));
+		if (this->up() == max<double>() || this->low() == -max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return *this;
 	}
 
@@ -294,6 +316,10 @@ namespace Interval{
 	const interval<T> interval<T>::operator ++()
 	{
 		(*pimpl)++;
+		if (this->up() == max<double>() || this->low() == -max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return *this;
 	}
 	//postfix
@@ -302,6 +328,10 @@ namespace Interval{
 	{
 		auto tmp(*this);
 		(*pimpl)++;
+		if (this->up() == max<double>() || this->low() == -max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return tmp;
 
 	}
@@ -321,7 +351,14 @@ namespace Interval{
 		return tmp;
 	}
 
-	/*  Interval Numeric Func Definition  */
+	
+
+	//----------------------------------------//
+	//                                        //
+	/*    Interval Numeric Func Definition    */
+	//                                        //
+	//----------------------------------------//
+
 
 	/*  Interval Cos  */
 	template<typename T>
@@ -383,6 +420,7 @@ namespace Interval{
 		}
 	}
 
+
 	/*  Interval Sin  */
 	template<typename T>
 	const interval<T> interval<T>::sin() const
@@ -443,6 +481,156 @@ namespace Interval{
 		}
 	}
 
+
+	/*  Interval Tan  */
+	template<typename T>
+	const interval<T> interval<T>::tan() const
+	{
+		int c;
+		auto a = pimpl->low(), b = pimpl->up();
+		if (b - a >= PI<T>())
+		{
+			throw Cranberries::over_flow("tan");
+		}
+		/*  base point set  */
+		if (static_cast<int>(nextafter(a * 2.0 / PI<T>(), max<T>())) < a)
+			c = static_cast<int>(nextafter(a * 2.0 / PI<T>(), max<T>()));
+		else
+			c = static_cast<int>(nextafter(a * 2.0 / PI<T>(), max<T>())) + 1 ;
+		/*  checking phase  */
+		if (a < (PI<T>() / static_cast<T>(2.0) * c) && (PI<T>() / static_cast<T>(2.0) * c) < b) {
+			throw Cranberries::over_flow("tan");
+		}
+		else if (a < (PI<T>() / static_cast<T>(2.0) * c - PI<T>()) && (PI<T>() / static_cast<T>(2.0) * c - PI<T>()) < b) {
+			throw Cranberries::over_flow("tan");
+		}
+		else if (a < PI<T>() / static_cast<T>(2.0) * c + PI<T>() && PI<T>() / static_cast<T>(2.0) * c + PI<T>() < b) {
+			throw Cranberries::over_flow("tan");
+		}
+		else if (nextafter(std::tan(a), -max<T>()) == -max<T>() || nextafter(std::tan(b), -max<T>()) == max<T>()) {
+			throw Cranberries::over_flow("tan");
+		}
+		else {
+			return interval<T>(nextafter(std::tan(a),-max<T>()), nextafter(std::tan(b),max<T>()));
+		}
+	}
+
+
+	/*  Interval ArcCos  */
+	template<typename T>
+	const interval<T> interval<T>::acos() const
+	{
+		auto a = pimpl->low(), b = pimpl->up();
+		if (a < -1.0 || b > 1.0) {
+			throw Craberries::invalid_argument("acos");
+		}
+		else {
+			return interval<T>(nextafter(std::acos(a), -max<T>()), nextafter(std::acos(b), max<T>()));
+		}
+	}
+
+
+	/*  Interval ArcSin  */
+	template<typename T>
+	const interval<T> interval<T>::asin() const
+	{
+		auto a = pimpl->low(), b = pimpl->up();
+		if (a < -1.0 || b > 1.0) {
+			throw Craberries::invalid_argument("asin");
+		}
+		else {
+			return interval<T>(nextafter(std::asin(b), -max<T>()), nextafter(std::asin(a), max<T>()));
+		}
+	}
+
+
+	/*  Interval ArcTan  */
+	template<typename T>
+	const interval<T> interval<T>::atan() const
+	{
+		auto a = pimpl->low(), b = pimpl->up();
+		if (a < -1.0 || b > 1.0) {
+			throw Cranberries::invalid_argument("asin");
+		}
+		else {
+			return interval<T>(nextafter(std::atan(a), -max<T>()), nextafter(std::atan(b), max<T>()));
+		}
+	}
+
+
+	/*  Interval Cosh  */
+	template<typename T>
+	const interval<T> interval<T>::cosh() const
+	{
+		auto a = pimpl->low(), b = pimpl->up();
+		if (nextafter(std::cosh(a), max<T>()) == max<T>() || nextafter(std::cosh(b), max<T>()) == max<T>()) {
+			throw Cranberries::over_flow("cosh");
+		}
+		if (a < 0.0 && b > 0.0) {
+			return interval<T>(1.0, std::fmax(nextafter(std::cosh(a), max<T>()), nextafter(std::cosh(b), max<T>())));
+		}
+		else if (b < 0.0) {
+			return interval<T>(nextafter(std::cosh(b), -max<T>()), nextafter(std::cosh(a), max<T>()));
+		}
+		else if(a > 0.0){
+			return interval<T>(nextafter(std::cosh(a), -max<T>()), nextafter(std::cosh(b), max<T>()));
+		}
+		else {
+			throw Cranberries::domain_error("cosh");
+		}
+	}
+
+
+	/*  Interval Sinh  */
+	template<typename T>
+	const interval<T> interval<T>::sinh() const
+	{
+		auto a = pimpl->low(), b = pimpl->up();
+		auto l = nextafter(std::sinh(a), -max<T>()), r = nextafter(std::sinh(b),max<T>());
+		if (a == -max<T>() || b == max<T>()) {
+			throw Cranberries::over_flow("sinh");
+		}
+		else {
+			return interval<T>(l,r);
+		}
+	}
+
+
+	/*  Interval Tanh  */
+	template<typename T>
+	const interval<T> interval<T>::tanh() const
+	{
+		return interval<T>(nextafter(std::tanh(pimpl->low()), -max<T>()), nextafter(std::tanh(pimpl->up()), -max<T>()));
+	}
+
+
+	/*  Interval ArcCosh  */
+	template<typename T>
+	const interval<T> interval<T>::acosh() const
+	{
+		auto a = pimpl->low();
+		auto b = pimpl->up();
+		if (a < static_cast<T>(1.0)) { 
+			throw Cranberries::invalid_argument("acosh"); 
+		}
+		else {
+			return interval<T>(nextafter(std::tanh(a), -max<T>()), nextafter(std::tanh(b), -max<T>()));
+		}
+	}
+	/*  Interval ArcSinh  */
+	template<typename T>
+	const interval<T> interval<T>::asinh() const
+	{
+		return interval<T>(nextafter(std::asinh(pimpl->low()), -max<T>()), nextafter(std::asinh(pimpl->up()), -max<T>()));
+	}
+
+	/*  Interval ArcTanh  */
+	template<typename T>
+	const interval<T> interval<T>::atanh() const
+	{
+		return interval<T>(nextafter(std::atanh(pimpl->low()), -max<T>()), nextafter(std::atanh(pimpl->up()), -max<T>()));
+	}
+
 	/*  Interval Pow  */
 	template<typename T>
 	const interval<T> interval<T>::pow(int n) const
@@ -456,51 +644,86 @@ namespace Interval{
 		}
 		else if (n % 2 == 0){
 			if (pimpl->up() <= 0.0){
+				if (nextafter(std::pow(pimpl->low(), n), max<T>()) == max<T>()
+					|| nextafter(std::pow(pimpl->up(), n), -max<T>()) == -max<T>())
+				{
+					throw Cranberries::over_flow("overflow occurred.");
+				}
 				return interval<T>(
 					nextafter(std::pow(pimpl->up(), n), -max<T>()),
 					nextafter(std::pow(pimpl->low(), n), max<T>()));
 			}
 			else if (pimpl->low() <= T() && pimpl->up() >= T()){
+				if (std::fmax(
+					nextafter(std::pow(pimpl->low(), n), -max<T>()),
+					nextafter(std::pow(pimpl->up(), n), max<T>())) == max<T>())
+				{
+					throw Cranberries::over_flow("overflow occurred.");
+				}
 				return interval<T>(T(), std::fmax(
 					nextafter(std::pow(pimpl->low(), n), -max<T>()),
 					nextafter(std::pow(pimpl->up(), n), max<T>())));
 			}
 		}
+		if (nextafter(std::pow(pimpl->up(), n), max<T>()) == max<T>() || 
+			nextafter(std::pow(pimpl->low(), n), -max<T>()) == max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return interval<T>(
 			nextafter(std::pow(pimpl->low(), n), -max<T>()),
 			nextafter(std::pow(pimpl->up(), n), max<T>()));
 	}
+
+
+	/*  Interval Sqrt  */
 	template<typename T>
 	const interval<T> interval<T>::sqrt() const
 	{
-		if (pimpl->low() < T()){ throw Interval::logic_error("sqrt arg requires positive number"); }
+		if (pimpl->low() < T()){ throw Cranberries::logic_error("sqrt arg requires positive number"); }
 		return interval<T>(
 			nextafter(std::sqrt(pimpl->low()), -max<T>()),
 			nextafter(std::sqrt(pimpl->up()), max<T>()));
 	}
+
+
+	/*  Interval Exp  */
 	template<typename T>
 	const interval<T> interval<T>::exp() const
 	{
+		if (nextafter(std::exp(pimpl->up()), max<T>()) == max<double>() || nextafter(std::exp(pimpl->low()), -max<T>()) == -max<T>())
+		{
+			throw Cranberries::over_flow("overflow occurred.");
+		}
 		return interval<T>(
 			nextafter(std::exp(pimpl->low()), -max<T>()),
 			nextafter(std::exp(pimpl->up()), max<T>()));
 	}
+
+
+	/*  Interval Log  */
 	template<typename T>
 	const interval<T> interval<T>::log() const
 	{
-		if (pimpl->low() <= 0.0){ throw Interval::logic_error("anti-logarithm less than or equal to zero"); }
+		if (pimpl->low() <= 0.0){ throw Cranberries::logic_error("anti-logarithm less than or equal to zero"); }
 		return interval<T>(
 			nextafter(std::log(pimpl->low()), -max<T>()),
 			nextafter(std::log(pimpl->up()), max<T>()));
 	}
+
+
+	/*  Interval Log10  */
 	template<typename T>
 	const interval<T> interval<T>::log10() const
 	{
-		if (pimpl->low() <= 0.0){ throw Interval::logic_error("anti-logarithm less than or equal to zero"); }
+		if (pimpl->low() <= 0.0){ throw Cranberries::logic_error("anti-logarithm less than or equal to zero"); }
 		return interval<T>(
 			nextafter(std::log10(pimpl->low()), -max<T>()),
 			nextafter(std::log10(pimpl->up()), max<T>()));
 	}
+
+
+	/*  Interval Abs  */
 	template<typename T>
 	const interval<T> interval<T>::abs() const
 	{
@@ -516,11 +739,17 @@ namespace Interval{
 			return interval<T>(*this);
 		}
 	}
+
+
+	/*  middle point  */
 	template<typename T>
 	const T interval<T>::mid() const
 	{
 		return (pimpl->up() + pimpl->low()) / static_cast<T>(2.0);
 	}
+
+
+	/*  width  */
 	template<typename T>
 	const T interval<T>::wid() const
 	{
@@ -530,12 +759,12 @@ namespace Interval{
 	/*  Interval Getter and Setter  */
 
 	template<typename T>
-	const T interval<T>::low() const
+	constexpr T interval<T>::low() const
 	{
 		return pimpl->low();
 	}
 	template<typename T>
-	const T interval<T>::up() const
+	constexpr T interval<T>::up() const
 	{
 		return pimpl->up();
 	}
@@ -563,47 +792,47 @@ namespace Interval{
 	/*  Interval Advanced Relational Discriminator Function  */
 
 	template<typename T>
-	Interval_Relation interval<T>::relational(interval<T> const& x) const
+	Cranberries_Relation interval<T>::relational(interval<T> const& x) const
 	{
 		if (total_equal(*this, x))
 		{
-			return Interval_Relation::equal;
+			return Cranberries_Relation::equal;
 		}
 		else if (pimpl->low() == (x.pimpl)->low() && pimpl->up() < (x.pimpl)->up())
 		{
-			return Interval_Relation::total_less;
+			return Cranberries_Relation::total_less;
 		}
 		else if (pimpl->low() == (x.pimpl)->low() && pimpl->up() > (x.pimpl)->up())
 		{
-			return Interval_Relation::total_greater;
+			return Cranberries_Relation::total_greater;
 		}
 		else if (pimpl->low() < (x.pimpl)->low() && pimpl->up() == (x.pimpl)->up())
 		{
-			return Interval_Relation::weak_less;
+			return Cranberries_Relation::weak_less;
 		}
 		else if (pimpl->low() > (x.pimpl)->low() && pimpl->up() == (x.pimpl)->up())
 		{
-			return Interval_Relation::weak_greater;
+			return Cranberries_Relation::weak_greater;
 		}
 		else if (pimpl->low() < (x.pimpl)->low() && pimpl->up() < (x.pimpl)->up())
 		{
-			return Interval_Relation::partial_less;
+			return Cranberries_Relation::partial_less;
 		}
 		else if (pimpl->low() > (x.pimpl)->low() && pimpl->up() > (x.pimpl)->up())
 		{
-			return Interval_Relation::partial_less;
+			return Cranberries_Relation::partial_less;
 		}
 		else if (pimpl->low() <= (x.pimpl)->low() && pimpl->up() >= (x.pimpl)->up())
 		{
-			return Interval_Relation::contain;
+			return Cranberries_Relation::contain;
 		}
 		else if (pimpl->low() >= (x.pimpl)->low() && pimpl->up() <= (x.pimpl)->up())
 		{
-			return Interval_Relation::part_of;
+			return Cranberries_Relation::part_of;
 		}
 		else
 		{
-			return Interval_Relation::niether;
+			return Cranberries_Relation::niether;
 		}
 	}
 
@@ -613,12 +842,12 @@ namespace Interval{
 	template<typename T>
 	bool interval<T>::operator<(interval<T> const& x) const
 	{
-		return weak_less(*this, x);
+		return total_less(*this, x);
 	}
 	template<typename T>
 	bool interval<T>::operator>(interval<T> const& x) const
 	{
-		return weak_greater(*this, x);
+		return total_greater(*this, x);
 	}
 
 	template<typename T>
@@ -654,7 +883,7 @@ namespace Interval{
 	/*  Default Ctor  */
 
 	template<typename T>
-	interval<T>::interval()
+	constexpr interval<T>::interval()
 		: pimpl{ std::make_unique<impl>() }
 	{
 		pimpl->do_internal_work();
@@ -663,7 +892,7 @@ namespace Interval{
 	/*  Two Lvalue Arg Ctor  */
 
 	template<typename T>
-	interval<T>::interval(T& low, T& up)
+	constexpr interval<T>::interval(T& low, T& up)
 		: pimpl{ std::make_unique<impl>() }
 	{
 		if (low > up){ throw invalid_argument("upper_bound less than lower_bound!"); }
@@ -673,7 +902,7 @@ namespace Interval{
 	/*  Two Rvalue Arg Ctor  */
 
 	template<typename T>
-	interval<T>::interval(T&& low, T&& up)
+	constexpr interval<T>::interval(T&& low, T&& up)
 		: pimpl{ std::make_unique<impl>() }
 	{
 		if (low > up){ throw invalid_argument("upper_bound less than lower_bound!"); }
@@ -843,7 +1072,7 @@ namespace Interval{
 	{
 		if (x.lower_bound <= T() && x.upper_bound >= T())
 		{
-			throw logic_error("Divided by Interval which contains Zero!");
+			throw logic_error("Divided by Cranberries which contains Zero!");
 		}
 		else
 		{
@@ -900,12 +1129,12 @@ namespace Interval{
 	/*  Getter and Setter  */
 
 	template<typename T>
-	const T interval<T>::impl::low() const
+	constexpr T interval<T>::impl::low() const
 	{
 		return lower_bound;
 	}
 	template<typename T>
-	const T interval<T>::impl::up() const
+	constexpr T interval<T>::impl::up() const
 	{
 		return upper_bound;
 	}
@@ -917,32 +1146,122 @@ namespace Interval{
 	{
 		return s << "[ " << lower_bound << " , " << upper_bound << " ]";
 	}
+	template<typename T>
+	using interval_list = std::initializer_list<interval<T>>;
 
 
+	/*  Interval Max  */
+	template<typename T>
+	const interval<T> max(interval<T>& a, interval<T>& b)
+	{
+		return a > b ? a : b;
+	}
+	template<typename T>
+	const interval<T> max(std::initializer_list<interval<T>> list)
+	{
+		std::vector<interval<T>> tmp(list);
+		std::nth_element(tmp.begin(), tmp.begin(), tmp.end(), [&](interval<T>& a, interval<T>& b) {return a > b;});
+		return *(tmp.begin());
+	}
+	template<typename T, class Pred>
+	const interval<T> max(std::initializer_list<interval<T>> list, Pred pred)
+	{
+		std::vector<interval<T>> tmp(list);
+		std::nth_element(tmp.begin(), tmp.begin(), tmp.end(), [&](interval<T>& a, interval<T>& b) {return pred(a,b);});
+		return *(tmp.begin());
+	}
+	template < typename T, typename Pred>
+	const interval<T> max(interval<T>& a, interval<T>& b, Pred pred)
+	{
+		return pred(a, b) ? a : b;
+	}
+
+	/*  Interval Min  */
+	template<typename T>
+	const interval<T> min(interval<T>& a, interval<T>& b)
+	{
+		return a < b ? a : b;
+	}
+	template<typename T>
+	const interval<T> min(interval_list<T> list)
+	{
+		std::vector<interval<T>> tmp(list);
+		std::nth_element(tmp.begin(), tmp.begin(), tmp.end(), [&](interval<T>& a, interval<T>& b) {return a < b;});
+		return *(tmp.begin());
+	}
+	template<typename T, class Pred>
+	const interval<T> min(std::initializer_list<interval<T>> list, Pred pred)
+	{
+		std::vector<interval<T>> tmp(list);
+		std::nth_element(tmp.begin(), tmp.begin(), tmp.end(), [&](interval<T>& a, interval<T>& b) {return pred(a, b);});
+		return *(tmp.begin());
+	}
+	template<typename T, class Pred>
+	const interval<T> min(interval<T>& a, interval<T>& b, Pred pred)
+	{
+		return pred(a, b) ? a : b;
+	}
 
 
-	//---------------------------------------------------//
-	/*                                                   */
-	/*  Generic Type Interval Numeric Func Overloading   */
-	/*                                                   */
-	//---------------------------------------------------//
+	//-----------------------------------------------------//
+	/*                                                     */
+	/*  Generic Formed Interval Numeric Func Overloading   */
+	/*                                                     */
+	//-----------------------------------------------------//
 
 
-	/*  Generic Interval Numeric  */
+	/*  Generic Formed Interval Numeric Func  */
 	template<typename T>
 	interval<T> sin(const interval<T>& a) { return a.sin(); }
+
 	template<typename T>
 	interval<T> cos(const interval<T>& a) { return a.cos(); }
+
+	template<typename T>
+	interval<T> tan(const interval<T>& a) { return a.tan(); }
+
+	template<typename T>
+	interval<T> asin(const interval<T>& a) { return a.asin(); }
+
+	template<typename T>
+	interval<T> acos(const interval<T>& a) { return a.acos(); }
+
+	template<typename T>
+	interval<T> atan(const interval<T>& a) { return a.atan(); }
+
+	template<typename T>
+	interval<T> sinh(const interval<T>& a) { return a.sinh(); }
+
+	template<typename T>
+	interval<T> cosh(const interval<T>& a) { return a.cosh(); }
+
+	template<typename T>
+	interval<T> tanh(const interval<T>& a) { return a.tanh(); }
+
+	template<typename T>
+	interval<T> asinh(const interval<T>& a) { return a.asinh(); }
+
+	template<typename T>
+	interval<T> acosh(const interval<T>& a) { return a.acosh(); }
+
+	template<typename T>
+	interval<T> atanh(const interval<T>& a) { return a.atanh(); }
+
 	template<typename T>
 	interval<T> exp(const interval<T>& a) { return a.exp(); }
+
 	template<typename T>
 	interval<T> pow(const interval<T>& a, int const& n) { return a.pow(n); }
+
 	template<typename T>
 	interval<T> abs(const interval<T>& a) { return a.abs(); }
+
 	template<typename T>
 	interval<T> log(const interval<T>& a) { return a.log(); }
+
 	template<typename T>
 	interval<T> log10(const interval<T>& a) { return a.log10(); }
+
 	template<typename T>
 	interval<T> sqrt(const interval<T>& a) { return a.sqrt(); }
 
@@ -962,105 +1281,105 @@ namespace Interval{
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value >>
 	double abs(T&& x) { return std::abs(std::forward<T>(x)); }
 
-	template <typename T, std::enable_if_t<std::is_same<Interval::interval_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::interval_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::string enum2string(T&& x)
 	{
 		switch (x)
 		{
-		case Interval::interval_ordering::less:
+		case Cranberries::interval_ordering::less:
 			return std::string("less");
-		case Interval::interval_ordering::greater:
+		case Cranberries::interval_ordering::greater:
 			return std::string("greater");
-		case Interval::interval_ordering::unordered:
+		case Cranberries::interval_ordering::unordered:
 			return std::string("unordered");
 		}
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::partial_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::partial_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::string enum2string(T&& x)
 	{
 		switch (x)
 		{
-		case Interval::partial_ordering::less:
+		case Cranberries::partial_ordering::less:
 			return std::string("less");
-		case Interval::partial_ordering::greater:
+		case Cranberries::partial_ordering::greater:
 			return std::string("greater");
-		case Interval::partial_ordering::unordered:
+		case Cranberries::partial_ordering::unordered:
 			return std::string("unordered");
 		}
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::weak_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::weak_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::string enum2string(T&& x)
 	{
 		switch (x)
 		{
-		case Interval::weak_ordering::less:
+		case Cranberries::weak_ordering::less:
 			return std::string("less");
-		case Interval::weak_ordering::greater:
+		case Cranberries::weak_ordering::greater:
 			return std::string("greater");
-		case Interval::weak_ordering::equivalent:
+		case Cranberries::weak_ordering::equivalent:
 			return std::string("equivalent");
 		}
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::total_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::total_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::string enum2string(T&& x)
 	{
 		switch (x)
 		{
-		case Interval::total_ordering::less:
+		case Cranberries::total_ordering::less:
 			return std::string("less");
-		case Interval::total_ordering::greater:
+		case Cranberries::total_ordering::greater:
 			return std::string("greater");
-		case Interval::total_ordering::equal:
+		case Cranberries::total_ordering::equal:
 			return std::string("equal");
 		}
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::Interval_Relation, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::Cranberries_Relation, std::decay_t<T>>::value>*& = enabler >
 	std::string enum2string(T&& x)
 	{
 		switch (x)
 		{
-		case Interval::Interval_Relation::interval_less:
+		case Cranberries::Cranberries_Relation::interval_less:
 			return std::string("interval_less");
-		case Interval::Interval_Relation::interval_greater:
+		case Cranberries::Cranberries_Relation::interval_greater:
 			return std::string("interval_greater");
-		case Interval::Interval_Relation::partial_less:
+		case Cranberries::Cranberries_Relation::partial_less:
 			return std::string("partial_less");
-		case Interval::Interval_Relation::partial_greater:
+		case Cranberries::Cranberries_Relation::partial_greater:
 			return std::string("partial_greater");
-		case Interval::Interval_Relation::weak_less:
+		case Cranberries::Cranberries_Relation::weak_less:
 			return std::string("weak_less");
-		case Interval::Interval_Relation::weak_greater:
+		case Cranberries::Cranberries_Relation::weak_greater:
 			return std::string("weak_greater");
-		case Interval::Interval_Relation::contain:
+		case Cranberries::Cranberries_Relation::contain:
 			return std::string("contain");
-		case Interval::Interval_Relation::part_of:
+		case Cranberries::Cranberries_Relation::part_of:
 			return std::string("part_of");
-		case Interval::Interval_Relation::niether:
+		case Cranberries::Cranberries_Relation::niether:
 			return std::string("niether");
 		}
 	}
 
-	template <typename T, std::enable_if_t<std::is_same<Interval::interval_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::interval_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::ostream& operator<<(std::ostream& s, T&& x)
 	{
 		return (s << enum2string(x));
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::partial_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::partial_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::ostream& operator<<(std::ostream& s, T&& x)
 	{
 		return (s << enum2string(x));
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::weak_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::weak_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::ostream& operator<<(std::ostream& s, T&& x)
 	{
 		return (s << enum2string(x));
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::total_ordering, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::total_ordering, std::decay_t<T>>::value>*& = enabler >
 	std::ostream& operator<<(std::ostream& s, T&& x)
 	{
 		return (s << enum2string(x));
 	}
-	template <typename T, std::enable_if_t<std::is_same<Interval::Interval_Relation, std::decay_t<T>>::value>*& = enabler >
+	template <typename T, std::enable_if_t<std::is_same<Cranberries::Cranberries_Relation, std::decay_t<T>>::value>*& = enabler >
 	std::ostream& operator<<(std::ostream& s, T&& x)
 	{
 		return (s << enum2string(x));
@@ -1073,14 +1392,14 @@ namespace Interval{
 	{
 		return x.print(s);
 	}
-	/*  Generic Wid  */
+	/*  Generic Width  */
 
 	template< typename T >
 	auto wid(T&& x)->decltype(x.wid())
 	{
 		return x.wid();
 	}
-	/*  Generic Mid  */
+	/*  Generic Middle  */
 
 	template< typename T >
 	auto mid(T&& x)->decltype(x.mid())
@@ -1092,11 +1411,11 @@ namespace Interval{
 	//-------------------------------//
 	/*                               */
 	/*     Four Arithmetic Op        */
-	/*     3 Type Overloading        */
+	/*     3 Types Overloading       */
 	/*                               */
-	/*     T Op Interval<U> ,        */
-	/*     Interval<U> Op T , and    */
-	/*   Interval<T> Op Interval<T>  */
+	/*     T Op interval<U> ,        */
+	/*     interval<U> Op T , and    */
+	/*   interval<T> Op interval<T>  */
 	/*                               */
 	//-------------------------------//
 
@@ -1173,7 +1492,7 @@ namespace Interval{
 	interval<U> operator /(T&& x, const interval<U>& y)
 	{
 		if (y.low() <= T() && T() <= y.up())
-			throw Interval::logic_error("Divided by Interval which contains zero!");
+			throw Cranberries::logic_error("Divided by Cranberries which contains zero!");
 		else if (y.low() > T())
 			return (interval<U>(y.low() / x, y.up() / x));
 		else
@@ -1185,7 +1504,7 @@ namespace Interval{
 	interval<U> operator /(const interval<U>& x, T&& y)
 	{
 		if (y == T())
-			throw Interval::logic_error("Divided by Zero!");
+			throw Cranberries::logic_error("Divided by Zero!");
 		else if (y > T())
 			return (interval<U>(x.low() / y, x.up() / y));
 		else
@@ -1244,7 +1563,7 @@ namespace Interval{
 	/*  C string  */
 
 	template<typename T>
-	const char* Interval::interval<T>::c_str() const
+	const char* Cranberries::interval<T>::c_str() const
 	{
 		auto s = new std::string("[ " + std::to_string(this->low()) + " , " + std::to_string(this->up()) + " ]");
 		return (s->c_str());
@@ -1356,13 +1675,23 @@ namespace Interval{
 	template<typename T>
 	bool total_less(interval<T> const& x, interval<T> const& y)
 	{
-		return (x.low() < y.low() || x.up() < y.up());
+		if (x.low() == y.low()) {
+			return x.up() < y.up();
+		}
+		else {
+			return x.low() < y.low();
+		}
 	}
 
 	template<typename T>
 	bool total_greater(interval<T> const& x, interval<T> const& y)
 	{
-		return (x.low() > y.low() || x.up() > y.up());
+		if (x.low() == y.low()) {
+			return x.up() > y.up();
+		}
+		else {
+			return x.low() > y.low();
+		}
 	}
 
 	template<typename T>
@@ -1379,17 +1708,17 @@ namespace Interval{
 	/*  Interval Ordering  */
 
 	template<typename T>
-	Interval::interval_ordering interval_order(Interval::interval<T>& x, Interval::interval<T>& y)
+	Cranberries::interval_ordering interval_order(Cranberries::interval<T>& x, Cranberries::interval<T>& y)
 	{
-		if (interval_less(x, y)){ return Interval::interval_ordering::less; }
-		else if (interval_greater(x, y)){ return Interval::interval_ordering::greater; }
-		else{ return Interval::interval_ordering::unordered; }
+		if (interval_less(x, y)){ return Cranberries::interval_ordering::less; }
+		else if (interval_greater(x, y)){ return Cranberries::interval_ordering::greater; }
+		else{ return Cranberries::interval_ordering::unordered; }
 	}
 
 	/*  Partial Ordering  */
 
 	template<typename T>
-	Interval::partial_ordering partial_order(Interval::interval<T>& x, Interval::interval<T>& y)
+	Cranberries::partial_ordering partial_order(Cranberries::interval<T>& x, Cranberries::interval<T>& y)
 	{
 		if (partial_less(x, y)){ return partial_ordering::less; }
 		else if (partial_greater(x, y)){ return partial_ordering::greater; }
@@ -1399,7 +1728,7 @@ namespace Interval{
 	/*  Weak ordering  */
 
 	template<typename T>
-	Interval::weak_ordering weak_order(Interval::interval<T>& x, Interval::interval<T>& y)
+	Cranberries::weak_ordering weak_order(Cranberries::interval<T>& x, Cranberries::interval<T>& y)
 	{
 		if (weak_less(x, y)){ return weak_ordering::less; }
 		else if (weak_greater(x, y)){ return weak_ordering::greater; }
@@ -1409,7 +1738,7 @@ namespace Interval{
 	/*  Total Ordering  */
 
 	template<typename T>
-	Interval::total_ordering total_order(Interval::interval<T>& x, Interval::interval<T>& y)
+	Cranberries::total_ordering total_order(Cranberries::interval<T>& x, Cranberries::interval<T>& y)
 	{
 		if (total_less(x, y)){ return total_ordering::less; }
 		else if (total_greater(x, y)){ return total_ordering::greater; }
@@ -1418,13 +1747,16 @@ namespace Interval{
 	template<typename T>
 	bool interval<T>::is_contain(interval const& x) const
 	{
-		return (this->relational(x) == Interval_Relation::contain);
+		return (this->relational(x) == Cranberries_Relation::contain);
 	}
 	template<typename T>
 	bool interval<T>::is_part_of(interval const& x) const
 	{
-		return (this->relational(x) == Interval_Relation::part_of);
+		return (this->relational(x) == Cranberries_Relation::part_of);
 	}
+
+
+	/*  This func returns two interval subparts just splitted middle point as vector<interval<T>> */
 	template<class T>
 	std::vector<interval<T>>  subpart(interval<T>& x)
 	{
@@ -1434,6 +1766,5 @@ namespace Interval{
 		return val;
 	}
 
-
-}//end namespace Interval
+}//end namespace Cranberries
 #endif //!INTERVAL_H
