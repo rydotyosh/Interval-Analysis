@@ -762,16 +762,10 @@ X > Y iff ∃y∀x, y < x
 
 total orderingでは
 ```
-X < Y iff if(a==c) -> b < d else -> a < c  
-X > Y iff if(a==c) -> b < d else -> a < c  
+X < Y iff if(a=c) -> b < d else -> a < c  
+X > Y iff if(a=c) -> b < d else -> a < c  
 ```
 とする.  
-厳密にいうと
-```
-X < Y iff ∃x∀y, x < y ∨ ∃y∀x, y < x
-X < Y iff ∃y∀x, y < x ∨ ∃y∀x, x < y
-```
-と定義します.  
 
 簡単に証明をしておきます.  
 厳密な証明をすると集合論の王国へ入国してしまうのでここではしません.
@@ -843,36 +837,28 @@ Q.E.D.
 ```
 を満たすことを証明する.  
 ```
-X < Y iff a < c ∨ b < d
-X < Y iff a > c ∨ b > d
+X < Y iff if(a=c) -> b < d else -> a < c  
+X > Y iff if(a=c) -> b > d else -> a > c  
 とすると
+a≠cと仮定すると
 X < Y = false かつ
 X > Y = false
-であることは
-￢(X < Y) = true かつ
-￢(X > Y) = true
-と同値である.
-
-ド・モルガンの法則により
-X < Y と X > Yの補集合を考える.
-￢(X < Y)
-={ ￢(a < c ∨ b < d) }
-={ ￢(a < c) ∧ ￢(b < d) }
-={ a>=c ∧ b >=c } (1)
-である.  
-同様に
-￢(X > Y)
-={ a<=c ∧ b <=c } (2)
-(1),(2)を同時に満たすためには
-a=c ∧ b=d
+であるためには
+a < c ∧ a > d
 でなければならない
-つまり
-X = Y
-である.
-よって,
-X < Y = false ∧ X > Y = false ならば X=Y
-である.
-よってtotal orderingの4つ目の条件を満たす
+a < c ∧ a > d　ならば　a=c
+であるため
+これは仮定と矛盾する
+よって
+a=cでなければならず
+その場合
+b < d ∧ b > d
+でなけれならい
+よって
+a=c ∧ b=d
+となる
+
+これはtotal orderingの4つ目の条件を満たす
 Q.E.D.
 
 ```
@@ -902,20 +888,20 @@ a > c ∧ b > d のとき true
 partial_unordered(X,Y)
 partial_less(X,Y)==false ∧ partial_greater(X,Y)==false のとき true
 
-weak_less(X,Y) <- operator<のデフォルト
+weak_less(X,Y)
 a < c のとき true
 
-weak_greater(X,Y) <- operator>のデフォルト
+weak_greater(X,Y)
 a > c のとき true
 
 weal_equal(X,Y)
 a == c のとき true
 
-total_less(X,Y)
-a < b ∨ b < d のとき true
+total_less(X,Y) <- operator<のデフォルト
+a < c (a=cならばb < d)  のとき true
 
-total_greater(X,Y)
-a > b ∨ b > d のとき true
+total_greater(X,Y) <- operator>のデフォルト
+a > c (a=cならばb > d) のとき true
 
 total_equal(X,Y) <- operator=(!=)のデフォルト
 a == c ∧ b == d のとき true
