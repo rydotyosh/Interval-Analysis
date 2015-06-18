@@ -1,8 +1,7 @@
 #Systax and Features of Interval Library
 ---
 ##はじめに[Readme]
-本ライブラリの開発はプログラミング言語C++11でおこなわれている.開発環境はVisual Studio 2013 Ultimate(compiler=VC12)である.  
-clangでコンパイルすることはあるが,基本的にしていないと心得ておくこと.  
+本ライブラリの開発はプログラミング言語C++11でおこなわれている.開発環境はVisual Studio 2015 RC Community(compiler=VC14)である.  
 記載されたコードはファイルインクルードや名前空間の修飾が省略されており,そのままではほぼ動作しない.  
 あらかじめ了承ください.  
 
@@ -76,7 +75,7 @@ auto x = interval( ) ; // error! needs to template argument.
 auto x = hull( 1.0 , 2.0 ) ; // x は interval<double>
 
 ```
-デフォルトコンストラクタ,2引数（左辺値）コンストラクタ,2引数（右辺値）コンストラクタ  
+デフォルトコンストラクタ,2引数コンストラクタ（左辺値）,2引数コンストラクタ（右辺値）  
 コピーコンストラクタ,ムーブコンストラクタ,コピー代入演算子が使える.  
 ```cpp
 // デフォルトコンストラクタ 上下限はdouble()で初期化される
@@ -97,7 +96,7 @@ auto y = x ;
 
 また,inteval class はムーブコンストラクタとムーブ代入演算子が定義されている.  
 ムーブセマンティクスが利用できる.  
-MoveはRvalue Referenceと対になるC++11のコア言語機能である.解説はしない.  
+MoveはRvalue Referenceと対になるC++11のコア言語機能である.各自で勉強されること.  
 
 
 区間の定義の方法とコンストラクタ等のポリシーの解説は以上である.  
@@ -147,27 +146,28 @@ Relational operator については,関数のrelational functionsの項目で詳
 その他はすべてグローバル関数で定義されている.  
 `operator+`を例に挙げる.  
 ```cpp
-//interval addition operator
-template <typename T,typename U, typename = typename std::enable_if <
-!std::is_same<interval<U>, typename std::decay<T>::type>::value>::type>
-interval<U> operator +(T&& x, const interval<U>& y)
-{ return (interval<U>(y.get_low() + x, y.get_up() + x)); }
+template <typename T>
+interval<T> operator +(T&& x, const interval<T>& y)
+{
+	return (interval<T>(y.low() + x, y.up() + x));
+}
 
-template <typename T,typename U, typename = typename std::enable_if <
-!std::is_same<interval<U>, typename std::decay<T>::type>::value>::type>
-interval<U> operator +(const interval<U>& x, T&& y)
-{ return (interval<U>(x.get_low() + y, x.get_up() + y)); }
+template <typename T>
+interval<T> operator +(const interval<T>& x, T&& y)
+{
+	return (interval<T>(x.low() + y, x.up() + y));
+}
 
 template<typename T>
 const interval<T> operator +(const interval<T>& x, const interval<T>& y)
 {
-return interval<T>(x) += y;
+	return interval<T>(x) += y;
 }
+
 ```
-つまり,`interval<U> + T` や `T + interval<U>` が可能である.  
-返り値は`interval<U>`なので`T`は`U`に型変換されることに注意が必要だ.  
+つまり,`interval<T> + T` や `T + interval<T>` が可能である.  
 また,パフォーマンスを優先して複合代入演算子を呼び出すか,直感的にわかりやすいコードか,いずれかを選択することができる.  
-つまり,こういうことだ.  
+つまり,以下のコードを選択できる.  
 ```cpp
 interval<double> a , b , c ;
 
@@ -179,9 +179,9 @@ auto y(a) ;
 y+=b ;
 y+=c ;
 ```
-パターン1はわかりやすいし数学ではこう書く.  
+パターン1はわかりやすいし数学ではこのように書く.  
 このとき,コードはどう解釈されるか？
-答えはこうだ
+答えは以下のようになる
 ```cpp
 x = interval<double>( ) ;
 interval<double> tmp1 = a + b ;
@@ -253,7 +253,7 @@ T += interval<T>
 ##区間関数[Interval Expanded Functions]
 
 区間の関数は大きく分けて3種類ある.
-数学関数,セッターとゲッター,関係性だ.  
+数学関数,アクセッサ,関係性だ.  
 そのすべてを以下に列挙する.  
 
 ```cpp
@@ -762,8 +762,8 @@ X > Y iff ∃y∀x, y < x
 
 total orderingでは
 ```
-X < Y iff a < c ∨ b < d
-X > Y iff a > c ∨ b > d
+X < Y iff if(a==c) -> b < d else -> a < c  
+X > Y iff if(a==c) -> b < d else -> a < c  
 ```
 とする.  
 厳密にいうと
