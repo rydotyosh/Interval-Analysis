@@ -10,7 +10,6 @@
 #include <memory>
 #include <vector>
 #include <initializer_list>
-#include <numeric>
 #include <algorithm>
 
 using std::nextafter;
@@ -22,7 +21,10 @@ namespace Cranberries
 	
 	enum class Version_Tag {
 		Version1_0_00 = 0x01000000,
-		now_ver = Version1_0_00,
+		Version1_0_01 = 0x01000001,
+		Version2_0_00 = 0x02000000,
+		Version3_0_00 = 0x03000000,
+		now_ver = Version1_0_01,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -171,9 +173,6 @@ namespace Cranberries
 
 
 
-
-
-
 	//----------------------------------//
 	/*                                  */
 	/*       class declaration          */
@@ -191,8 +190,8 @@ namespace Cranberries
 		/*  Set Zero Value  */
 		void do_internal_work()
 		{
-			lower_bound = T();
-			upper_bound = T();
+			lower_bound = T{};
+			upper_bound = T{};
 		}
 		/*  Set Initial Value */
 		void do_internal_work(T& low, T& up)
@@ -255,10 +254,10 @@ namespace Cranberries
 		}
 	private:
 		/*  Lower Bound  */
-		T lower_bound = T();
+		T lower_bound = T{};
 
 		/*  Upper Bound  */
-		T upper_bound = T();
+		T upper_bound = T{};
 	};
 
 
@@ -277,7 +276,7 @@ namespace Cranberries
 	const interval<T> interval<T>::operator +=(const interval& x)
 	{
 		pimpl->operator+=(*(x.pimpl));
-		if (this->up() == max<double>() || this->low() == -max<T>())
+		if (this->up() == max<T>() || this->low() == -max<T>())
 		{
 			throw Cranberries::over_flow("overflow occurred.");
 		}
@@ -287,7 +286,7 @@ namespace Cranberries
 	const interval<T> interval<T>::operator -=(const interval& x)
 	{
 		pimpl->operator-=(*(x.pimpl));
-		if (this->up() == max<double>() || this->low() == -max<T>())
+		if (this->up() == max<T>() || this->low() == -max<T>())
 		{
 			throw Cranberries::over_flow("overflow occurred.");
 		}
@@ -297,7 +296,7 @@ namespace Cranberries
 	const interval<T> interval<T>::operator *=(const interval& x)
 	{
 		pimpl->operator*=(*(x.pimpl));
-		if (this->up() == max<double>() || this->low() == -max<T>())
+		if (this->up() == max<T>() || this->low() == -max<T>())
 		{
 			throw Cranberries::over_flow("overflow occurred.");
 		}
@@ -307,7 +306,7 @@ namespace Cranberries
 	const interval<T> interval<T>::operator /=(const interval& x)
 	{
 		pimpl->operator/=(*(x.pimpl));
-		if (this->up() == max<double>() || this->low() == -max<T>())
+		if (this->up() == max<T>() || this->low() == -max<T>())
 		{
 			throw Cranberries::over_flow("overflow occurred.");
 		}
@@ -321,7 +320,7 @@ namespace Cranberries
 	const interval<T> interval<T>::operator ++()
 	{
 		(*pimpl)++;
-		if (this->up() == max<double>() || this->low() == -max<T>())
+		if (this->up() == max<T>() || this->low() == -max<T>())
 		{
 			throw Cranberries::over_flow("overflow occurred.");
 		}
@@ -333,7 +332,7 @@ namespace Cranberries
 	{
 		auto tmp(*this);
 		(*pimpl)++;
-		if (this->up() == max<double>() || this->low() == -max<T>())
+		if (this->up() == max<T>() || this->low() == -max<T>())
 		{
 			throw Cranberries::over_flow("overflow occurred.");
 		}
@@ -359,7 +358,7 @@ namespace Cranberries
 	
 
 	//--------------------------------------------//
-	//                                            //
+	//							                  //
 	/*    Interval Numeric Function Definition    */
 	//                                            //
 	//--------------------------------------------//
@@ -658,14 +657,14 @@ namespace Cranberries
 					nextafter(std::pow(pimpl->up(), n), -max<T>()),
 					nextafter(std::pow(pimpl->low(), n), max<T>()));
 			}
-			else if (pimpl->low() <= T() && pimpl->up() >= T()){
+			else if (pimpl->low() <= T{} && pimpl->up() >= T{}){
 				if (std::fmax(
 					nextafter(std::pow(pimpl->low(), n), -max<T>()),
 					nextafter(std::pow(pimpl->up(), n), max<T>())) == max<T>())
 				{
 					throw Cranberries::over_flow("overflow occurred.");
 				}
-				return interval<T>(T(), std::fmax(
+				return interval<T>(T{}, std::fmax(
 					nextafter(std::pow(pimpl->low(), n), -max<T>()),
 					nextafter(std::pow(pimpl->up(), n), max<T>())));
 			}
@@ -685,7 +684,7 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::sqrt() const
 	{
-		if (pimpl->low() < T()){ throw Cranberries::logic_error("sqrt arg requires positive number"); }
+		if (pimpl->low() < T{}){ throw Cranberries::logic_error("sqrt arg requires positive number"); }
 		return interval<T>(
 			nextafter(std::sqrt(pimpl->low()), -max<T>()),
 			nextafter(std::sqrt(pimpl->up()), max<T>()));
@@ -696,7 +695,7 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::exp() const
 	{
-		if (nextafter(std::exp(pimpl->up()), max<T>()) == max<double>() || nextafter(std::exp(pimpl->low()), -max<T>()) == -max<T>())
+		if (nextafter(std::exp(pimpl->up()), max<T>()) == max<T>() || nextafter(std::exp(pimpl->low()), -max<T>()) == -max<T>())
 		{
 			throw Cranberries::over_flow("overflow occurred.");
 		}
@@ -732,11 +731,11 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::abs() const
 	{
-		if (pimpl->low() < T() && pimpl->up() > T())
+		if (pimpl->low() < T{} && pimpl->up() > T{})
 		{
-			return interval<T>(T(), nextafter(std::fmax(std::abs(pimpl->low()), std::abs(pimpl->up())), max<T>()));
+			return interval<T>(T{}, nextafter(std::fmax(std::abs(pimpl->low()), std::abs(pimpl->up())), max<T>()));
 		}
-		if (pimpl->up() < T())
+		if (pimpl->up() < T{})
 		{
 			return interval<T>(-pimpl->up(), -pimpl->low());
 		}
@@ -807,7 +806,7 @@ namespace Cranberries
 		pimpl->set_low(x);
 	}
 
-	/*  Interval Advanced Relational Discriminator Functiontion  */
+	/*  Interval Advanced Relational Discriminator Function  */
 
 	template<typename T>
 	Cranberries_Relation interval<T>::relational(interval<T> const& x) const
@@ -980,11 +979,11 @@ namespace Cranberries
 	}
 
 
-	//------------------------------//
-	/*                              */
+	//--------------------------//
+	/*                          */
 	/*     Impl Member Function     */
-	/*                              */
-	//------------------------------//
+	/*                          */
+	//--------------------------//
 
 
 	/*  Compound Assignment Op Definition  */
@@ -1013,15 +1012,15 @@ namespace Cranberries
 
 		if (this == &x)
 		{
-			if (r <= T())
+			if (r <= T{})
 			{
 				lower_bound = nextafter(r * r, -max<T>());
 				upper_bound = nextafter(l * l, max<T>());
 				return *this;
 			}
-			else if (lower_bound <= T() && upper_bound >= T())
+			else if (lower_bound <= T{} && upper_bound >= T{})
 			{
-				lower_bound = T();
+				lower_bound = T{};
 				upper_bound = std::fmax(nextafter(l * l, max<T>()), nextafter(r * r, max<T>()));
 				return *this;
 			}
@@ -1032,48 +1031,48 @@ namespace Cranberries
 				return *this;
 			}
 		}
-		else if (l >= T() && x.lower_bound >= T()){
+		else if (l >= T{} && x.lower_bound >= T{}){
 			lower_bound = nextafter(l * x.lower_bound, -max<T>());
 			upper_bound = nextafter(r * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l >= T() && x.lower_bound < T() && x.upper_bound > T())
+		else if (l >= T{} && x.lower_bound < T{} && x.upper_bound > T{})
 		{
 			lower_bound = nextafter(upper_bound * x.lower_bound, -max<T>());
 			upper_bound = nextafter(upper_bound * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l >= T() && x.upper_bound <= T())
+		else if (l >= T{} && x.upper_bound <= T{})
 		{
 			lower_bound = nextafter(r * x.lower_bound, -max<T>());
 			upper_bound = nextafter(l * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l < T() && r > T() && x.lower_bound >= T())
+		else if (l < T{} && r > T{} && x.lower_bound >= T{})
 		{
 			lower_bound = nextafter(l * x.upper_bound, -max<T>());
 			upper_bound = nextafter(r * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l < T() && r > T() && x.upper_bound <= T())
+		else if (l < T{} && r > T{} && x.upper_bound <= T{})
 		{
 			lower_bound = nextafter(r * x.lower_bound, -max<T>());
 			upper_bound = nextafter(l * x.lower_bound, max<T>());
 			return *this;
 		}
-		else if (r <= T() && x.lower_bound >= T())
+		else if (r <= T{} && x.lower_bound >= T{})
 		{
 			lower_bound = nextafter(l * x.upper_bound, -max<T>());
 			upper_bound = nextafter(r * x.lower_bound, max<T>());
 			return *this;
 		}
-		else if (r <= T() && x.lower_bound < T() && x.upper_bound > T())
+		else if (r <= T{} && x.lower_bound < T{} && x.upper_bound > T{})
 		{
 			lower_bound = nextafter(l * x.upper_bound, -max<T>());
 			upper_bound = nextafter(l * x.lower_bound, max<T>());
 			return *this;
 		}
-		else if (r <= T() && x.upper_bound <= T())
+		else if (r <= T{} && x.upper_bound <= T{})
 		{
 			lower_bound = nextafter(r * x.upper_bound, -max<T>());
 			upper_bound = nextafter(l * x.lower_bound, max<T>());
@@ -1088,7 +1087,7 @@ namespace Cranberries
 	template<typename T>
 	const typename interval<T>::impl interval<T>::impl::operator/=(const typename interval<T>::impl& x)
 	{
-		if (x.lower_bound <= T() && x.upper_bound >= T())
+		if (x.lower_bound <= T{} && x.upper_bound >= T{})
 		{
 			throw logic_error("Divided by Cranberries which contains Zero!");
 		}
@@ -1475,7 +1474,9 @@ namespace Cranberries
 	
 	std::ostream& operator<<(std::ostream& s, Version_Tag& v)
 	{
-		return s << (static_cast<unsigned>(v) / 0x01000000) << "." << ((static_cast<unsigned>(v) % 0x01000000) / 0x00010000) << "." << (static_cast<unsigned>(v) % 0x00010000);
+		return s << (static_cast<unsigned>(v) / 0x01000000) 
+			<< "." << ((static_cast<unsigned>(v) % 0x01000000) / 0x00010000) 
+			<< "." << (static_cast<unsigned>(v) % 0x00010000);
 	}
 
 	//-------------------------------//
@@ -1544,7 +1545,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(const interval<T>& x, T&& y)
 	{
-		if (y >= T())
+		if (y >= T{})
 			return (interval<T>(x.low() * y, x.up() * y));
 		else
 			return (interval<T>(x.up() * y, x.low() * y));
@@ -1561,9 +1562,9 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator /(T&& x, const interval<T>& y)
 	{
-		if (y.low() <= T() && T() <= y.up())
+		if (y.low() <= T{} && T{} <= y.up())
 			throw Cranberries::logic_error("Divided by Cranberries which contains zero!");
-		else if (y.low() > T())
+		else if (y.low() > T{})
 			return (interval<T>(y.low() / x, y.up() / x));
 		else
 			return (interval<T>(y.up() / x, y.low() / x));
@@ -1573,9 +1574,9 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator /(const interval<T>& x, T&& y)
 	{
-		if (y == T())
+		if (y == T{})
 			throw Cranberries::logic_error("Divided by Zero!");
-		else if (y > T())
+		else if (y > T{})
 			return (interval<T>(x.low() / y, x.up() / y));
 		else
 			return (interval<T>(x.up() / y, x.low() / y));
@@ -1612,8 +1613,6 @@ namespace Cranberries
 	{
 		return x.operator/=(interval<U>(y, y));
 	}
-
-
 
 
 
