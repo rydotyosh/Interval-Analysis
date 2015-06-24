@@ -3,6 +3,6 @@
 - ver. 1.0.0  
 Pre-release
 - ver. 1.0.1  
-T() is repalaced T{}
+T() is repalaced into T{}
 - ver. 1.0.2  
 variadic max & min is added
