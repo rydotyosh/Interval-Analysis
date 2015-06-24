@@ -22,9 +22,10 @@ namespace Cranberries
 	enum class Version_Tag {
 		Version1_0_00 = 0x01000000,
 		Version1_0_01 = 0x01000001,
+		Version1_0_02 = 0x01000002,
 		Version2_0_00 = 0x02000000,
 		Version3_0_00 = 0x03000000,
-		now_ver = Version1_0_01,
+		now_ver = Version1_0_02,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -1191,7 +1192,17 @@ namespace Cranberries
 	{
 		return pred(a, b) ? a : b;
 	}
+	template <typename T>
+	constexpr T max(T a, T b)
+	{
+		return std::forward<T>(a) > std::forward<T>(b) ? std::forward<T>(a) : std::forward<T>(b);
+	}
 
+	template <typename T, typename ... Args>
+	constexpr T max(T a, T b, Args ... args)
+	{
+		return max(max(std::forward<T>(a), std::forward<T>(b)), std::forward<T>(args)...);
+	}
 	/*  Interval Min  */
 	template<typename T>
 	const interval<T> min(interval<T>& a, interval<T>& b)
@@ -1217,7 +1228,17 @@ namespace Cranberries
 	{
 		return pred(a, b) ? a : b;
 	}
+	template <typename T>
+	constexpr T min(T a, T b)
+	{
+		return std::forward<T>(a) < std::forward<T>(b) ? std::forward<T>(a) : std::forward<T>(b);
+	}
 
+	template <typename T, typename ... Args>
+	constexpr T min(T a, T b, Args ... args)
+	{
+		return min(min(std::forward<T>(a), std::forward<T>(b)), std::forward<T>(args)...);
+	}
 
 	//---------------------------------------------------------//
 	/*                                                         */
