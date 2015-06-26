@@ -665,7 +665,7 @@ namespace Cranberries
 	const interval<T> interval<T>::pow(int n) const
 	{
 		if (n < 0) {
-			auto tmp = 1 / (*this);
+			auto tmp = static_cast<T>(1.0) / (*this);
 			return tmp.pow(-1 * n);
 		}
 		else if (n == 0) {
@@ -1687,7 +1687,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(T&& x, const interval<T>& y)
 	{
-		if (x >= interval<T>())
+		if (x > T{})
 			return (interval<T>(y.low() * x, y.up() * x));
 		else
 			return (interval<T>(y.up() * x, y.low() * x));
@@ -1697,7 +1697,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(const interval<T>& x, T&& y)
 	{
-		if (y >= T{})
+		if (y > T{})
 			return (interval<T>(x.low() * y, x.up() * y));
 		else
 			return (interval<T>(x.up() * y, x.low() * y));
