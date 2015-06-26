@@ -24,9 +24,10 @@ namespace Cranberries
 		Version1_0_01 = 0x01000001,
 		Version1_0_02 = 0x01000002,
 		Version1_0_03 = 0x01000003,
+		Version1_0_04 = 0x01000004,
 		Version2_0_00 = 0x02000000,
 		Version3_0_00 = 0x03000000,
-		now_ver = Version1_0_03,
+		now_ver = Version1_0_04,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
