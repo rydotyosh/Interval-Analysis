@@ -1275,7 +1275,7 @@ namespace Cranberries
 	template <typename T>
 	constexpr T max(T a, T b)
 	{
-		return std::forward<T>(a) > std::forward<T>(b) ? std::forward<T>(a) : std::forward<T>(b);
+		return a > b ? a : b;
 	}
 
 	/*  Variadic arguments Max  */
@@ -1283,7 +1283,7 @@ namespace Cranberries
 	template <typename T, typename ... Args>
 	constexpr T max(T a, T b, Args ... args)
 	{
-		return max(max(std::forward<T>(a), std::forward<T>(b)), std::forward<T>(args)...);
+		return max(max(a, b), args...);
 	}
 
 
@@ -1309,7 +1309,7 @@ namespace Cranberries
 
 	/*  initializer_list<interval> and Predicate Argument Min   */
 
-	template<typename T, class Pred, typename std::enable_if_t<!std::is_same<Pred, interval<T>>::value>*& = enabler>
+	template<typename T, class Pred>
 	const interval<T> min(std::initializer_list<interval<T>> list, Pred pred)
 	{
 		std::vector<interval<T>> tmp(list);
@@ -1319,7 +1319,7 @@ namespace Cranberries
 
 	/*  Tow interval and Predicate Argument Max   */
 
-	template<typename T, class Pred>
+	template<typename T, class Pred, typename std::enable_if_t<!std::is_same<Pred, interval<T>>::value>*& = enabler>
 	const interval<T> min(interval<T>& a, interval<T>& b, Pred pred)
 	{
 		return pred(a, b) ? a : b;
@@ -1330,7 +1330,7 @@ namespace Cranberries
 	template <typename T>
 	constexpr T min(T a, T b)
 	{
-		return std::forward<T>(a) < std::forward<T>(b) ? std::forward<T>(a) : std::forward<T>(b);
+		return a < b ? a : b;
 	}
 
 	/*  Variadic arguments Max  */
@@ -1338,7 +1338,7 @@ namespace Cranberries
 	template <typename T, typename ... Args>
 	constexpr T min(T a, T b, Args ... args)
 	{
-		return min(min(std::forward<T>(a), std::forward<T>(b)), std::forward<T>(args)...);
+		return min(min(a, b), args...);
 	}
 
 	//---------------------------------------------------------//
