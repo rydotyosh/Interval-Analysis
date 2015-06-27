@@ -25,9 +25,10 @@ namespace Cranberries
 		Version1_0_02 = 0x01000002,
 		Version1_0_03 = 0x01000003,
 		Version1_0_04 = 0x01000004,
+		Version1_0_05 = 0x01000005,
 		Version2_0_00 = 0x02000000,
 		Version3_0_00 = 0x03000000,
-		now_ver = Version1_0_04,
+		now_ver = Version1_0_05,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -666,7 +667,7 @@ namespace Cranberries
 	const interval<T> interval<T>::pow(int n) const
 	{
 		if (n < 0) {
-			auto tmp = static_cast<T>(1.0) / (*this);
+			auto tmp = 1 / (*this);
 			return tmp.pow(-1 * n);
 		}
 		else if (n == 0) {
@@ -1264,12 +1265,11 @@ namespace Cranberries
 
 	/*  Tow interval and Predicate Argument Max   */
 
-	template < typename T, typename Pred>
+	template < typename T, typename Pred, typename std::enable_if_t<!std::is_same<Pred,interval<T>>::value>*& = enabler>
 	const interval<T> max(interval<T>& a, interval<T>& b, Pred pred)
 	{
 		return pred(a, b) ? a : b;
 	}
-
 	/*  Variadic arguments Max overloading (finish)  */
 
 	template <typename T>
@@ -1309,7 +1309,7 @@ namespace Cranberries
 
 	/*  initializer_list<interval> and Predicate Argument Min   */
 
-	template<typename T, class Pred>
+	template<typename T, class Pred, typename std::enable_if_t<!std::is_same<Pred, interval<T>>::value>*& = enabler>
 	const interval<T> min(std::initializer_list<interval<T>> list, Pred pred)
 	{
 		std::vector<interval<T>> tmp(list);
@@ -1688,7 +1688,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(T&& x, const interval<T>& y)
 	{
-		if (x > T{})
+		if (x >= interval<T>())
 			return (interval<T>(y.low() * x, y.up() * x));
 		else
 			return (interval<T>(y.up() * x, y.low() * x));
@@ -1698,7 +1698,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(const interval<T>& x, T&& y)
 	{
-		if (y > T{})
+		if (y >= T{})
 			return (interval<T>(x.low() * y, x.up() * y));
 		else
 			return (interval<T>(x.up() * y, x.low() * y));
