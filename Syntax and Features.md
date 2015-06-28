@@ -792,7 +792,6 @@ operator==
 で表すことは不可能なので関数を提供する.  
 
 ```cpp
-// - interval.h
 enum class partial_ordering { less, unordered, greater };
 enum class weak_ordering { less, equivalent, greater };
 enum class total_ordering { less, equal, greater };
@@ -813,8 +812,6 @@ enum class Interval_Relation
 	part_of,
 	niether,
 };
-
-// - interval.cpp
 
 template<typename T>
 bool total_less(interval<T> const&,interval<T> const&);
