@@ -327,7 +327,7 @@ template < typename T, typename Pred, typename std::enable_if_t<!std::is_same<Pr
 const interval<T> max(interval<T>& a, interval<T>& b, Pred pred);
 
 template <typename T>
-constexpr T max(T a, T b)
+constexpr T max(T a, T b);
 
 template <typename T, typename ... Args>
 constexpr T max(T a, T b, Args ... args);
