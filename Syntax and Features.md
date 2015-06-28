@@ -642,7 +642,7 @@ sqrt( X ) = [ sqrt(a) , sqrt(b) ]
 
 
 ####cbrt
-sqrtの区間拡張. 区間Xにおけるsqrt(x)の上下限を返す関数.  
+cbrtの区間拡張. 区間Xにおけるcbrt(x)の上下限を返す関数.  
 実数範囲の関数なので`X >= 0` でなければならない.  
 
 a < 0 である場合には`Cranberries::logic_error`がthrowされる.  
