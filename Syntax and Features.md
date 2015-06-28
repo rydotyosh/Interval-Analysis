@@ -315,41 +315,41 @@ class interval
 	typedef T value_type;
 }
 template<typename T>
-const interval<T> max(interval<T>& a, interval<T>& b)
+const interval<T> max(interval<T>& a, interval<T>& b);
 
 template<typename T>
-const interval<T> max(std::vector<interval<T>> list)
+const interval<T> max(std::vector<interval<T>> list);
 
 template<typename T, class Pred>
-const interval<T> max(std::vector<interval<T>> list, Pred pred)
+const interval<T> max(std::vector<interval<T>> list, Pred pred);
 
 template < typename T, typename Pred, typename std::enable_if_t<!std::is_same<Pred,interval<T>>::value>*& = enabler>
-const interval<T> max(interval<T>& a, interval<T>& b, Pred pred)
+const interval<T> max(interval<T>& a, interval<T>& b, Pred pred);
 
 template <typename T>
 constexpr T max(T a, T b)
 
 template <typename T, typename ... Args>
-constexpr T max(T a, T b, Args ... args)
+constexpr T max(T a, T b, Args ... args);
 
 
 template<typename T>
-const interval<T> min(interval<T>& a, interval<T>& b)
+const interval<T> min(interval<T>& a, interval<T>& b);
 
 template<typename T>
-const interval<T> min(std::vector<interval<T>> list)
+const interval<T> min(std::vector<interval<T>> list);
 
 template<typename T, class Pred>
-const interval<T> min(std::vector<interval<T>> list, Pred pred)
+const interval<T> min(std::vector<interval<T>> list, Pred pred);
 
 template<typename T, class Pred, typename std::enable_if_t<!std::is_same<Pred, interval<T>>::value>*& = enabler>
-const interval<T> min(interval<T>& a, interval<T>& b, Pred pred)
+const interval<T> min(interval<T>& a, interval<T>& b, Pred pred);
 
 template <typename T>
-constexpr T min(T a, T b)
+constexpr T min(T a, T b);
 
 template <typename T, typename ... Args>
-constexpr T min(T a, T b, Args ... args)
+constexpr T min(T a, T b, Args ... args);
 
 
 template<typename T>
