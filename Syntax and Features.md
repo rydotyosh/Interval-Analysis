@@ -33,7 +33,9 @@ Cranberries Interval Libraryにおける,
 
 Interval.hpp にほぼすべてのコードが記述されている.  
 例外オブジェクトのみexception.hpp に記述されている.
-すべてのコードはCranberries名前空間に所属している.
+すべてのコードはCranberries名前空間に所属している.  
+
+ライブラリを使用するためにはinterval.hppをインクルードするだけでよい.  
 
 ##クラス宣言[Class Declaration]
 
