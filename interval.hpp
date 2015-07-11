@@ -21,14 +21,15 @@ namespace Cranberries
 
 	enum class Version_Tag {
 		Version1_0_00 = 0x01000000,
-		Version1_0_01 = 0x01000001,
-		Version1_0_02 = 0x01000002,
-		Version1_0_03 = 0x01000003,
-		Version1_0_04 = 0x01000004,
-		Version1_0_05 = 0x01000005,
+		Version1_0_01,
+		Version1_0_02,
+		Version1_0_03,
+		Version1_0_04,
+		Version1_0_05,
+		Version1_0_06,
 		Version2_0_00 = 0x02000000,
 		Version3_0_00 = 0x03000000,
-		now_ver = Version1_0_05,
+		now_ver = Version1_0_06,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -88,7 +89,7 @@ namespace Cranberries
 		/*  move ctor  */
 		interval(interval&&);
 		/*  Copy Assignment Op  */
-		interval operator=(interval&);
+		interval operator=(interval const&);
 		/*  Move assignment Op  */
 		interval operator=(interval&&);
 
@@ -667,7 +668,7 @@ namespace Cranberries
 	const interval<T> interval<T>::pow(int n) const
 	{
 		if (n < 0) {
-			auto tmp = 1 / (*this);
+			auto tmp = static_cast<T>(1.0) / (*this);
 			return tmp.pow(-1 * n);
 		}
 		else if (n == 0) {
@@ -712,7 +713,7 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::sqrt() const
 	{
-		if (pimpl->low() < T{}) { throw Cranberries::logic_error("sqrt arg requires positive number"); }
+		if (pimpl->low() < T{}) { cout << *this << endl,throw Cranberries::logic_error("sqrt arg requires positive number"); }
 		return interval<T>(
 			nextafter(std::sqrt(pimpl->low()), -max<T>()),
 			nextafter(std::sqrt(pimpl->up()), max<T>()));
@@ -763,13 +764,13 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::abs() const
 	{
-		if (pimpl->low() < T{} && pimpl->up() > T{})
+		if (pimpl->low() < T{} && pimpl->up() >= T{})
 		{
 			return interval<T>(T{}, nextafter(std::fmax(std::abs(pimpl->low()), std::abs(pimpl->up())), max<T>()));
 		}
 		if (pimpl->up() < T{})
 		{
-			return interval<T>(-pimpl->up(), -pimpl->low());
+			return interval<T>(nextafter(std::abs(pimpl->up()),-max<T>()), nextafter(std::abs(pimpl->low()),max<T>()));
 		}
 		else {
 			return interval<T>(*this);
@@ -975,12 +976,7 @@ namespace Cranberries
 	/*  Move Ctor  */
 
 	template<typename T>
-	interval<T>::interval(interval&& x)
-		:pimpl{ std::make_unique<impl>() }
-	{
-		std::swap(this->pimpl, x.pimpl);
-		x.pimpl = nullptr;
-	}
+	interval<T>::interval(interval&& x) = default;
 
 	/*  Copy Ctor  */
 
@@ -994,9 +990,8 @@ namespace Cranberries
 	/*  Copy Assignment Op  */
 
 	template<typename T>
-	interval<T> interval<T>::operator=(interval<T>& x)
+	interval<T> interval<T>::operator=(interval<T> const& x)
 	{
-		(this->pimpl).swap((x.pimpl));
 		pimpl->deep_copy(*(x.pimpl));
 		return *this;
 	}
@@ -1265,17 +1260,18 @@ namespace Cranberries
 
 	/*  Tow interval and Predicate Argument Max   */
 
-	template < typename T, typename Pred, typename std::enable_if_t<!std::is_same<Pred,interval<T>>::value>*& = enabler>
+	template < typename T, typename Pred>
 	const interval<T> max(interval<T>& a, interval<T>& b, Pred pred)
 	{
 		return pred(a, b) ? a : b;
 	}
+
 	/*  Variadic arguments Max overloading (finish)  */
 
 	template <typename T>
 	constexpr T max(T a, T b)
 	{
-		return a > b ? a : b;
+		return std::forward<T>(a) > std::forward<T>(b) ? std::forward<T>(a) : std::forward<T>(b);
 	}
 
 	/*  Variadic arguments Max  */
@@ -1283,7 +1279,7 @@ namespace Cranberries
 	template <typename T, typename ... Args>
 	constexpr T max(T a, T b, Args ... args)
 	{
-		return max(max(a, b), args...);
+		return max(max(std::forward<T>(a), std::forward<T>(b)), std::forward<T>(args)...);
 	}
 
 
@@ -1319,7 +1315,7 @@ namespace Cranberries
 
 	/*  Tow interval and Predicate Argument Max   */
 
-	template<typename T, class Pred, typename std::enable_if_t<!std::is_same<Pred, interval<T>>::value>*& = enabler>
+	template<typename T, class Pred>
 	const interval<T> min(interval<T>& a, interval<T>& b, Pred pred)
 	{
 		return pred(a, b) ? a : b;
@@ -1330,7 +1326,7 @@ namespace Cranberries
 	template <typename T>
 	constexpr T min(T a, T b)
 	{
-		return a < b ? a : b;
+		return std::forward<T>(a) < std::forward<T>(b) ? std::forward<T>(a) : std::forward<T>(b);
 	}
 
 	/*  Variadic arguments Max  */
@@ -1338,7 +1334,7 @@ namespace Cranberries
 	template <typename T, typename ... Args>
 	constexpr T min(T a, T b, Args ... args)
 	{
-		return min(min(a, b), args...);
+		return min(min(std::forward<T>(a), std::forward<T>(b)), std::forward<T>(args)...);
 	}
 
 	//---------------------------------------------------------//
@@ -1407,10 +1403,10 @@ namespace Cranberries
 	interval<T> erf(const interval<T>& a) { return a.erf(); }
 
 	template<typename T>
-	interval<T> wid(const interval<T>& a) { return a.wid(); }
+	T wid(const interval<T>& a) { return a.wid(); }
 
 	template<typename T>
-	interval<T> mid(const interval<T>& a) { return a.mid(); }
+	T mid(const interval<T>& a) { return a.mid(); }
 
 	template<typename T>
 	interval<T> low(const interval<T>& a) { return a.low(); }
@@ -1663,9 +1659,9 @@ namespace Cranberries
 
 	// T - interval<T>
 	template <typename T>
-	interval<T> operator -(T&& x, const interval<T>& y)
+	interval<T> operator -(T&& x, interval<T> y)
 	{
-		return (interval<T>(y.low() - x, y.up() - x));
+		return interval<T>(x - y.up() , x - y.low());
 	}
 
 	// interval<T> - T
@@ -1688,7 +1684,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(T&& x, const interval<T>& y)
 	{
-		if (x >= interval<T>())
+		if (x > T{})
 			return (interval<T>(y.low() * x, y.up() * x));
 		else
 			return (interval<T>(y.up() * x, y.low() * x));
@@ -1698,7 +1694,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(const interval<T>& x, T&& y)
 	{
-		if (y >= T{})
+		if (y > T{})
 			return (interval<T>(x.low() * y, x.up() * y));
 		else
 			return (interval<T>(x.up() * y, x.low() * y));
@@ -1720,9 +1716,9 @@ namespace Cranberries
 		if (y.low() <= T{} && T{} <= y.up())
 			throw Cranberries::logic_error("Divided by Cranberries which contains zero!");
 		else if (y.low() > T{})
-			return (interval<T>(y.low() / x, y.up() / x));
+			return (interval<T>(x / y.up(), x / y.low()));
 		else
-			return (interval<T>(y.up() / x, y.low() / x));
+			return (interval<T>(x / y.low(), x / y.up()));
 	}
 
 	// interval<T> / T
@@ -1748,28 +1744,28 @@ namespace Cranberries
 
 	// interval<T> += T
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
-	interval<U> operator +=(interval<U>& x, T&& y)
+	interval<U> operator +=(interval<U> const& x, T&& y)
 	{
 		return x.operator+=(interval<U>(y, y));
 	}
 
 	// interval<T> -= T
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
-	interval<U> operator -=(interval<U>& x, T&& y)
+	interval<U> operator -=(interval<U> const& x, T&& y)
 	{
 		return x.operator-=(interval<U>(y, y));
 	}
 
 	// interval<T> *= T
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
-	interval<U> operator *=(interval<U>& x, T&& y)
+	interval<U> operator *=(interval<U> const& x, T&& y)
 	{
 		return x.operator*=(interval<U>(y, y));
 	}
 
 	// interval<T> /= T
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value>*& = enabler>
-	interval<U> operator /=(interval<U>& x, T&& y)
+	interval<U> operator /=(interval<U> const& x, T&& y)
 	{
 		return x.operator/=(interval<U>(y, y));
 	}
@@ -2013,13 +2009,31 @@ namespace Cranberries
 
 	/*  This function returns two interval subparts just split middle point as vector<interval<T>> */
 	template<class T>
-	std::vector<interval<T>>  subpart(interval<T>& x)
+	std::pair<interval<T>,interval<T>>  subpart(interval<T>& x)
 	{
-		std::vector<interval<T>> val{};
-		val.push_back(interval<T>(x.low(), x.mid()));
-		val.push_back(interval<T>(x.mid(), x.up()));
-		return val;
+		return std::make_pair(interval<T>(x.low(), x.mid()), interval<T>(x.mid(), x.up()));
 	}
+
+	template <class InputRange, class BinaryFunction>
+	void adjacent_for_each(InputRange&& range, BinaryFunction f)
+	{
+		using std::begin;
+		using std::end;
+
+		auto first = begin(range);
+		auto last = end(range);
+
+		if (first == last)
+			return;
+
+		while (std::next(first) != last) {
+			auto&& a = *first;
+			++first;
+			auto&& b = *first;
+			f(a, b);
+		}
+	}
+
 
 }//end namespace Cranberries
 
