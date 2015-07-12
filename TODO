@@ -1,6 +1,3 @@
-[]~ordering policy
-[]~ordering func
-[]~relational
 []~exception
 []~func that may throw except
 []~output interval
