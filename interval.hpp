@@ -28,9 +28,10 @@ namespace Cranberries
 		Version1_0_05,
 		Version1_0_06,
 		Version1_0_07,
+        Version1_0_08,
 		Version2_0_00 = 0x02000000,
 		Version3_0_00 = 0x03000000,
-		now_ver = Version1_0_07,
+		now_ver = Version1_0_08,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -144,6 +145,7 @@ namespace Cranberries
 		/*  Advanced Relational Op  */
 		Interval_Relation relational(interval const&) const;
 		bool is_contain(interval const&) const;
+		bool is_contain(T const& x) const;
 		bool is_part_of(interval const&) const;
 
 		/*  Relational Op  */
@@ -1742,6 +1744,9 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> operator *(const interval<T>& x, const interval<T>& y)
 	{
+		if (&x == &y)
+			return x.pow(2);
+
 		return interval<T>(x) *= y;
 	}
 
@@ -1775,6 +1780,10 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> operator /(const interval<T>& x, const interval<T>& y)
 	{
+		if (y.is_contain(T{}))
+			throw Cranberries::invalid_argument("");
+		else if (&x == &y)
+			return interval<T>{static_cast<T>(1.0), static_cast<T>(1.0)};
 		return interval<T>(x) /= y;
 	}
 
@@ -2031,9 +2040,15 @@ namespace Cranberries
 	/*  is contain  */
 
 	template<typename T>
-	bool interval<T>::is_contain(interval const& x) const
+	bool interval<T>::is_contain(interval<T> const& x) const
 	{
 		return (this->relational(x) == Interval_Relation::contain);
+	}
+
+	template<typename T>
+	bool interval<T>::is_contain(T const& x) const
+	{
+		return (this->low() < x && this->up() > x);
 	}
 
 	/*  is part of  */
