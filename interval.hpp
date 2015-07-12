@@ -27,9 +27,10 @@ namespace Cranberries
 		Version1_0_04,
 		Version1_0_05,
 		Version1_0_06,
+		Version1_0_07,
 		Version2_0_00 = 0x02000000,
 		Version3_0_00 = 0x03000000,
-		now_ver = Version1_0_06,
+		now_ver = Version1_0_07,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -80,6 +81,7 @@ namespace Cranberries
 		constexpr interval();
 		constexpr interval(T&, T&);
 		constexpr interval(T&&, T&&);
+		constexpr interval(std::initializer_list<T>);
 
 		/*  dtor  */
 		~interval();
@@ -92,6 +94,8 @@ namespace Cranberries
 		interval operator=(interval const&);
 		/*  Move assignment Op  */
 		interval operator=(interval&&);
+
+		interval operator=(std::initializer_list<T>);
 
 		/*  compound assignment Op  */
 		const interval operator +=(const interval&);
@@ -132,8 +136,8 @@ namespace Cranberries
 		/*  accessors  */
 		constexpr T low() const;
 		constexpr T up() const;
-		void set_up(T&);
-		void set_low(T&);
+		void set_up(T const&);
+		void set_low(T const&);
 		void set_up(T&&);
 		void set_low(T&&);
 
@@ -200,7 +204,7 @@ namespace Cranberries
 			upper_bound = T{};
 		}
 		/*  Set Initial Value */
-		void do_internal_work(T& low, T& up)
+		void do_internal_work(T const& low, T const& up)
 		{
 			lower_bound = low;
 			upper_bound = up;
@@ -225,7 +229,7 @@ namespace Cranberries
 		std::ostream& print(std::ostream&) const;
 
 		/*  setter Implementation */
-		void set_low(T& x)
+		void set_low(T const& x)
 		{
 			if (x > upper_bound) {
 				throw invalid_argument("lower_bound must be less than upper_bound!");
@@ -239,7 +243,7 @@ namespace Cranberries
 			}
 			lower_bound = std::move(x);
 		}
-		void set_up(T& x)
+		void set_up(T const& x)
 		{
 			if (x < lower_bound) {
 				throw invalid_argument("upper_bound must be greater than lower_bound!");
@@ -825,7 +829,7 @@ namespace Cranberries
 	}
 
 	template<typename T>
-	void interval<T>::set_up(T& x)
+	void interval<T>::set_up(T const& x)
 	{
 		pimpl->set_up(x);
 	}
@@ -837,7 +841,7 @@ namespace Cranberries
 	}
 
 	template<typename T>
-	void interval<T>::set_low(T& x)
+	void interval<T>::set_low(T const& x)
 	{
 		pimpl->set_low(x);
 	}
@@ -987,6 +991,18 @@ namespace Cranberries
 		pimpl->deep_copy(*(x.pimpl));
 	}
 
+	template<typename T>
+	constexpr interval<T>::interval(std::initializer_list<T> list)
+		: pimpl{ std::make_unique<impl>() } 
+	{
+		if (list.size() == 0) {
+			pimpl->do_internal_work();
+		}
+		else if (list.size() != 2)
+			throw Cranberries::invalid_argument("Interval Ctor needs only two values.");
+		pimpl->do_internal_work(*(list.begin()), *(list.begin() + 1));
+	}
+
 	/*  Copy Assignment Op  */
 
 	template<typename T>
@@ -1003,6 +1019,28 @@ namespace Cranberries
 	{
 		std::swap(this->pimpl, x.pimpl);
 		x.pimpl = nullptr;
+		return *this;
+	}
+
+	template<typename T>
+	interval<T> interval<T>::operator=(std::initializer_list<T> list)
+	{
+		if (list.size() == 0) {
+			this->set_low(0.0);
+			this->set_up(0.0);
+		}
+		else if (list.size() == 2) {
+			if (*(list.begin()) > *(list.begin() + 1)) {
+				this->set_low(*(list.begin()));
+				this->set_up(*(list.begin() + 1));
+			}
+			else {
+				throw Cranberries::invalid_argument("");
+			}
+		}
+		else {
+			throw Cranberries::invalid_argument("");
+		}
 		return *this;
 	}
 

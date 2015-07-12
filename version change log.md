@@ -18,3 +18,5 @@ abs
 T - interval<T>
 T * interval<T>
 T / interval<T>
+- ver. 1.0.7
+added initializer_list Cotr & operator=
