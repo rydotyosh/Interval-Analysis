@@ -717,7 +717,7 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::sqrt() const
 	{
-		if (pimpl->low() < T{}) { cout << *this << endl,throw Cranberries::logic_error("sqrt arg requires positive number"); }
+		if (pimpl->low() < T{}) { throw Cranberries::logic_error("sqrt arg requires positive number"); }
 		return interval<T>(
 			nextafter(std::sqrt(pimpl->low()), -max<T>()),
 			nextafter(std::sqrt(pimpl->up()), max<T>()));
