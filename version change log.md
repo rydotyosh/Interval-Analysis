@@ -13,10 +13,16 @@ fixed critical mistake in compound assignment operator
 - ver. 1.0.5
 enum2string rename enum2str
 - ver. 1.0.6
-fix
+fixed
 abs
 T - interval<T>
 T * interval<T>
 T / interval<T>
 - ver. 1.0.7
 added initializer_list Cotr & operator=
+- ver. 1.0.8
+fixed
+interval<T> * interval<T>
+interval<T> / interval<T>
+added
+is_contain(T const&)
