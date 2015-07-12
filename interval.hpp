@@ -19,6 +19,7 @@ namespace Cranberries
 	/*  function default for meta programming  */
 	extern std::nullptr_t enabler;
 
+	/*  version 0x|xx|.|yy|.|zzzz|  */
 	enum class Version_Tag {
 		Version1_0_00 = 0x01000000,
 		Version1_0_01,
@@ -28,7 +29,8 @@ namespace Cranberries
 		Version1_0_05,
 		Version1_0_06,
 		Version1_0_07,
-        Version1_0_08,
+		Version1_0_08,
+		Version1_1_00 = 0x01010000,
 		Version2_0_00 = 0x02000000,
 		Version3_0_00 = 0x03000000,
 		now_ver = Version1_0_08,
@@ -1715,6 +1717,8 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> operator -(const interval<T>& x, const interval<T>& y)
 	{
+		if (&x == &y)
+			return interval<T>{};
 		return interval<T>(x) -= y;
 	}
 

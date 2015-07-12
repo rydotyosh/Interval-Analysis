@@ -22,6 +22,7 @@ T / interval<T>
 added initializer_list Cotr & operator=
 - ver. 1.0.8
 fixed
+interval<T> - interval<T>
 interval<T> * interval<T>
 interval<T> / interval<T>
 added
