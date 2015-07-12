@@ -1298,7 +1298,7 @@ namespace Cranberries
 
 	/*  Tow interval and Predicate Argument Max   */
 
-	template < typename T, typename Pred>
+	template < typename T, typename Pred, std::enable_if_t<std::is_same<Pred, interval<T>>::value>*& = enabler>
 	const interval<T> max(interval<T>& a, interval<T>& b, Pred pred)
 	{
 		return pred(a, b) ? a : b;
@@ -1353,7 +1353,7 @@ namespace Cranberries
 
 	/*  Tow interval and Predicate Argument Max   */
 
-	template<typename T, class Pred>
+	template<typename T, class Pred, std::enable_if_t<std::is_same<Pred, interval<T>>::value>*& = enabler>
 	const interval<T> min(interval<T>& a, interval<T>& b, Pred pred)
 	{
 		return pred(a, b) ? a : b;
