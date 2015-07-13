@@ -1,5 +1,5 @@
-#ifndef INTERVAL_H
-#define INTERVAL_H
+#ifndef CRANBERRIES_INTERVAL
+#define CRANBERRIES_INTERVAL
 #include "exception.hpp"
 #include <limits>
 #include <cmath>
@@ -165,7 +165,7 @@ namespace Cranberries
 		/*  Member value type  */
 		typedef T value_type;
 	private:
-		/*  Internal Class  */
+		/*  Inner Class  */
 		class impl;
 		/*  Keep lower & upper bound Value   */
 		std::unique_ptr<impl> pimpl;
@@ -1081,8 +1081,6 @@ namespace Cranberries
 	template<typename T>
 	const typename interval<T>::impl interval<T>::impl::operator-=(const typename interval<T>::impl& x)
 	{
-		if (this == &x)
-			return impl();
 		lower_bound = nextafter(lower_bound - x.upper_bound, -max<T>());
 		upper_bound = nextafter(upper_bound - x.lower_bound, max<T>());
 		return *this;
@@ -1096,28 +1094,7 @@ namespace Cranberries
 		auto l = lower_bound;
 		auto r = upper_bound;
 
-		if (this == &x)
-		{
-			if (r <= T{})
-			{
-				lower_bound = nextafter(r * r, -max<T>());
-				upper_bound = nextafter(l * l, max<T>());
-				return *this;
-			}
-			else if (lower_bound <= T{} && upper_bound >= T{})
-			{
-				lower_bound = T{};
-				upper_bound = std::fmax(nextafter(l * l, max<T>()), nextafter(r * r, max<T>()));
-				return *this;
-			}
-			else
-			{
-				lower_bound = nextafter(l * l, -max<T>());
-				upper_bound = nextafter(r * r, max<T>());
-				return *this;
-			}
-		}
-		else if (l >= T{} && x.lower_bound >= T{}) {
+		if (l >= T{} && x.lower_bound >= T{}) {
 			lower_bound = nextafter(l * x.lower_bound, -max<T>());
 			upper_bound = nextafter(r * x.upper_bound, max<T>());
 			return *this;
@@ -1182,18 +1159,10 @@ namespace Cranberries
 		}
 		else
 		{
-			if (this == &x) {
-				lower_bound = static_cast<T>(1.0);
-				upper_bound = static_cast<T>(1.0);
-				return *this;
-			}
-			else
-			{
-				interval tmp(nextafter(static_cast<T>(1.0) / x.upper_bound, -max<T>()),
-					nextafter(static_cast<T>(1.0) / x.lower_bound, max<T>()));
-				*this *= *(tmp.pimpl);
-				return *this;
-			}
+			interval tmp(nextafter(static_cast<T>(1.0) / x.upper_bound, -max<T>()),
+				nextafter(static_cast<T>(1.0) / x.lower_bound, max<T>()));
+			*this *= *(tmp.pimpl);
+			return *this;
 		}
 	}
 
@@ -2094,4 +2063,4 @@ namespace Cranberries
 
 }//end namespace Cranberries
 
-#endif //!INTERVAL_H
+#endif //!CRANBERRIES_INTERVAL
