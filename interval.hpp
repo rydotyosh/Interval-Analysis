@@ -1629,7 +1629,7 @@ namespace Cranberries
 
 	/*  output for version  */
 
-	std::ostream& operator<<(std::ostream& s, Version_Tag& v)
+	std::ostream& operator<<(std::ostream& s, Version_Tag const& v)
 	{
 		return s << (static_cast<unsigned>(v) / 0x01000000)
 			<< "." << ((static_cast<unsigned>(v) % 0x01000000) / 0x00010000)
