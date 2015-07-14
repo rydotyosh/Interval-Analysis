@@ -413,13 +413,13 @@ namespace Cranberries
 		if (nextafter(PI<T>()*static_cast<T>(2.0)*c, max<T>()) >= a &&
 			nextafter(PI<T>()*static_cast<T>(2.0)*c, -max<T>()) <= b)
 		{
-			if (nextafter(PI<T>()*(noe<T>() + static_cast<T>(2.0)*c), max<T>()) >= a &&
-				nextafter(PI<T>()*(noe<T>() + static_cast<T>(2.0)*c), -max<T>()) <= b)
+			if (nextafter(PI<T>()*(one<T>() + static_cast<T>(2.0)*c), max<T>()) >= a &&
+				nextafter(PI<T>()*(one<T>() + static_cast<T>(2.0)*c), -max<T>()) <= b)
 			{
 				return interval<T>(-one<T>(), one<T>());
 			}
-			else if (nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), max<T>()) >= a &&
-				nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), -max<T>()) <= b)
+			else if (nextafter((c*static_cast<T>(2.0) - one<T>())*PI<T>(), max<T>()) >= a &&
+				nextafter((c*static_cast<T>(2.0) - one<T>())*PI<T>(), -max<T>()) <= b)
 			{
 				return interval<T>(-one<T>(), one<T>());
 			}
@@ -430,15 +430,15 @@ namespace Cranberries
 						nextafter(std::cos(b), -max<T>())), one<T>());
 			}
 		}
-		else if (nextafter(PI<T>()*(static_cast<T>(2.0)*c + noe<T>()), max<T>()) >= a &&
-			nextafter(PI<T>()*(static_cast<T>(2.0)*c + noe<T>()), -max<T>()) <= b)
+		else if (nextafter(PI<T>()*(static_cast<T>(2.0)*c + one<T>()), max<T>()) >= a &&
+			nextafter(PI<T>()*(static_cast<T>(2.0)*c + one<T>()), -max<T>()) <= b)
 		{
 			return interval<T>(-one<T>(),
 				std::fmax(nextafter(std::cos(a), max<T>()),
 					nextafter(std::cos(b), max<T>())));
 		}
-		else if (nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), max<T>()) >= a &&
-			nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), -max<T>()) <= b)
+		else if (nextafter((c*static_cast<T>(2.0) - one<T>())*PI<T>(), max<T>()) >= a &&
+			nextafter((c*static_cast<T>(2.0) - one<T>())*PI<T>(), -max<T>()) <= b)
 		{
 			return interval<T>(-one<T>(),
 				std::fmax(nextafter(std::cos(a), max<T>()),
@@ -467,21 +467,21 @@ namespace Cranberries
 			return interval<T>(-one<T>(), one<T>());
 		}
 		/*  base point set  */
-		if (static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - noe<T>()) / static_cast<T>(4.0), max<T>())) > a)
-			c = static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - noe<T>()) / static_cast<T>(4.0), max<T>()));
+		if (static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - one<T>()) / static_cast<T>(4.0), max<T>())) > a)
+			c = static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - one<T>()) / static_cast<T>(4.0), max<T>()));
 		else
-			c = static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - noe<T>()) / static_cast<T>(4.0), max<T>())) + 1;
+			c = static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - one<T>()) / static_cast<T>(4.0), max<T>())) + 1;
 		/*  checking phase  */
-		if (nextafter(PI<T>() / static_cast<T>(2.0)*(noe<T>() + c*static_cast<T>(4.0)), max<T>()) >= a &&
-			nextafter(PI<T>() / static_cast<T>(2.0)*(noe<T>() + c*static_cast<T>(4.0)), -max<T>()) <= b)
+		if (nextafter(PI<T>() / static_cast<T>(2.0)*(one<T>() + c*static_cast<T>(4.0)), max<T>()) >= a &&
+			nextafter(PI<T>() / static_cast<T>(2.0)*(one<T>() + c*static_cast<T>(4.0)), -max<T>()) <= b)
 		{
 			if (nextafter(PI<T>() / static_cast<T>(2.0)*(static_cast<T>(3.0) + c*static_cast<T>(4.0)), max<T>()) >= a &&
 				nextafter(PI<T>() / static_cast<T>(2.0)*(static_cast<T>(3.0) + c*static_cast<T>(4.0)), -max<T>()) <= b)
 			{
 				return interval<T>(-one<T>(), one<T>());
 			}
-			else if (nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), max<T>()) >= a &&
-				nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), -max<T>()) <= b)
+			else if (nextafter((c*static_cast<T>(4.0) - one<T>())*PI<T>() / static_cast<T>(2.0), max<T>()) >= a &&
+				nextafter((c*static_cast<T>(4.0) - one<T>())*PI<T>() / static_cast<T>(2.0), -max<T>()) <= b)
 			{
 				return interval<T>(-one<T>(), one<T>());
 			}
@@ -499,8 +499,8 @@ namespace Cranberries
 				std::fmax(nextafter(std::sin(a), max<T>()),
 					nextafter(std::sin(b), max<T>())));
 		}
-		else if (nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), max<T>()) >= a &&
-			nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), -max<T>()) <= b)
+		else if (nextafter((c*static_cast<T>(4.0) - one<T>())*PI<T>() / static_cast<T>(2.0), max<T>()) >= a &&
+			nextafter((c*static_cast<T>(4.0) - one<T>())*PI<T>() / static_cast<T>(2.0), -max<T>()) <= b)
 		{
 			return interval<T>(-one<T>(),
 				std::fmax(nextafter(std::sin(a), max<T>()),
@@ -558,7 +558,7 @@ namespace Cranberries
 	const interval<T> interval<T>::acos() const
 	{
 		auto a = pimpl->low(), b = pimpl->up();
-		if (a < -noe<T>() || b > noe<T>()) {
+		if (a < -one<T>() || b > one<T>()) {
 			throw Cranberries::invalid_argument("acos");
 		}
 		else {
@@ -573,7 +573,7 @@ namespace Cranberries
 	const interval<T> interval<T>::asin() const
 	{
 		auto a = pimpl->low(), b = pimpl->up();
-		if (a < -noe<T>() || b > noe<T>()) {
+		if (a < -one<T>() || b > one<T>()) {
 			throw Cranberries::invalid_argument("asin");
 		}
 		else {
@@ -588,7 +588,7 @@ namespace Cranberries
 	const interval<T> interval<T>::atan() const
 	{
 		auto a = pimpl->low(), b = pimpl->up();
-		if (a < -noe<T>() || b > noe<T>()) {
+		if (a < -one<T>() || b > one<T>()) {
 			throw Cranberries::invalid_argument("asin");
 		}
 		else {
@@ -607,7 +607,7 @@ namespace Cranberries
 			throw Cranberries::over_flow("cosh");
 		}
 		if (a < zero<T>() && b > zero<T>()) {
-			return interval<T>(noe<T>(), std::fmax(nextafter(std::cosh(a), max<T>()), nextafter(std::cosh(b), max<T>())));
+			return interval<T>(one<T>(), std::fmax(nextafter(std::cosh(a), max<T>()), nextafter(std::cosh(b), max<T>())));
 		}
 		else if (b < zero<T>()) {
 			return interval<T>(nextafter(std::cosh(b), -max<T>()), nextafter(std::cosh(a), max<T>()));
@@ -1821,7 +1821,7 @@ namespace Cranberries
 
 	//------------------------------------------------------------------------//
 	/*  It is cumbersome to write the type to every declaration.              */
-	/*  Like ' auto x = interval<double>(noe<T>(), static_cast<T>(3.0))'.                          */
+	/*  Like ' auto x = interval<double>(one<T>(), static_cast<T>(3.0))'.                          */
 	/*  And it becomes a source of mistake.                                   */
 	/*  Then, you can use argument dependent factory 'hull(Low,Up)'.          */
 	/*  It allows infer to type from arguments and returns interval object.   */
