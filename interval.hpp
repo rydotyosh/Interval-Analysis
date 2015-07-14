@@ -19,21 +19,21 @@ namespace Cranberries
 	/*  function default for meta programming  */
 	extern std::nullptr_t enabler;
 
-	/*  version 0x|xx|.|yy|.|zzzz|  */
+	/*  version 0x|aa|.|bb|.|cccc|  */
 	enum class Version_Tag {
-		Version1_0_00 = 0x01000000,
-		Version1_0_01,
-		Version1_0_02,
-		Version1_0_03,
-		Version1_0_04,
-		Version1_0_05,
-		Version1_0_06,
-		Version1_0_07,
-		Version1_0_08,
-		Version1_1_00 = 0x01010000,
-		Version2_0_00 = 0x02000000,
-		Version3_0_00 = 0x03000000,
-		now_ver = Version1_0_08,
+		Version1_0_0 = 0x01000000,
+		Version1_0_1,
+		Version1_0_2,
+		Version1_0_3,
+		Version1_0_4,
+		Version1_0_5,
+		Version1_0_6,
+		Version1_0_7,
+		Version1_0_8,
+		Version1_1_0 = 0x01010000,
+		Version2_0_0 = 0x02000000,
+		Version3_0_0 = 0x03000000,
+		now_ver = Version1_0_8,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
@@ -185,7 +185,12 @@ namespace Cranberries
 	template<typename T>
 	constexpr T min() { return std::numeric_limits<T>::min(); }
 
+	/*  Zero  */
+	template<typename T>
+	constexpr T zero() { return static_cast<T>(0.0); }
 
+	template<typename T>
+	constexpr T one() { return static_cast<T>(1.0); }
 
 	//----------------------------------//
 	/*                                  */
@@ -204,8 +209,8 @@ namespace Cranberries
 		/*  Set Zero Value  */
 		void do_internal_work()
 		{
-			lower_bound = T{};
-			upper_bound = T{};
+			lower_bound = zero<T>();
+			upper_bound = zero<T>();
 		}
 		/*  Set Initial Value */
 		void do_internal_work(T const& low, T const& up)
@@ -268,10 +273,10 @@ namespace Cranberries
 		}
 	private:
 		/*  Lower Bound  */
-		T lower_bound = T{};
+		T lower_bound = zero<T>();
 
 		/*  Upper Bound  */
-		T upper_bound = T{};
+		T upper_bound = zero<T>();
 	};
 
 
@@ -395,47 +400,47 @@ namespace Cranberries
 	{
 		int c;
 		auto a = pimpl->low(), b = pimpl->up();
-		if (b - a >= 2.0*PI<T>())
+		if (b - a >= static_cast<T>(2.0)*PI<T>())
 		{
-			return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+			return interval<T>(-one<T>(), one<T>());
 		}
 		/*  base point set  */
-		if (static_cast<int>(nextafter((a / 2.0 / PI<T>()), max<T>())) > a)
-			c = static_cast<int>(nextafter((a / 2.0 / PI<T>()), max<T>()));
+		if (static_cast<int>(nextafter((a / static_cast<T>(2.0) / PI<T>()), max<T>())) > a)
+			c = static_cast<int>(nextafter((a / static_cast<T>(2.0) / PI<T>()), max<T>()));
 		else
-			c = static_cast<int>(nextafter((a / 2.0 / PI<T>()), max<T>())) + 1;
+			c = static_cast<int>(nextafter((a / static_cast<T>(2.0) / PI<T>()), max<T>())) + 1;
 		/*  checking phase  */
-		if (nextafter(PI<T>()*2.0*c, max<T>()) >= a &&
-			nextafter(PI<T>()*2.0*c, -max<T>()) <= b)
+		if (nextafter(PI<T>()*static_cast<T>(2.0)*c, max<T>()) >= a &&
+			nextafter(PI<T>()*static_cast<T>(2.0)*c, -max<T>()) <= b)
 		{
-			if (nextafter(PI<T>()*(1.0 + 2.0*c), max<T>()) >= a &&
-				nextafter(PI<T>()*(1.0 + 2.0*c), -max<T>()) <= b)
+			if (nextafter(PI<T>()*(noe<T>() + static_cast<T>(2.0)*c), max<T>()) >= a &&
+				nextafter(PI<T>()*(noe<T>() + static_cast<T>(2.0)*c), -max<T>()) <= b)
 			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+				return interval<T>(-one<T>(), one<T>());
 			}
-			else if (nextafter((c*2.0 - 1.0)*PI<T>(), max<T>()) >= a &&
-				nextafter((c*2.0 - 1.0)*PI<T>(), -max<T>()) <= b)
+			else if (nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), max<T>()) >= a &&
+				nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), -max<T>()) <= b)
 			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+				return interval<T>(-one<T>(), one<T>());
 			}
 			else
 			{
 				return interval<T>(
 					std::fmin(nextafter(std::cos(a), -max<T>()),
-						nextafter(std::cos(b), -max<T>())), static_cast<T>(1.0));
+						nextafter(std::cos(b), -max<T>())), one<T>());
 			}
 		}
-		else if (nextafter(PI<T>()*(2.0*c + 1.0), max<T>()) >= a &&
-			nextafter(PI<T>()*(2.0*c + 1.0), -max<T>()) <= b)
+		else if (nextafter(PI<T>()*(static_cast<T>(2.0)*c + noe<T>()), max<T>()) >= a &&
+			nextafter(PI<T>()*(static_cast<T>(2.0)*c + noe<T>()), -max<T>()) <= b)
 		{
-			return interval<T>(static_cast<T>(-1.0),
+			return interval<T>(-one<T>(),
 				std::fmax(nextafter(std::cos(a), max<T>()),
 					nextafter(std::cos(b), max<T>())));
 		}
-		else if (nextafter((c*2.0 - 1.0)*PI<T>(), max<T>()) >= a &&
-			nextafter((c*2.0 - 1.0)*PI<T>(), -max<T>()) <= b)
+		else if (nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), max<T>()) >= a &&
+			nextafter((c*static_cast<T>(2.0) - noe<T>())*PI<T>(), -max<T>()) <= b)
 		{
-			return interval<T>(static_cast<T>(-1.0),
+			return interval<T>(-one<T>(),
 				std::fmax(nextafter(std::cos(a), max<T>()),
 					nextafter(std::cos(b), max<T>())));
 		}
@@ -457,47 +462,47 @@ namespace Cranberries
 	{
 		int c;
 		auto a = pimpl->low(), b = pimpl->up();
-		if (b - a >= 2.0*PI<T>())
+		if (b - a >= static_cast<T>(2.0)*PI<T>())
 		{
-			return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+			return interval<T>(-one<T>(), one<T>());
 		}
 		/*  base point set  */
-		if (static_cast<int>(nextafter((a * 2.0 / PI<T>() - 1.0) / 4.0, max<T>())) > a)
-			c = static_cast<int>(nextafter((a * 2.0 / PI<T>() - 1.0) / 4.0, max<T>()));
+		if (static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - noe<T>()) / static_cast<T>(4.0), max<T>())) > a)
+			c = static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - noe<T>()) / static_cast<T>(4.0), max<T>()));
 		else
-			c = static_cast<int>(nextafter((a * 2.0 / PI<T>() - 1.0) / 4.0, max<T>())) + 1;
+			c = static_cast<int>(nextafter((a * static_cast<T>(2.0) / PI<T>() - noe<T>()) / static_cast<T>(4.0), max<T>())) + 1;
 		/*  checking phase  */
-		if (nextafter(PI<T>() / 2.0*(1.0 + c*4.0), max<T>()) >= a &&
-			nextafter(PI<T>() / 2.0*(1.0 + c*4.0), -max<T>()) <= b)
+		if (nextafter(PI<T>() / static_cast<T>(2.0)*(noe<T>() + c*static_cast<T>(4.0)), max<T>()) >= a &&
+			nextafter(PI<T>() / static_cast<T>(2.0)*(noe<T>() + c*static_cast<T>(4.0)), -max<T>()) <= b)
 		{
-			if (nextafter(PI<T>() / 2.0*(3.0 + c*4.0), max<T>()) >= a &&
-				nextafter(PI<T>() / 2.0*(3.0 + c*4.0), -max<T>()) <= b)
+			if (nextafter(PI<T>() / static_cast<T>(2.0)*(static_cast<T>(3.0) + c*static_cast<T>(4.0)), max<T>()) >= a &&
+				nextafter(PI<T>() / static_cast<T>(2.0)*(static_cast<T>(3.0) + c*static_cast<T>(4.0)), -max<T>()) <= b)
 			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+				return interval<T>(-one<T>(), one<T>());
 			}
-			else if (nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, max<T>()) >= a &&
-				nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, -max<T>()) <= b)
+			else if (nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), max<T>()) >= a &&
+				nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), -max<T>()) <= b)
 			{
-				return interval<T>(static_cast<T>(-1.0), static_cast<T>(1.0));
+				return interval<T>(-one<T>(), one<T>());
 			}
 			else
 			{
 				return interval<T>(
 					std::fmin(nextafter(std::sin(a), -max<T>()),
-						nextafter(std::sin(b), -max<T>())), static_cast<T>(1.0));
+						nextafter(std::sin(b), -max<T>())), one<T>());
 			}
 		}
-		else if (nextafter(PI<T>() / 2.0*(3.0 + c*4.0), max<T>()) >= a &&
-			nextafter(PI<T>() / 2.0*(3.0 + c*4.0), -max<T>()) <= b)
+		else if (nextafter(PI<T>() / static_cast<T>(2.0)*(static_cast<T>(3.0) + c*static_cast<T>(4.0)), max<T>()) >= a &&
+			nextafter(PI<T>() / static_cast<T>(2.0)*(static_cast<T>(3.0) + c*static_cast<T>(4.0)), -max<T>()) <= b)
 		{
-			return interval<T>(static_cast<T>(-1.0),
+			return interval<T>(-one<T>(),
 				std::fmax(nextafter(std::sin(a), max<T>()),
 					nextafter(std::sin(b), max<T>())));
 		}
-		else if (nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, max<T>()) >= a &&
-			nextafter((c*4.0 - 1.0)*PI<T>() / 2.0, -max<T>()) <= b)
+		else if (nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), max<T>()) >= a &&
+			nextafter((c*static_cast<T>(4.0) - noe<T>())*PI<T>() / static_cast<T>(2.0), -max<T>()) <= b)
 		{
-			return interval<T>(static_cast<T>(-1.0),
+			return interval<T>(-one<T>(),
 				std::fmax(nextafter(std::sin(a), max<T>()),
 					nextafter(std::sin(b), max<T>())));
 		}
@@ -524,18 +529,18 @@ namespace Cranberries
 			throw Cranberries::over_flow("tan");
 		}
 		/*  base point set  */
-		if (static_cast<int>(nextafter(a * 2.0 / PI<T>(), max<T>())) < a)
-			c = static_cast<int>(nextafter(a * 2.0 / PI<T>(), max<T>()));
+		if (static_cast<int>(nextafter(a * static_cast<T>(2.0) / PI<T>(), max<T>())) < a)
+			c = static_cast<int>(nextafter(a * static_cast<T>(2.0) / PI<T>(), max<T>()));
 		else
-			c = static_cast<int>(nextafter(a * 2.0 / PI<T>(), max<T>())) + 1;
+			c = static_cast<int>(nextafter(a * static_cast<T>(2.0) / PI<T>(), max<T>())) + 1;
 		/*  checking phase  */
-		if (a < (PI<T>() / static_cast<T>(2.0) * c) && (PI<T>() / static_cast<T>(2.0) * c) < b) {
+		if (a < (PI<T>() / static_cast<T>(static_cast<T>(2.0)) * c) && (PI<T>() / static_cast<T>(static_cast<T>(2.0)) * c) < b) {
 			throw Cranberries::over_flow("tan");
 		}
-		else if (a < (PI<T>() / static_cast<T>(2.0) * c - PI<T>()) && (PI<T>() / static_cast<T>(2.0) * c - PI<T>()) < b) {
+		else if (a < (PI<T>() / static_cast<T>(static_cast<T>(2.0)) * c - PI<T>()) && (PI<T>() / static_cast<T>(static_cast<T>(2.0)) * c - PI<T>()) < b) {
 			throw Cranberries::over_flow("tan");
 		}
-		else if (a < PI<T>() / static_cast<T>(2.0) * c + PI<T>() && PI<T>() / static_cast<T>(2.0) * c + PI<T>() < b) {
+		else if (a < PI<T>() / static_cast<T>(static_cast<T>(2.0)) * c + PI<T>() && PI<T>() / static_cast<T>(static_cast<T>(2.0)) * c + PI<T>() < b) {
 			throw Cranberries::over_flow("tan");
 		}
 		else if (nextafter(std::tan(a), -max<T>()) == -max<T>() || nextafter(std::tan(b), -max<T>()) == max<T>()) {
@@ -553,7 +558,7 @@ namespace Cranberries
 	const interval<T> interval<T>::acos() const
 	{
 		auto a = pimpl->low(), b = pimpl->up();
-		if (a < -1.0 || b > 1.0) {
+		if (a < -noe<T>() || b > noe<T>()) {
 			throw Cranberries::invalid_argument("acos");
 		}
 		else {
@@ -568,7 +573,7 @@ namespace Cranberries
 	const interval<T> interval<T>::asin() const
 	{
 		auto a = pimpl->low(), b = pimpl->up();
-		if (a < -1.0 || b > 1.0) {
+		if (a < -noe<T>() || b > noe<T>()) {
 			throw Cranberries::invalid_argument("asin");
 		}
 		else {
@@ -583,7 +588,7 @@ namespace Cranberries
 	const interval<T> interval<T>::atan() const
 	{
 		auto a = pimpl->low(), b = pimpl->up();
-		if (a < -1.0 || b > 1.0) {
+		if (a < -noe<T>() || b > noe<T>()) {
 			throw Cranberries::invalid_argument("asin");
 		}
 		else {
@@ -601,13 +606,13 @@ namespace Cranberries
 		if (nextafter(std::cosh(a), max<T>()) == max<T>() || nextafter(std::cosh(b), max<T>()) == max<T>()) {
 			throw Cranberries::over_flow("cosh");
 		}
-		if (a < 0.0 && b > 0.0) {
-			return interval<T>(1.0, std::fmax(nextafter(std::cosh(a), max<T>()), nextafter(std::cosh(b), max<T>())));
+		if (a < zero<T>() && b > zero<T>()) {
+			return interval<T>(noe<T>(), std::fmax(nextafter(std::cosh(a), max<T>()), nextafter(std::cosh(b), max<T>())));
 		}
-		else if (b < 0.0) {
+		else if (b < zero<T>()) {
 			return interval<T>(nextafter(std::cosh(b), -max<T>()), nextafter(std::cosh(a), max<T>()));
 		}
-		else if (a > 0.0) {
+		else if (a > zero<T>()) {
 			return interval<T>(nextafter(std::cosh(a), -max<T>()), nextafter(std::cosh(b), max<T>()));
 		}
 		else {
@@ -647,7 +652,7 @@ namespace Cranberries
 	{
 		auto a = pimpl->low();
 		auto b = pimpl->up();
-		if (a < static_cast<T>(1.0)) {
+		if (a < one<T>()) {
 			throw Cranberries::invalid_argument("acosh");
 		}
 		else {
@@ -676,14 +681,14 @@ namespace Cranberries
 	const interval<T> interval<T>::pow(int n) const
 	{
 		if (n < 0) {
-			auto tmp = static_cast<T>(1.0) / (*this);
-			return tmp.pow(-1 * n);
+			auto tmp = one<T>() / (*this);
+			return tmp.pow(-one<T>() * n);
 		}
 		else if (n == 0) {
-			return interval<T>(static_cast<T>(1.0), static_cast<T>(1.0));
+			return interval<T>(one<T>(), one<T>());
 		}
 		else if (n % 2 == 0) {
-			if (pimpl->up() <= 0.0) {
+			if (pimpl->up() <= zero<T>()) {
 				if (nextafter(std::pow(pimpl->low(), n), max<T>()) == max<T>()
 					|| nextafter(std::pow(pimpl->up(), n), -max<T>()) == -max<T>())
 				{
@@ -693,14 +698,14 @@ namespace Cranberries
 					nextafter(std::pow(pimpl->up(), n), -max<T>()),
 					nextafter(std::pow(pimpl->low(), n), max<T>()));
 			}
-			else if (pimpl->low() <= T{} && pimpl->up() >= T{}) {
+			else if (pimpl->low() <= zero<T>() && pimpl->up() >= zero<T>()) {
 				if (std::fmax(
 					nextafter(std::pow(pimpl->low(), n), -max<T>()),
 					nextafter(std::pow(pimpl->up(), n), max<T>())) == max<T>())
 				{
 					throw Cranberries::over_flow("overflow occurred.");
 				}
-				return interval<T>(T{}, std::fmax(
+				return interval<T>(zero<T>(), std::fmax(
 					nextafter(std::pow(pimpl->low(), n), -max<T>()),
 					nextafter(std::pow(pimpl->up(), n), max<T>())));
 			}
@@ -721,7 +726,7 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::sqrt() const
 	{
-		if (pimpl->low() < T{}) { throw Cranberries::logic_error("sqrt arg requires positive number"); }
+		if (pimpl->low() < zero<T>()) { throw Cranberries::logic_error("sqrt arg requires positive number"); }
 		return interval<T>(
 			nextafter(std::sqrt(pimpl->low()), -max<T>()),
 			nextafter(std::sqrt(pimpl->up()), max<T>()));
@@ -748,7 +753,7 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::log() const
 	{
-		if (pimpl->low() <= 0.0) { throw Cranberries::logic_error("anti-logarithm less than or equal to zero"); }
+		if (pimpl->low() <= zero<T>()) { throw Cranberries::logic_error("anti-logarithm less than or equal to zero"); }
 		return interval<T>(
 			nextafter(std::log(pimpl->low()), -max<T>()),
 			nextafter(std::log(pimpl->up()), max<T>()));
@@ -760,7 +765,7 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::log10() const
 	{
-		if (pimpl->low() <= 0.0) { throw Cranberries::logic_error("anti-logarithm less than or equal to zero"); }
+		if (pimpl->low() <= zero<T>()) { throw Cranberries::logic_error("anti-logarithm less than or equal to zero"); }
 		return interval<T>(
 			nextafter(std::log10(pimpl->low()), -max<T>()),
 			nextafter(std::log10(pimpl->up()), max<T>()));
@@ -772,11 +777,11 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> interval<T>::abs() const
 	{
-		if (pimpl->low() < T{} && pimpl->up() >= T{})
+		if (pimpl->low() < zero<T>() && pimpl->up() >= zero<T>())
 		{
-			return interval<T>(T{}, nextafter(std::fmax(std::abs(pimpl->low()), std::abs(pimpl->up())), max<T>()));
+			return interval<T>(zero<T>(), nextafter(std::fmax(std::abs(pimpl->low()), std::abs(pimpl->up())), max<T>()));
 		}
-		if (pimpl->up() < T{})
+		if (pimpl->up() < zero<T>())
 		{
 			return interval<T>(nextafter(std::abs(pimpl->up()),-max<T>()), nextafter(std::abs(pimpl->low()),max<T>()));
 		}
@@ -806,7 +811,7 @@ namespace Cranberries
 	template<typename T>
 	constexpr T interval<T>::mid() const
 	{
-		return (pimpl->up() + pimpl->low()) / static_cast<T>(2.0);
+		return (pimpl->up() + pimpl->low()) / static_cast<T>(static_cast<T>(2.0));
 	}
 
 
@@ -1030,8 +1035,8 @@ namespace Cranberries
 	interval<T> interval<T>::operator=(std::initializer_list<T> list)
 	{
 		if (list.size() == 0) {
-			this->set_low(0.0);
-			this->set_up(0.0);
+			this->set_low(zero<T>());
+			this->set_up(zero<T>());
 		}
 		else if (list.size() == 2) {
 			if (*(list.begin()) > *(list.begin() + 1)) {
@@ -1094,48 +1099,48 @@ namespace Cranberries
 		auto l = lower_bound;
 		auto r = upper_bound;
 
-		if (l >= T{} && x.lower_bound >= T{}) {
+		if (l >= zero<T>() && x.lower_bound >= zero<T>()) {
 			lower_bound = nextafter(l * x.lower_bound, -max<T>());
 			upper_bound = nextafter(r * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l >= T{} && x.lower_bound < T{} && x.upper_bound > T{})
+		else if (l >= zero<T>() && x.lower_bound < zero<T>() && x.upper_bound > zero<T>())
 		{
 			lower_bound = nextafter(upper_bound * x.lower_bound, -max<T>());
 			upper_bound = nextafter(upper_bound * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l >= T{} && x.upper_bound <= T{})
+		else if (l >= zero<T>() && x.upper_bound <= zero<T>())
 		{
 			lower_bound = nextafter(r * x.lower_bound, -max<T>());
 			upper_bound = nextafter(l * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l < T{} && r > T{} && x.lower_bound >= T{})
+		else if (l < zero<T>() && r > zero<T>() && x.lower_bound >= zero<T>())
 		{
 			lower_bound = nextafter(l * x.upper_bound, -max<T>());
 			upper_bound = nextafter(r * x.upper_bound, max<T>());
 			return *this;
 		}
-		else if (l < T{} && r > T{} && x.upper_bound <= T{})
+		else if (l < zero<T>() && r > zero<T>() && x.upper_bound <= zero<T>())
 		{
 			lower_bound = nextafter(r * x.lower_bound, -max<T>());
 			upper_bound = nextafter(l * x.lower_bound, max<T>());
 			return *this;
 		}
-		else if (r <= T{} && x.lower_bound >= T{})
+		else if (r <= zero<T>() && x.lower_bound >= zero<T>())
 		{
 			lower_bound = nextafter(l * x.upper_bound, -max<T>());
 			upper_bound = nextafter(r * x.lower_bound, max<T>());
 			return *this;
 		}
-		else if (r <= T{} && x.lower_bound < T{} && x.upper_bound > T{})
+		else if (r <= zero<T>() && x.lower_bound < zero<T>() && x.upper_bound > zero<T>())
 		{
 			lower_bound = nextafter(l * x.upper_bound, -max<T>());
 			upper_bound = nextafter(l * x.lower_bound, max<T>());
 			return *this;
 		}
-		else if (r <= T{} && x.upper_bound <= T{})
+		else if (r <= zero<T>() && x.upper_bound <= zero<T>())
 		{
 			lower_bound = nextafter(r * x.upper_bound, -max<T>());
 			upper_bound = nextafter(l * x.lower_bound, max<T>());
@@ -1153,14 +1158,14 @@ namespace Cranberries
 	template<typename T>
 	const typename interval<T>::impl interval<T>::impl::operator/=(const typename interval<T>::impl& x)
 	{
-		if (x.lower_bound <= T{} && x.upper_bound >= T{})
+		if (x.lower_bound <= zero<T>() && x.upper_bound >= zero<T>())
 		{
 			throw logic_error("Divided by Cranberries which contains Zero!");
 		}
 		else
 		{
-			interval tmp(nextafter(static_cast<T>(1.0) / x.upper_bound, -max<T>()),
-				nextafter(static_cast<T>(1.0) / x.lower_bound, max<T>()));
+			interval tmp(nextafter(one<T>() / x.upper_bound, -max<T>()),
+				nextafter(one<T>() / x.lower_bound, max<T>()));
 			*this *= *(tmp.pimpl);
 			return *this;
 		}
@@ -1697,7 +1702,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(T&& x, const interval<T>& y)
 	{
-		if (x > T{})
+		if (x > zero<T>())
 			return (interval<T>(y.low() * x, y.up() * x));
 		else
 			return (interval<T>(y.up() * x, y.low() * x));
@@ -1707,7 +1712,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator *(const interval<T>& x, T&& y)
 	{
-		if (y > T{})
+		if (y > zero<T>())
 			return (interval<T>(x.low() * y, x.up() * y));
 		else
 			return (interval<T>(x.up() * y, x.low() * y));
@@ -1729,9 +1734,9 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator /(T&& x, const interval<T>& y)
 	{
-		if (y.low() <= T{} && T{} <= y.up())
+		if (y.low() <= zero<T>() && zero<T>() <= y.up())
 			throw Cranberries::logic_error("Divided by Cranberries which contains zero!");
-		else if (y.low() > T{})
+		else if (y.low() > zero<T>())
 			return (interval<T>(x / y.up(), x / y.low()));
 		else
 			return (interval<T>(x / y.low(), x / y.up()));
@@ -1741,9 +1746,9 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator /(const interval<T>& x, T&& y)
 	{
-		if (y == T{})
+		if (y == zero<T>())
 			throw Cranberries::logic_error("Divided by Zero!");
-		else if (y > T{})
+		else if (y > zero<T>())
 			return (interval<T>(x.low() / y, x.up() / y));
 		else
 			return (interval<T>(x.up() / y, x.low() / y));
@@ -1753,10 +1758,10 @@ namespace Cranberries
 	template<typename T>
 	const interval<T> operator /(const interval<T>& x, const interval<T>& y)
 	{
-		if (y.is_contain(T{}))
+		if (y.is_contain(zero<T>()))
 			throw Cranberries::invalid_argument("");
 		else if (&x == &y)
-			return interval<T>{static_cast<T>(1.0), static_cast<T>(1.0)};
+			return interval<T>{one<T>(), one<T>()};
 		return interval<T>(x) /= y;
 	}
 
@@ -1816,7 +1821,7 @@ namespace Cranberries
 
 	//------------------------------------------------------------------------//
 	/*  It is cumbersome to write the type to every declaration.              */
-	/*  Like ' auto x = interval<double>(1.0, 3.0)'.                          */
+	/*  Like ' auto x = interval<double>(noe<T>(), static_cast<T>(3.0))'.                          */
 	/*  And it becomes a source of mistake.                                   */
 	/*  Then, you can use argument dependent factory 'hull(Low,Up)'.          */
 	/*  It allows infer to type from arguments and returns interval object.   */
