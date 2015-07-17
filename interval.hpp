@@ -16,6 +16,7 @@ using std::nextafter;
 
 namespace Cranberries
 {
+
 	/*  function default for meta programming  */
 	extern std::nullptr_t enabler;
 
@@ -33,12 +34,13 @@ namespace Cranberries
 		Version1_1_0 = 0x01010000,
 		Version2_0_0 = 0x02000000,
 		Version3_0_0 = 0x03000000,
-		now_ver = Version1_0_8,
+		now_ver = Version1_1_0,
 	};
 	//---------------------//
 	/*   Ordering Symbol   */
 	//---------------------//
 
+	enum class order {Total,Weak,Partial,Interval};
 	/*  3 Values of Ordering  */
 	enum class partial_ordering { less, unordered, greater };
 	enum class weak_ordering { less, equivalent, greater };
@@ -143,6 +145,7 @@ namespace Cranberries
 		void set_low(T const&);
 		void set_up(T&&);
 		void set_low(T&&);
+		void swap(interval&) noexcept;
 
 		/*  Advanced Relational Op  */
 		Interval_Relation relational(interval const&) const;
@@ -150,13 +153,6 @@ namespace Cranberries
 		bool is_contain(T const& x) const;
 		bool is_part_of(interval const&) const;
 
-		/*  Relational Op  */
-		bool operator<(interval const&) const;
-		bool operator>(interval const&) const;
-		bool operator<=(interval const&) const;
-		bool operator>=(interval const&) const;
-		bool operator==(interval const&) const;
-		bool operator!=(interval const&) const;
 
 		/*  output stream function  */
 		std::ostream& print(std::ostream&) const;
@@ -783,7 +779,7 @@ namespace Cranberries
 		}
 		if (pimpl->up() < zero<T>())
 		{
-			return interval<T>(nextafter(std::abs(pimpl->up()),-max<T>()), nextafter(std::abs(pimpl->low()),max<T>()));
+			return interval<T>(nextafter(std::abs(pimpl->up()), -max<T>()), nextafter(std::abs(pimpl->low()), max<T>()));
 		}
 		else {
 			return interval<T>(*this);
@@ -861,6 +857,12 @@ namespace Cranberries
 		pimpl->set_low(x);
 	}
 
+	template<typename T>
+	void interval<T>::swap(interval& x) noexcept
+	{
+		std::swap(this->pimpl, x.pimpl);
+	}
+
 	/*  Interval Advanced Relational Discriminator Function  */
 
 	template<typename T>
@@ -911,39 +913,1590 @@ namespace Cranberries
 
 	/*  Interval Relational Op Definition  */
 
-	template<typename T>
-	bool interval<T>::operator<(interval<T> const& x) const
+	template<typename T, typename U>
+	bool operator<(interval<T> const& x, U&& y)
 	{
-		return total_less(*this, x);
-	}
-	template<typename T>
-	bool interval<T>::operator>(interval<T> const& x) const
-	{
-		return total_greater(*this, x);
+		return total_less(x, y);
 	}
 
-	template<typename T>
-	bool interval<T>::operator<=(interval<T> const& x) const
+	template<typename T, typename U>
+	bool operator>(interval<T> const& x, U&& y)
 	{
-		return pimpl->low() <= (x.pimpl)->low();
-	}
-	template<typename T>
-	bool interval<T>::operator>=(interval<T> const& x) const
-	{
-		return pimpl->low() >= (x.pimpl)->low();
+		return total_greater(x, y);
 	}
 
-	template<typename T>
-	bool interval<T>::operator==(interval<T> const& x) const
+	template<typename T, typename U>
+	bool operator<=(interval<T> const& x, U&& y)
 	{
-		return total_equal(*this, x);
-	}
-	template<typename T>
-	bool interval<T>::operator!=(interval<T> const& x) const
-	{
-		return !total_equal(*this, x);
+		return total_less_or_equal(x, y);
 	}
 
+	template<typename T, typename U>
+	bool operator>=(interval<T> const& x, U&& y)
+	{
+		return total_greater_or_equal(x, y);
+	}
+
+	template<typename T, typename U>
+	bool operator==(interval<T> const& x, U&& y)
+	{
+		return total_equal(x, y);
+	}
+
+	template<typename T, typename U>
+	bool operator!=(interval<T> const& x, U&& y)
+	{
+		return !total_equal(x, y);
+	}
+
+	namespace interval_ordering_policy
+	{
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const&& y)
+		{
+			return interval_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return interval_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const&& y)
+		{
+			return interval_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return interval_greater_or_equal(x, y);
+		}
+	}
+
+	namespace partial_ordering_policy
+	{
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const&& y)
+		{
+			return partial_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return partial_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const&& y)
+		{
+			return partial_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return partial_greater_or_equal(x, y);
+		}
+	}
+
+
+	namespace weak_ordering_policy
+	{
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const&& y)
+		{
+			return weak_less(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return weak_less_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const&& y)
+		{
+			return weak_greater(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+		
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return weak_greater_or_equal(x, y);
+		}
+	}
+
+	namespace total_ordering_policy
+	{
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T>&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>& x, interval<T> const&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T>&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const& x, interval<T> const&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T>&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T>&& x, interval<T> const&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T>&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <(interval<T> const&& x, interval<T> const&& y)
+		{
+			return total_less(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T>&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>& x, interval<T> const&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T>&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const& x, interval<T> const&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T>&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T>&& x, interval<T> const&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T>&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator <=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return total_less_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T>&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>& x, interval<T> const&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T>&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const& x, interval<T> const&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T>&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T>&& x, interval<T> const&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T>&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >(interval<T> const&& x, interval<T> const&& y)
+		{
+			return total_greater(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T>&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>& x, interval<T> const&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T>&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const& x, interval<T> const&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T>&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T>&& x, interval<T> const&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T>&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+
+		template<typename T>
+		const bool operator >=(interval<T> const&& x, interval<T> const&& y)
+		{
+			return total_greater_or_equal(x, y);
+		}
+	}
 
 	//-----------------------------//
 	/*                             */
@@ -1002,7 +2555,7 @@ namespace Cranberries
 
 	template<typename T>
 	constexpr interval<T>::interval(std::initializer_list<T> list)
-		: pimpl{ std::make_unique<impl>() } 
+		: pimpl{ std::make_unique<impl>() }
 	{
 		if (list.size() == 0) {
 			pimpl->do_internal_work();
@@ -1353,6 +2906,34 @@ namespace Cranberries
 		return min(min(std::forward<T>(a), std::forward<T>(b)), std::forward<T>(args)...);
 	}
 
+	template<typename T>
+	constexpr std::pair<interval<T> const&, interval<T> const&> minmax(interval<T> const& a, interval<T> const& b)
+	{
+		return a < b ? std::make_pair(a, b) : std::make_pair(b, a);
+	}
+
+	template<typename T, typename Compare>
+	constexpr std::pair<interval<T> const&, interval<T> const&> minmax(interval<T> const& a, interval<T> const& b, Compare comp)
+	{
+		return comp(a,b) ? std::make_pair(a, b) : std::make_pair(b, a);
+	}
+
+	template<typename T>
+	const std::pair<interval<T>, interval<T>> minmax(std::initializer_list<interval<T>> list)
+	{
+		std::vector<interval<T>> v(list);
+		auto hold = std::minmax_element(v.begin(), v.end());
+		return std::make_pair(*(hold.first), *(hold.second));
+	}
+
+	template<typename T, typename Compare>
+	const std::pair<interval<T>, interval<T>> minmax(std::initializer_list<interval<T>> list, Compare comp)
+	{
+		std::vector<interval<T>> v(list);
+		auto hold = std::minmax_element(v.begin(), v.end(), [&](interval<T> const& a, interval<T> const& b) {return comp(a, b);});
+		return std::make_pair(*(hold.first), *(hold.second));
+	}
+
 	//---------------------------------------------------------//
 	/*                                                         */
 	/*  Generic Formed Interval Numeric Function Overloading   */
@@ -1433,6 +3014,11 @@ namespace Cranberries
 	template<typename T>
 	bool is_singleton(const interval<T>& a) { return a.is_singleton(); }
 
+	template<typename T>
+	void swap(interval<T>& x, interval<T>& y) noexcept
+	{
+		x.swap(y);
+	}
 	/*  Generic numeric function for primitive dispatch  */
 
 	template <typename T, typename U, std::enable_if_t<!std::is_same<interval<U>, std::decay_t<T>>::value >>
@@ -1677,7 +3263,7 @@ namespace Cranberries
 	template <typename T>
 	interval<T> operator -(T&& x, interval<T> y)
 	{
-		return interval<T>(x - y.up() , x - y.low());
+		return interval<T>(x - y.up(), x - y.low());
 	}
 
 	// interval<T> - T
@@ -1688,8 +3274,8 @@ namespace Cranberries
 	}
 
 	// interval<T> - interval<T>
-	template<typename T>
-	const interval<T> operator -(const interval<T>& x, const interval<T>& y)
+	template<typename T, typename U>
+	const interval<T> operator -(const interval<T>& x, U&& y)
 	{
 		if (&x == &y)
 			return interval<T>{};
@@ -1719,8 +3305,8 @@ namespace Cranberries
 	}
 
 	// interval<T> * interval<T>
-	template<typename T>
-	const interval<T> operator *(const interval<T>& x, const interval<T>& y)
+	template<typename T, typename U>
+	const interval<T> operator *(const interval<T>& x, U&& y)
 	{
 		if (&x == &y)
 			return x.pow(2);
@@ -1755,8 +3341,8 @@ namespace Cranberries
 	}
 
 	// interval<T> / interval<T>
-	template<typename T>
-	const interval<T> operator /(const interval<T>& x, const interval<T>& y)
+	template<typename T, typename U>
+	const interval<T> operator /(const interval<T>& x, U&& y)
 	{
 		if (y.is_contain(zero<T>()))
 			throw Cranberries::invalid_argument("");
@@ -1793,6 +3379,249 @@ namespace Cranberries
 	interval<U> operator /=(interval<U> const& x, T&& y)
 	{
 		return x.operator/=(interval<U>(y, y));
+	}
+	namespace nomal_accuracy
+	{
+		template<typename T>
+		const interval<T> operator -(interval<T>& x, interval<T>& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T>& x, interval<T> const& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T>& x, interval<T>&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T>& x, interval<T> const&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const& x, interval<T>& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const& x, interval<T> const& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const& x, interval<T>&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const& x, interval<T> const&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T>&& x, interval<T>& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T>&& x, interval<T> const& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T>&& x, interval<T>&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T>&& x, interval<T> const&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const&& x, interval<T>& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const&& x, interval<T> const& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const&& x, interval<T>&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator -(interval<T> const&& x, interval<T> const&& y)
+		{
+			return interval<T>(x) -= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>& x, interval<T>& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>& x, interval<T> const& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>& x, interval<T>&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>& x, interval<T> const&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const& x, interval<T>& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const& x, interval<T> const& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const& x, interval<T>&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const& x, interval<T> const&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>&& x, interval<T>& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>&& x, interval<T> const& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>&& x, interval<T>&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T>&& x, interval<T> const&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const&& x, interval<T>& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const&& x, interval<T> const& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const&& x, interval<T>&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator *(interval<T> const&& x, interval<T> const&& y)
+		{
+			return interval<T>(x) *= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>& x, interval<T>& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>& x, interval<T> const& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>& x, interval<T>&& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>& x, interval<T> const&& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const& x, interval<T>& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const& x, interval<T> const& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const& x, interval<T>&& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const& x, interval<T> const&& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>&& x, interval<T>& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>&& x, interval<T> const& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>&& x, interval<T>&& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T>&& x, interval<T> const&& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const&& x, interval<T>& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const&& x, interval<T> const& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const&& x, interval<T>&& y)
+		{
+			return interval<T>(x) /= y;
+		}
+		template<typename T>
+		const interval<T> operator /(interval<T> const&& x, interval<T> const&& y)
+		{
+			return interval<T>(x) /= y;
+		}
 	}
 
 
@@ -1873,12 +3702,23 @@ namespace Cranberries
 	{
 		return (x.up() < y.low());
 	}
+	template<typename T>
+	bool interval_less_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		return (x.up() <= y.low());
+	}
+
 
 	// interval greater
 	template<typename T>
 	bool interval_greater(interval<T> const& x, interval<T> const& y)
 	{
 		return (x.low() > y.up());
+	}
+	template<typename T>
+	bool interval_greater_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		return (x.low() >= y.up());
 	}
 
 	// interval unordered
@@ -1895,14 +3735,24 @@ namespace Cranberries
 	template<typename T>
 	bool partial_less(interval<T> const& x, interval<T> const& y)
 	{
-		return (x.low() < y.low());
+		return (x.low() < y.low() && x.up() < y.up());
+	}
+	template<typename T>
+	bool partial_less_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		return (x.low() <= y.low() && x.up() <= y.up());
 	}
 
 	// partial greater
 	template<typename T>
 	bool partial_greater(interval<T> const& x, interval<T> const& y)
 	{
-		return (x.low() > y.low());
+		return (x.low() > y.low() && x.up() > y.up());
+	}
+	template<typename T>
+	bool partial_greater_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		return (x.low() >= y.low() && x.up() >= y.up());
 	}
 
 	// partial unordered
@@ -1921,12 +3771,22 @@ namespace Cranberries
 	{
 		return (x.low() < y.low());
 	}
+	template<typename T>
+	bool weak_less_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		return (x.low() <= y.low());
+	}
 
 	// weak greater
 	template<typename T>
 	bool weak_greater(interval<T> const& x, interval<T> const& y)
 	{
 		return (x.low() > y.low());
+	}
+	template<typename T>
+	bool weak_greater_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		return (x.low() >= y.low());
 	}
 
 	// weak equal
@@ -1950,6 +3810,16 @@ namespace Cranberries
 			return x.low() < y.low();
 		}
 	}
+	template<typename T>
+	bool total_less_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		if (x.low() == y.low()) {
+			return x.up() <= y.up();
+		}
+		else {
+			return x.low() <= y.low();
+		}
+	}
 
 	// total greater
 	template<typename T>
@@ -1960,6 +3830,16 @@ namespace Cranberries
 		}
 		else {
 			return x.low() > y.low();
+		}
+	}
+	template<typename T>
+	bool total_greater_or_equal(interval<T> const& x, interval<T> const& y)
+	{
+		if (x.low() == y.low()) {
+			return x.up() >= y.up();
+		}
+		else {
+			return x.low() >= y.low();
 		}
 	}
 
@@ -2014,6 +3894,115 @@ namespace Cranberries
 		else if (total_greater(x, y)) { return total_ordering::greater; }
 		else { return total_ordering::equal; }
 	}
+	template < order = order::Total >
+	struct less
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return total_less(a, b);
+		}
+	};
+	template < >
+	struct less < order::Weak >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return weak_less(a, b);
+		}
+	};
+	template < >
+	struct less < order::Partial >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return partial_less(a, b);
+		}
+	};
+	template < >
+	struct less < order::Interval >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return interval_less(a, b);
+		}
+	};
+	template < order = order::Total >
+	struct greater
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return total_greater(a, b);
+		}
+	};
+	template < >
+	struct greater < order::Weak >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return weak_greater(a, b);
+		}
+	};
+	template < >
+	struct greater < order::Partial >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return partial_greater(a, b);
+		}
+	};
+	template < >
+	struct greater < order::Interval >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return interval_greater(a, b);
+		}
+	};
+	template < order = order::Total >
+	struct equal
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return total_equal(a, b);
+		}
+	};
+	template < >
+	struct equal < order::Weak >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return weak_equal(a, b);
+		}
+	};
+	template < order = order::Partial>
+	struct undorderesd
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return partial_unordered(a, b);
+		}
+	};
+	template < >
+	struct undorderesd < order::Interval >
+	{
+		template<typename T>
+		bool operator()(interval<T> const& a, interval<T> const& b)
+		{
+			return interval_unordered(a, b);
+		}
+	};
+
 
 	/*  is contain  */
 
@@ -2040,7 +4029,7 @@ namespace Cranberries
 
 	/*  This function returns two interval subparts just split middle point as vector<interval<T>> */
 	template<class T>
-	std::pair<interval<T>,interval<T>>  subpart(interval<T>& x)
+	std::pair<interval<T>, interval<T>>  subpart(interval<T>& x)
 	{
 		return std::make_pair(interval<T>(x.low(), x.mid()), interval<T>(x.mid(), x.up()));
 	}
@@ -2051,8 +4040,8 @@ namespace Cranberries
 		using std::begin;
 		using std::end;
 
-		auto first = begin(range);
-		auto last = end(range);
+		auto const& first = begin(range);
+		auto const& last = end(range);
 
 		if (first == last)
 			return;
