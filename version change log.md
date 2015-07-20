@@ -46,14 +46,13 @@ max, min ( SFINAE )
 critical mistake in compound assignment operator  
 
 - ver. 1.0.3  
-- fixed  
+ - fixed  
 Cranberries_Relation rename into Interval_Relation
 
 - ver. 1.0.2  
  - fixed  
 variadic max & min  
-
- - ver. 1.0.1  
+- ver. 1.0.1  
   - fixed
 T() is repalaced into T{}  
 
