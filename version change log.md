@@ -2,10 +2,10 @@
 
 - ver. 1.1.1
  - added  
-log1p
-expm1
-fma
-exp2
+log1p  
+expm1  
+fma  
+exp2  
 ordering switching ( namespace & overloaad trick )  
  - fixed  
 wrap nextafteer(T&&, max<T>()) -> upward(T&&)  
