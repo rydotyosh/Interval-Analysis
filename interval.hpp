@@ -28,10 +28,9 @@ namespace Cranberries
 		Version1_0_7,
 		Version1_0_8,
 		Version1_1_0 = 0x01010000,
-		Version1_1_1,
 		Version2_0_0 = 0x02000000,
 		Version3_0_0 = 0x03000000,
-		now_ver = Version1_1_1,
+		now_ver = Version1_1_0,
 	};
 
 	/*  function default for meta programming  */
@@ -57,13 +56,13 @@ namespace Cranberries
 	template < typename T >
 	T upward( T&& x )
 	{
-		return nextafter(  std::forward<T>( x ), max<T>() ) ;
+		return nextafter( std::forward<T>( x ), max<T>() ) ;
 	}
 
 	template < typename T >
 	T downward( T&& x )
 	{
-		return nextafter(  std::forward<T>( x ), -max<T>() ) ;
+		return nextafter( std::forward<T>( x ), -max<T>() ) ;
 	}
 
 	//---------------------//
@@ -378,7 +377,8 @@ namespace Cranberries
 	template< typename T >
 	const interval<T> interval<T>::operator *=( T&& x )
 	{
-		if ( x < zero<T>() ) {
+		if ( x < zero<T>() )
+		{
 			this->set_low( downward( this->up() * std::forward<T>( x ) ) ) ;
 			this->set_up( upward( this->low() * std::forward<T>( x ) ) ) ;
 		}
@@ -421,7 +421,7 @@ namespace Cranberries
 	template < typename T >
 	const interval<T> interval<T>::operator ++()
 	{
-		( *pimpl )++ ;
+		++( *pimpl ) ;
 		if ( this->up() == max<T>() || this->low() == -max<T>() )
 		{
 			throw Cranberries::over_flow( "overflow occurred." ) ;
@@ -434,7 +434,7 @@ namespace Cranberries
 	const interval<T> interval<T>::operator ++(int)
 	{
 		auto tmp( *this ) ;
-		( *pimpl )++ ;
+		++( *pimpl ) ;
 		if ( this->up() == max<T>() || this->low() == -max<T>() )
 		{
 			throw Cranberries::over_flow( "overflow occurred." ) ;
@@ -449,7 +449,11 @@ namespace Cranberries
 	template < typename T >
 	const interval<T> interval<T>::operator --()
 	{
-		( *pimpl )-- ;
+		--( *pimpl ) ;
+		if ( this->up() == max<T>() || this->low() == -max<T>() )
+		{
+			throw Cranberries::over_flow( "overflow occurred." ) ;
+		}
 		return *this ;
 	}
 
@@ -458,7 +462,11 @@ namespace Cranberries
 	const interval<T> interval<T>::operator --(int)
 	{
 		auto tmp( *this ) ;
-		( *pimpl )-- ;
+		--( *pimpl ) ;
+		if ( this->up() == max<T>() || this->low() == -max<T>() )
+		{
+			throw Cranberries::over_flow( "overflow occurred." ) ;
+		}
 		return tmp ;
 	}
 
@@ -522,7 +530,7 @@ namespace Cranberries
 			return interval<T>( -one<T>(), std::fmax( upward( std::cos( a ) ), upward( std::cos( b ) ) ) ) ;
 		}
 		else {
-			return interval<T>{ std::fmin( downward( std::cos( a ) ), downward( std::cos( b ) ) )	, std::fmax( upward( std::cos( a ) ), upward( std::cos( b ) ) )	};
+			return interval<T>{ std::fmin( downward( std::cos( a ) ), downward( std::cos( b ) ) ), std::fmax( upward( std::cos( a ) ), upward( std::cos( b ) ) ) };
 		}
 	}
 
@@ -563,7 +571,7 @@ namespace Cranberries
 			}
 			else
 			{
-				return interval<T>{	std::fmin( downward( std::sin( a ) ), downward( std::sin( b ) ) ), one<T>() } ;
+				return interval<T>{ std::fmin( downward( std::sin( a ) ), downward( std::sin( b ) ) ), one<T>() } ;
 			}
 		}
 		else if ( upward( PI<T>() / static_cast<T>( 2.0 ) * ( static_cast<T>( 3.0 ) + c * static_cast<T>( 4.0 ) ) ) >= a &&
@@ -577,7 +585,7 @@ namespace Cranberries
 			return interval<T>{ -one<T>(), std::fmax( upward( std::sin( a ) ),	upward( std::sin( b ) ) ) } ;
 		}
 		else {
-			return interval<T>{	std::fmin( downward( std::sin( a ) ), downward( std::sin( b ) ) ), std::fmax( upward( std::sin( a ) ), upward( std::sin( b ) ) ) } ;
+			return interval<T>{ std::fmin( downward( std::sin( a ) ), downward( std::sin( b ) ) ), std::fmax( upward( std::sin( a ) ), upward( std::sin( b ) ) ) } ;
 		}
 	}
 
@@ -797,7 +805,7 @@ namespace Cranberries
 				{
 					throw Cranberries::over_flow( "overflow occurred." ) ;
 				}
-				return interval<T>{	downward( std::pow( pimpl->up(), n ) ),	upward( std::pow( pimpl->low(), n ) ) } ;
+				return interval<T>{ downward( std::pow( pimpl->up(), n ) ),	upward( std::pow( pimpl->low(), n ) ) } ;
 			}
 			else if ( pimpl->low() <= zero<T>() && pimpl->up() >= zero<T>() )
 			{
@@ -899,7 +907,7 @@ namespace Cranberries
 		{
 			throw Cranberries::logic_error( "anti-logarithm less than or equal to zero" ) ;
 		}
-		return interval<T>{ downward( std::log2( pimpl->low() ) ), upward(  std::log2( pimpl->up() ) ) } ;
+		return interval<T>{ downward( std::log2( pimpl->low() ) ), upward( std::log2( pimpl->up() ) ) } ;
 	}
 
 
@@ -3001,8 +3009,8 @@ namespace Cranberries
 			return *this ;
 		}
 		else {
-			lower_bound = std::fmin( downward( r * x.lower_bound ) , downward( l * x.upper_bound ) ) ;
-			upper_bound = std::fmax( upward( r * ( x.upper_bound) ) , upward( l * ( x.lower_bound) ) ) ;
+			lower_bound = std::fmin( downward( r * x.lower_bound ), downward( l * x.upper_bound ) ) ;
+			upper_bound = std::fmax( upward( r * ( x.upper_bound) ), upward( l * ( x.lower_bound) ) ) ;
 			return *this ;
 		}
 	}
@@ -3094,7 +3102,7 @@ namespace Cranberries
 	template < typename T >
 	std::ostream& interval<T>::impl::print( std::ostream& s ) const
 	{
-		return s << "[ " << lower_bound << " , " << upper_bound << " ]" ;
+		return s << "[ " << lower_bound << ", " << upper_bound << " ]" ;
 	}
 
 
@@ -3149,7 +3157,7 @@ namespace Cranberries
 	template < typename T, typename ... Args >
 	constexpr T max( T a, T b, Args ... args )
 	{
-		return max(max( std::forward<T>( a ), std::forward<T>( b ) ) , std::forward<T>(args )... ) ;
+		return max(max( std::forward<T>( a ), std::forward<T>( b ) ), std::forward<T>(args )... ) ;
 	}
 
 
@@ -3204,7 +3212,7 @@ namespace Cranberries
 	template < typename T, typename ... Args >
 	constexpr T min( T a, T b, Args ... args )
 	{
-		return min(min( std::forward<T>( a ), std::forward<T>( b ) ) , std::forward<T>(args )... ) ;
+		return min(min( std::forward<T>( a ), std::forward<T>( b ) ), std::forward<T>(args )... ) ;
 	}
 
 	template < typename T >
@@ -3547,8 +3555,8 @@ namespace Cranberries
 	/*     Four Arithmetic Op        */
 	/*     3 Types Overloading       */
 	/*                               */
-	/*     T Op interval<T> ,        */
-	/*     interval<T> Op T , and    */
+	/*     T Op interval<T>,        */
+	/*     interval<T> Op T, and    */
 	/*   interval<T> Op interval<T>  */
 	/*                               */
 	//-------------------------------//
@@ -3935,7 +3943,7 @@ namespace Cranberries
 	template < typename T >
 	const char* Cranberries::interval<T>::c_str() const
 	{
-		auto s = new std::string( "[ " + std::to_string( this->low() )  + " , " + std::to_string( this->up() )  + " ]" ) ;
+		auto s = new std::string( "[ " + std::to_string( this->low() )  + ", " + std::to_string( this->up() )  + " ]" ) ;
 		return s->c_str() ;
 	}
 
@@ -4358,7 +4366,7 @@ namespace Cranberries
 	template < class T >
 	std::pair< interval<T>, interval<T> >  subpart( interval<T>& x )
 	{
-		return std::make_pair( interval<T>( x.low(), x.mid() ) , interval<T>( x.mid(), x.up() ) ) ;
+		return std::make_pair( interval<T>( x.low(), x.mid() ), interval<T>( x.mid(), x.up() ) ) ;
 	}
 
 	template <class InputRange, class BinaryFunction>
