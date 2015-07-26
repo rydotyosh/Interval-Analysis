@@ -28,9 +28,10 @@ namespace Cranberries
 		Version1_0_7,
 		Version1_0_8,
 		Version1_1_0 = 0x01010000,
+		Version1_1_1,
 		Version2_0_0 = 0x02000000,
 		Version3_0_0 = 0x03000000,
-		now_ver = Version1_1_0,
+		now_ver = Version1_1_1,
 	};
 
 	/*  function default for meta programming  */
@@ -148,41 +149,57 @@ namespace Cranberries
 		const interval operator --() ;
 		const interval operator --(int) ;
 
-		/*  numeric function  */
+		/*  numeric functions  */
+
+		/*  torigonometric functions  */
 		const interval sin() const ;
 		const interval cos() const ;
 		const interval tan() const ;
 		const interval asin() const ;
 		const interval acos() const ;
 		const interval atan() const ;
+
+		/*  hyperbolic functions  */
 		const interval sinh() const ;
 		const interval cosh() const ;
 		const interval tanh() const ;
 		const interval asinh() const ;
 		const interval acosh() const ;
 		const interval atanh() const ;
-		const interval pow(int n) const ;
+
+		/*  exponential & logarithmic functions  */
 		const interval log() const ;
 		const interval log10() const ;
 		const interval log2() const ;
 		const interval log1p() const ;
-		const interval sqrt() const ;
 		const interval exp() const ;
 		const interval exp2() const ;
 		const interval expm1() const ;
+
+		/*  power math & absolute functions  */
+		const interval pow(int n) const ;
+		const interval sqrt() const ;
 		const interval abs() const ;
+
+		/*  error functions  */
 		const interval erf() const ;
+		const interval erfc() const ;
+
+		/*  interval functions  */
 		constexpr T mid() const ;
 		constexpr T wid() const ;
 		constexpr bool is_singleton() const ;
 
 		/*  accessors  */
+		// getter
 		constexpr T low() const ;
 		constexpr T up() const ;
+		// setter
 		void set_up( T const& ) ;
 		void set_low( T const& ) ;
 		void set_up( T&& ) ;
 		void set_low( T&& ) ;
+		// swap
 		void swap( interval& ) noexcept ;
 
 		/*  Advanced Relational Op  */
@@ -306,6 +323,7 @@ namespace Cranberries
 
 	/*  Interval Compound Assignment Op Definition  */
 
+	//  addition assignment
 	template < typename T >
 	const interval<T> interval<T>::operator +=( const interval& x )
 	{
@@ -317,6 +335,7 @@ namespace Cranberries
 		return *this ;
 	}
 
+	//  subtranction sssignment operator
 	template < typename T >
 	const interval<T> interval<T>::operator -=( const interval& x )
 	{
@@ -328,6 +347,7 @@ namespace Cranberries
 		return *this ;
 	}
 
+	//  multiprecation assignmetn operator
 	template < typename T >
 	const interval<T> interval<T>::operator *=( const interval& x )
 	{
@@ -339,6 +359,7 @@ namespace Cranberries
 		return *this ;
 	}
 
+	//  division assignment operator
 	template < typename T >
 	const interval<T> interval<T>::operator /=( const interval& x )
 	{
@@ -350,6 +371,7 @@ namespace Cranberries
 		return *this ;
 	}
 
+	//  addition assignment operator(T&&)
 	template< typename T >
 	const interval<T> interval<T>::operator +=( T&& x )
 	{
@@ -362,6 +384,7 @@ namespace Cranberries
 		return *this ;
 	}
 
+	//  subtraction assignment operator(T&&)
 	template< typename T >
 	const interval<T> interval<T>::operator -=( T&& x )
 	{
@@ -374,6 +397,7 @@ namespace Cranberries
 		return *this ;
 	}
 
+	//  multiprecation assignement operator(T&&)
 	template< typename T >
 	const interval<T> interval<T>::operator *=( T&& x )
 	{
@@ -393,6 +417,7 @@ namespace Cranberries
 		return *this ;
 	}
 
+	//  devisoio assignement operator(T&&)
 	template< typename T >
 	const interval<T> interval<T>::operator /=( T&& x )
 	{
@@ -417,7 +442,7 @@ namespace Cranberries
 
 	/*  Interval Increment Operator  */
 
-	//prefix
+	//  prefix increment
 	template < typename T >
 	const interval<T> interval<T>::operator ++()
 	{
@@ -429,7 +454,7 @@ namespace Cranberries
 		return *this ;
 	}
 
-	//postfix
+	//  postfix increment
 	template < typename T >
 	const interval<T> interval<T>::operator ++(int)
 	{
@@ -445,7 +470,7 @@ namespace Cranberries
 
 	/*  Interval Increment Operator  */
 
-	//prefix
+	//  prefix decrement
 	template < typename T >
 	const interval<T> interval<T>::operator --()
 	{
@@ -457,7 +482,7 @@ namespace Cranberries
 		return *this ;
 	}
 
-	//postfix
+	//  postfix decrement
 	template < typename T >
 	const interval<T> interval<T>::operator --(int)
 	{
@@ -479,7 +504,7 @@ namespace Cranberries
 	//--------------------------------------------//
 
 
-	/*  Interval Cos  */
+	/*  interval cosine  */
 
 	template < typename T >
 	const interval<T> interval<T>::cos() const
@@ -535,7 +560,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Sin  */
+	/*  interval sine  */
 
 	template < typename T >
 	const interval<T> interval<T>::sin() const
@@ -590,7 +615,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Tan  */
+	/*  interval tangent  */
 
 	template < typename T >
 	const interval<T> interval<T>::tan() const
@@ -637,7 +662,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval ArcCos  */
+	/*  interval arc cosine  */
 
 	template < typename T >
 	const interval<T> interval<T>::acos() const
@@ -655,7 +680,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval ArcSin  */
+	/*  interval arc sine  */
 
 	template < typename T >
 	const interval<T> interval<T>::asin() const
@@ -673,7 +698,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval ArcTan  */
+	/*  interval arc tangent  */
 
 	template < typename T >
 	const interval<T> interval<T>::atan() const
@@ -691,7 +716,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Cosh  */
+	/*  interval hyperbolic cosine  */
 
 	template < typename T >
 	const interval<T> interval<T>::cosh() const
@@ -721,7 +746,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Sinh  */
+	/*  interval hyperbolic sine  */
 
 	template < typename T >
 	const interval<T> interval<T>::sinh() const
@@ -742,7 +767,8 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Tanh  */
+	/*  interval hyperbolic tangent  */
+
 	template < typename T >
 	const interval<T> interval<T>::tanh() const
 	{
@@ -750,7 +776,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval ArcCosh  */
+	/*  interval arc hyperbolic cosine  */
 
 	template < typename T >
 	const interval<T> interval<T>::acosh() const
@@ -767,14 +793,15 @@ namespace Cranberries
 		}
 	}
 
-	/*  Interval ArcSinh  */
+	/*  interval arc hyperbolic sine  */
+
 	template < typename T >
 	const interval<T> interval<T>::asinh() const
 	{
 		return interval<T>{ downward( std::asinh( pimpl->low() ) ), upward( std::asinh( pimpl->up() ) ) } ;
 	}
 
-	/*  Interval ArcTanh  */
+	/*  interval arc hyperbolic tangent  */
 
 	template < typename T >
 	const interval<T> interval<T>::atanh() const
@@ -782,7 +809,7 @@ namespace Cranberries
 		return interval<T>{ downward( std::atanh( pimpl->low() ) ), upward( std::atanh( pimpl->up() ) ) } ;
 	}
 
-	/*  Interval Pow  */
+	/*  interval power function  */
 
 	template < typename T >
 	const interval<T> interval<T>::pow(int n) const
@@ -825,7 +852,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Sqrt  */
+	/*  interval square root function  */
 
 	template < typename T >
 	const interval<T> interval<T>::sqrt() const
@@ -838,7 +865,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Exp  */
+	/*  interval exponential function ( base = e )  */
 
 	template < typename T >
 	const interval<T> interval<T>::exp() const
@@ -850,6 +877,8 @@ namespace Cranberries
 		return interval<T>{ downward( std::exp( pimpl->low() ) ), upward( std::exp( pimpl->up() ) ) } ;
 	}
 
+	/*  interval exponential function ( base = 2 )  */
+
 	template < typename T >
 	const interval<T> interval<T>::exp2() const
 	{
@@ -859,6 +888,8 @@ namespace Cranberries
 		}
 		return interval<T>{ downward( std::exp2( pimpl->low() ) ), upward( std::exp2( pimpl->up() ) ) } ;
 	}
+
+	/*  interval exp( x ) - 1  */
 
 	template < typename T >
 	const interval<T> interval<T>::expm1() const
@@ -871,7 +902,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Log  */
+	/*  interval logarithmic function ( base = e ) */
 
 	template < typename T >
 	const interval<T> interval<T>::log() const
@@ -883,6 +914,7 @@ namespace Cranberries
 		return interval<T>{ downward( std::log( pimpl->low() ) ), upward( std::log( pimpl->up() ) ) } ;
 	}
 
+	/*  interval log( x ) + 1  */
 	template < typename T >
 	const interval<T> interval<T>::log1p() const
 	{
@@ -891,7 +923,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Log10  */
+	/*  interval logarithmic function ( base = 10 )  */
 
 	template < typename T >
 	const interval<T> interval<T>::log10() const
@@ -900,6 +932,7 @@ namespace Cranberries
 		return interval<T>{ downward( std::log10( pimpl->low() ) ), upward( std::log10( pimpl->up() ) ) } ;
 	}
 
+	/*  interval logarithmic function ( base = 2 )  */
 	template < typename T >
 	const interval<T> interval<T>::log2() const
 	{
@@ -911,7 +944,7 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Abs  */
+	/*  interval absolute funtion  */
 
 	template < typename T >
 	const interval<T> interval<T>::abs() const
@@ -929,6 +962,7 @@ namespace Cranberries
 		}
 	}
 
+	/*  interval fused multiply-add function fma(interval<T>, interval<T>, interval<T>)  */
 	template < typename T >
 	const interval<T> fma( interval<T> const& x, interval<T> const& y, interval<T> const& z )
 	{
@@ -981,6 +1015,9 @@ namespace Cranberries
 		}
 	}
 
+
+	/*  interval fused multiply-add function fma(interval<T>, interval<T>, T)  */
+
 	template < typename T >
 	const interval<T> fma( interval<T> const& x, interval<T> const& y, T&& z )
 	{
@@ -1032,6 +1069,10 @@ namespace Cranberries
 			} ;
 		}
 	}
+
+
+	/*  interval fused multiply-add function fma(interval<T>, T, interval<T>)  */
+
 	template < typename T >
 	const interval<T> fma( interval<T> const& x, T&& y, interval<T> const& z )
 	{
@@ -1045,6 +1086,9 @@ namespace Cranberries
 		}
 	}
 
+
+	/*  interval fused multiply-add function fma(T, interval<T>, interval<T>)  */
+
 	template < typename T >
 	const interval<T> fma( T&& x, interval<T> const& y, interval<T> const& z)
 	{
@@ -1055,6 +1099,9 @@ namespace Cranberries
 			return interval<T>{ downward( std::fma( std::forward<T>( x ), y.low(), z.low() ) ), upward( std::fma( std::forward<T>( x ), y.up(), z.up() ) ) } ;
 		}
 	}
+
+
+	/*  interval fused multiply-add function fma(interval<T>, T, T)  */
 
 	template < typename T >
 	const interval<T> fma( interval<T> const& x, T&& y, T&& z )
@@ -1067,6 +1114,9 @@ namespace Cranberries
 		}
 	}
 
+
+	/*  interval fused multiply-add function fma(T, interval<T>, T)  */
+
 	template < typename T >
 	const interval<T> fma( T&& x, interval<T> const& y, T&& z )
 	{
@@ -1078,19 +1128,33 @@ namespace Cranberries
 		}
 	}
 
+
+	/*  interval fused multiply-add function fma(T, T, interval<T>)  */
+
 	template < typename T >
 	const interval<T> fma( T&& x, T&& y, interval<T> const& z )
 	{
 			return interval<T>{ downward( std::fma( std::forward<T>( x ), std::forward<T>( y ), z.low() ) ), upward( std::fma( std::forward<T>( x ), std::forward<T>( y ), z.up() ) ) } ;
 	}
 
-	/*  Interval Error Function  */
+
+	/*  interval error function  */
 
 	template < typename T >
 	const interval<T> interval<T>::erf() const
 	{
-		return interval<T>{ std::erf( pimpl->low() ), std::erf( pimpl->up() ) } ;
+		return interval<T>{ downward( std::erf( pimpl->low() ) ), upward( std::erf( pimpl->up() ) ) } ;
 	}
+
+
+	/*  interval complementary error function  */
+
+	template < typename T >
+	const interval<T> interval<T>::erfc() const
+	{
+		return interval<T>{ downward( std::erfc( pimpl->up() ) ), upward( std::erfc( pimpl->low() ) ) } ;
+	}
+
 
 	/*  is_singleton  */
 
@@ -1099,6 +1163,7 @@ namespace Cranberries
 	{
 		return ( pimpl->low() == pimpl->up() ) ? true : false ;
 	}
+
 
 	/*  middle point  */
 
@@ -1116,6 +1181,7 @@ namespace Cranberries
 	{
 		return pimpl->up() - pimpl->low() ;
 	}
+
 
 	/*  Interval Accessors  */
 
@@ -1161,7 +1227,7 @@ namespace Cranberries
 		std::swap( this->pimpl, x.pimpl ) ;
 	}
 
-	/*  Interval Advanced Relational Discriminator Function  */
+	/*  Interval Relational Discriminator Function  */
 
 	template < typename T >
 	interval_relation interval<T>::relational( interval<T> const& x ) const
@@ -1208,7 +1274,41 @@ namespace Cranberries
 	}
 
 
-	/*  Interval Relational Op Definition  */
+	/*  Interval Relational function Definition  */
+
+	/* 
+	[ Note : There are four type ordering oplicy.
+	Its are total ordering, weak ordering, partial ordering and interval ordering.
+	Default ordering is total ordering. - end note ]
+	*/
+
+	/*
+	[ Example : Let interval<T> a,b ;
+	"a < b" equals "total_less( a, b )". - end example ]
+	*/
+
+	/*
+	[ Note : Ordering Policy can switch	using namespace inside a scape block.
+	Three namespace of weak_ordering_policy, partial_ordering and interval_ordering_policy are defined. - end note ]
+	*/
+
+	/*
+	[ Example : 
+	auto x = hull( 1.0, 2.0 );
+	auto y = hull( 1.2, 1.8 );
+	x < y ; // OK! default ordering_policy is total_ordering_policy.
+	{
+		using namespace Cranberries::weak_ordering::policy; // valid! only one ordering_policy.
+		y < x ; // OK! equals weal_less( y, x ) ;
+	}
+	{
+		using namespace Cranberries::weak_ordering::policy;
+		using namespace Cranberries::weak_ordering::policy; // invalid! two ordering_policy.
+		x < y ; // overload conflict occur.
+	}
+	- end example ]
+	*/
+
 
 	template < typename T, typename U >
 	bool operator<( interval<T> const& x, U&& y )
@@ -3321,6 +3421,9 @@ namespace Cranberries
 	interval<T> erf( interval<T> const& a) { return a.erf() ; }
 
 	template < typename T >
+	interval<T> erfc( interval<T> const& a) { return a.erfc() ; }
+
+	template < typename T >
 	T wid( interval<T> const& a) { return a.wid() ; }
 
 	template < typename T >
@@ -3410,6 +3513,9 @@ namespace Cranberries
 
 	template < typename T, typename U, std::enable_if_t< std::is_same< interval<U>, std::decay_t<T> >::value >*& = enabler >
 	auto erf( T&& x )->decltype(auto) { return std::erf( std::forward<T>( x ) ) ; }
+
+	template < typename T, typename U, std::enable_if_t< std::is_same< interval<U>, std::decay_t<T> >::value >*& = enabler >
+	auto erfc( T&& x )->decltype(auto) { return std::erfc( std::forward<T>( x ) ) ; }
 
 
 	/*  for enum output with string  */
@@ -3550,17 +3656,34 @@ namespace Cranberries
 			<< "." << (static_cast<unsigned>(v) % 0x00010000) ;
 	}
 
-	//-------------------------------//
-	/*                               */
-	/*     Four Arithmetic Op        */
-	/*     3 Types Overloading       */
-	/*                               */
-	/*     T Op interval<T>,        */
-	/*     interval<T> Op T, and    */
-	/*   interval<T> Op interval<T>  */
-	/*                               */
-	//-------------------------------//
+	/*
+	[ Note : Four arithmetic operator has three ovreload, 
+	interval<T> Op interval<T>, T Op interval<T> and interval<T> Op T .
+	High accuracy arithmetic operation is default. - end note ]
+	*/
 
+	/*
+	[ Example : High accuracy operation is available default operator-, * and / .
+	auto x = hull( 1.0, 2.0 ) ;
+	auto Y = hull( -1.0, 1.0 ) ;
+	x - x //  returns [ 0.0, 0.0 ]
+	y * y //  returns [ 0.0, 1.0 ]
+	x / x //  returns [ 1.0, 1.0 ]
+	- end example ]
+	*/
+
+	/*
+	[ Example : You can switch high accuracy arithmetic into nomal arithmetic using namespace inside a scope block.
+	auto _1_2 = hull( 1.0, 2.0 ) ;
+	auto _m1_1 = hull( -1.0, 1.0 ) ;
+	{
+		using namespace Cranberries::nomal_accuracy;
+		_1_2 - _1_2 //  returns [ -1.0, 1.0 ]
+		_m1_1 * _m1_1 //  returns [ -1.0, 1.0 ]
+		_1_2 / _1_2 //  returns [ 0.5, 2.0 ]
+	}
+	- end example ]
+	*/
 
 	/*  Interval Addition Op  */
 
@@ -4229,6 +4352,8 @@ namespace Cranberries
 			return total_ordering::equal ;
 		}
 	}
+
+	/*  interval compare function objrct  */
 	template < order = order::Total >
 	struct less
 	{

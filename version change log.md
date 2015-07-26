@@ -1,5 +1,11 @@
 *Cranberries Interval Version Change Log*  
+========================================
 
+- ver 1.2.0
+ - fixed  
+ordering switching  
+ - added
+able to order interval<T> and T
 - ver. 1.1.1
  - added  
 log1p  
@@ -13,7 +19,7 @@ wrap nextafteer(T&&, max<T>()) -> upward(T&&)
 
 - ver. 1.1.0
  - added  
-functino object ( less, greater, equal, unordered )  
+function object class ( less, greater, equal, unordered )  
 arithmetic type switching ( namespace & overload trick )  
 minmax  
 
