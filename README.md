@@ -1,4 +1,4 @@
-Interval-Library for C++
+Cranberries Interval-Library for C++
 =================
 精度保証つき大域最適化に用いる目的でC++区間演算のライブラリを開発する.  
 実数の閉区間についてのコードを開発している.  
@@ -6,9 +6,9 @@ Interval-Library for C++
 
 
 C++の区間ライブラリとしては,Boost.Numeric.Intervalがある.  
-Boost.Numeric.Intervalではsin等の超越関数が使えない.  
-また,比較演算子が例外を送出するため,非常につかいにくい.  
-本ライブラリでは,よりモダンで,より便利なライブラリを目標として開発している.  
+Boost.Numeric.Intervalでは,比較演算子が例外を送出するために非常につかいにくい.  
+Cranberries Interval Libraryではtotal ordering,weak orderingを満たす比較法を提案している.  
+本ライブラリは,よりモダンで,より便利なライブラリを目標として開発している.  
 
 開発言語はC++14  
 開発環境は現在Visual Studio 2015 RC  
