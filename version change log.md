@@ -1,6 +1,11 @@
 *Cranberries Interval Version Change Log*  
 ========================================
-
+- ver 2.0.0  
+ - fixed  
+semantics switching improve( function signeture changed and helper function defined )  
+accepted to arithmetic for two interval that have different value type  
+compound assignment operator is changed member function to non-member function  
+allowed promotion interval and other arithmetic type operation ( interval<L> @ interval<R> , interval<L> @ R and L @ interval<R> ).  
 - ver 1.2.0
  - fixed  
 ordering switching  
