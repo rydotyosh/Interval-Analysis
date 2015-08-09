@@ -33,8 +33,9 @@ namespace Cranberries
 		v1_2_0 = 0x01020000,
 		v2_0_0 = 0x02000000,
 		v2_0_1,
+		v2_0_2,
 		v3_0_0 = 0x03000000,
-		now= v2_0_1,
+		now= v2_0_2,
 	} ;
 
 	/*  function default for meta programming  */
@@ -185,6 +186,7 @@ namespace Cranberries
 		/*  power math & absolute functions  */
 		const interval pow(int const& n) const ;
 		const interval sqrt() const ;
+		const interval cbrt() const ;
 		const interval abs() const ;
 
 		/*  error functions  */
@@ -742,6 +744,17 @@ namespace Cranberries
 		}
 		return interval<T>{ downward( std::sqrt( pimpl->lower() ) ), upward( std::sqrt( pimpl->upper() ) ) } ;
 	}
+
+	template < typename T >
+	const interval<T> interval<T>::cbrt() const
+	{
+		if ( pimpl->lower() < zero<T>() )
+		{
+			throw Cranberries::logic_error( "cbrt arg requires positive number" ) ;
+		}
+		return interval<T>{ downward( std::cbrt( pimpl->lower() ) ), upward( std::cbrt( pimpl->upper() ) ) } ;
+	}
+
 
 
 	/*  interval exponential function ( base = e )  */
@@ -1737,91 +1750,94 @@ namespace Cranberries
 
 	/*  Generic Formed Interval Numeric Function  */
 	template < typename T >
-	interval<T> sin( interval<T> const& a) { return a.sin() ; }
+	interval<T> sin( interval<T> const& a ) { return a.sin() ; }
 
 	template < typename T >
-	interval<T> cos( interval<T> const& a) { return a.cos() ; }
+	interval<T> cos( interval<T> const& a ) { return a.cos() ; }
 
 	template < typename T >
-	interval<T> tan( interval<T> const& a) { return a.tan() ; }
+	interval<T> tan( interval<T> const& a ) { return a.tan() ; }
 
 	template < typename T >
-	interval<T> asin( interval<T> const& a) { return a.asin() ; }
+	interval<T> asin( interval<T> const& a ) { return a.asin() ; }
 
 	template < typename T >
-	interval<T> acos( interval<T> const& a) { return a.acos() ; }
+	interval<T> acos( interval<T> const& a ) { return a.acos() ; }
 
 	template < typename T >
-	interval<T> atan( interval<T> const& a) { return a.atan() ; }
+	interval<T> atan( interval<T> const& a ) { return a.atan() ; }
 
 	template < typename T >
-	interval<T> sinh( interval<T> const& a) { return a.sinh() ; }
+	interval<T> sinh( interval<T> const& a ) { return a.sinh() ; }
 
 	template < typename T >
-	interval<T> cosh( interval<T> const& a) { return a.cosh() ; }
+	interval<T> cosh( interval<T> const& a ) { return a.cosh() ; }
 
 	template < typename T >
-	interval<T> tanh( interval<T> const& a) { return a.tanh() ; }
+	interval<T> tanh( interval<T> const& a ) { return a.tanh() ; }
 
 	template < typename T >
-	interval<T> asinh( interval<T> const& a) { return a.asinh() ; }
+	interval<T> asinh( interval<T> const& a ) { return a.asinh() ; }
 
 	template < typename T >
-	interval<T> acosh( interval<T> const& a) { return a.acosh() ; }
+	interval<T> acosh( interval<T> const& a ) { return a.acosh() ; }
 
 	template < typename T >
-	interval<T> atanh( interval<T> const& a) { return a.atanh() ; }
+	interval<T> atanh( interval<T> const& a ) { return a.atanh() ; }
 
 	template < typename T >
-	interval<T> exp( interval<T> const& a) { return a.exp() ; }
+	interval<T> exp( interval<T> const& a ) { return a.exp() ; }
 
 	template < typename T >
-	interval<T> exp2( interval<T> const& a) { return a.exp2() ; }
+	interval<T> exp2( interval<T> const& a ) { return a.exp2() ; }
 	
 	template < typename T >
-	interval<T> expm1( interval<T> const& a) { return a.expm1() ; }
+	interval<T> expm1( interval<T> const& a ) { return a.expm1() ; }
 
 	template < typename T >
 	interval<T> pow( interval<T> const& a, int const& n) { return a.pow(n) ; }
 
 	template < typename T >
-	interval<T> abs( interval<T> const& a) { return a.abs() ; }
+	interval<T> abs( interval<T> const& a ) { return a.abs() ; }
 
 	template < typename T >
-	interval<T> log( interval<T> const& a) { return a.log() ; }
+	interval<T> log( interval<T> const& a ) { return a.log() ; }
 
 	template < typename T >
-	interval<T> log10( interval<T> const& a) { return a.log10() ; }
+	interval<T> log10( interval<T> const& a ) { return a.log10() ; }
 
 	template < typename T >
-	interval<T> log2( interval<T> const& a) { return a.log2() ; }
+	interval<T> log2( interval<T> const& a ) { return a.log2() ; }
 
 	template < typename T >
-	interval<T> log1p( interval<T> const& a) { return a.log1p() ; }
+	interval<T> log1p( interval<T> const& a ) { return a.log1p() ; }
 
 	template < typename T >
-	interval<T> sqrt( interval<T> const& a) { return a.sqrt() ; }
+	interval<T> sqrt( interval<T> const& a ) { return a.sqrt() ; }
 
 	template < typename T >
-	interval<T> erf( interval<T> const& a) { return a.erf() ; }
+	interval<T> cbrt( interval<T> const& a ) { return a.cbrt() ; }
 
 	template < typename T >
-	interval<T> erfc( interval<T> const& a) { return a.erfc() ; }
+	interval<T> erf( interval<T> const& a ) { return a.erf() ; }
 
 	template < typename T >
-	T wid( interval<T> const& a) { return a.wid() ; }
+	interval<T> erfc( interval<T> const& a ) { return a.erfc() ; }
 
 	template < typename T >
-	T mid( interval<T> const& a) { return a.mid() ; }
+	T wid( interval<T> const& a ) { return a.wid() ; }
 
 	template < typename T >
-	T lower( interval<T> const& a) { return a.lower() ; }
+	T mid( interval<T> const& a ) { return a.mid() ; }
 
 	template < typename T >
-	T upper( interval<T> const& a) { return a.upper() ; }
+	T lower( interval<T> const& a ) { return a.lower() ; }
 
 	template < typename T >
-	bool is_singleton( interval<T> const& a) { return a.is_singleton() ; }
+	T upper( interval<T> const& a ) { return a.upper() ; }
+
+	template < typename T >
+	bool is_singleton( interval<T> const& a ) { return a.is_singleton() ; }
 
 	template < typename T >
 	void swap( interval<T>& x, interval<T>& y ) noexcept
@@ -1882,7 +1898,10 @@ namespace Cranberries
 	auto abs( T&& x ) { return std::abs( std::forward<T>( x ) ) ; }
 
 	template < typename T, typename U, std::enable_if_t< std::is_same< interval<U>, std::decay_t<T> >::value >*& = enabler >
-	auto sqrt( T&& x ) { return std::sqrt( std::forward<T>( x ) ) ; }
+	auto sqrt( T&& x ) { return std::sqrt( std::forward<T>(x) ) ; }
+
+	template < typename T, typename U, std::enable_if_t< std::is_same< interval<U>, std::decay_t<T> >::value >*& = enabler >
+	auto cbrt( T&& x ) { return std::cbrt( std::forward<T>(x) ) ; }
 
 	template < typename T, typename U, std::enable_if_t< std::is_same< interval<U>, std::decay_t<T> >::value >*& = enabler >
 	auto log( T&& x ) { return std::log( std::forward<T>( x ) ) ; }

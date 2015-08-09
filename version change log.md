@@ -1,5 +1,8 @@
 *Cranberries Interval Version Change Log*  
 ========================================
+- ver 2.0.2
+ - added
+ interval cbrt function  
 - ver 2.0.1
  - fixed
 added missing two overload div(L const&,interval<R> const&) and div(interval<L> const&,R const&)  
