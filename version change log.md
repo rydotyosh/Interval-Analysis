@@ -1,5 +1,9 @@
 *Cranberries Interval Version Change Log*  
 ========================================
+- ver 2.0.1
+ - fixed
+added missing two overload div(L const&,interval<R> const&) and div(interval<L> const&,R const&)  
+interval<T> default template parameter designed T = long double  
 - ver 2.0.0  
  - fixed  
 semantics switching improve( function signeture changed and helper function defined )  

@@ -86,6 +86,7 @@ namespace Cranberries
 	//---------------------//
 
 	enum class order {Total,Weak,Partial,Interval} ;
+
 	/*  3 Values of Ordering  */
 	enum class partial_ordering { less, unordered, greater } ;
 	enum class weak_ordering { less, equivalent, greater } ;
@@ -116,7 +117,7 @@ namespace Cranberries
 	/*       Class Declaration          */
 	/*                                  */
 	/*        Interval Class            */
-	/*        (Body )                    */
+	/*        (Body )                   */
 	/*                                  */
 	//----------------------------------//
 
@@ -129,7 +130,6 @@ namespace Cranberries
 
 		/*  ctor  */
 		constexpr interval() ;
-		constexpr interval( T&, T& ) ;
 		constexpr interval( T&&, T&& ) ;
 		constexpr interval( std::initializer_list<T> ) ;
 
@@ -182,7 +182,7 @@ namespace Cranberries
 		const interval expm1() const ;
 
 		/*  power math & absolute functions  */
-		const interval pow(int n) const ;
+		const interval pow(int const& n) const ;
 		const interval sqrt() const ;
 		const interval abs() const ;
 
@@ -690,7 +690,7 @@ namespace Cranberries
 	/*  interval power function  */
 
 	template < typename T >
-	const interval<T> interval<T>::pow(int n) const
+	const interval<T> interval<T>::pow(int const& n) const
 	{
 		if ( n < 0 )
 		{
@@ -1409,20 +1409,7 @@ namespace Cranberries
 		pimpl->do_internal_work() ;
 	}
 
-	/*  Two Lvalue Arguments Ctor  */
-
-	template < typename T >
-	constexpr interval<T>::interval( T& low, T& up )
-		: pimpl{ std::make_unique<impl>() }
-	{
-		if ( low > up )
-		{
-			throw invalid_argument( "upper_bound less than lower_bound!" ) ;
-		}
-		pimpl->do_internal_work( low, up ) ;
-	}
-
-	/*  Two Rvalue Arguments Ctor  */
+	/*  Two value Arguments Ctor  */
 
 	template < typename T >
 	constexpr interval<T>::interval( T&& low, T&& up )
@@ -1432,7 +1419,7 @@ namespace Cranberries
 		{
 			throw invalid_argument( "upper_bound less than lower_bound!" ) ;
 		}
-		pimpl->do_internal_work( low, up ) ;
+		pimpl->do_internal_work( std::forward<T>(low), std::forward<T>(up) ) ;
 	}
 
 	/*  Default Dtor  */
@@ -1827,10 +1814,10 @@ namespace Cranberries
 	T mid( interval<T> const& a) { return a.mid() ; }
 
 	template < typename T >
-	interval<T> low( interval<T> const& a) { return a.lower() ; }
+	T lower( interval<T> const& a) { return a.lower() ; }
 
 	template < typename T >
-	interval<T> up( interval<T> const& a) { return a.upper() ; }
+	T upper( interval<T> const& a) { return a.upper() ; }
 
 	template < typename T >
 	bool is_singleton( interval<T> const& a) { return a.is_singleton() ; }
@@ -2171,20 +2158,17 @@ namespace Cranberries
 		template < typename L, typename R>
 		const interval<promotion_t<L, R>> div( interval<L> const& x, interval<R> const& y )
 		{
-			typedef promotion_t<L,R> T ;
+			auto&& y_lower = y.lower() ;
+			auto&& y_upper = y.upper() ;
 
-			auto y_lower = y.lower() ;
-			auto y_upper = y.upper() ;
-
-			if ( y_lower <= zero<T>() && y_upper >= zero<T>() ) 
+			if ( y_lower <= zero<R>() && y_upper >= zero<R>() ) 
 			{
 				throw logic_error( "Divided by Cranberries which contains Zero!" ) ;
 			}
 			else
 			{
-				interval<T> tmp( downward( one<T>() / y_upper ) ,
-					upward( one<T>() / y_lower ) ) ;
-				return normal_accuracy::multi( x, tmp) ;
+				interval<R> tmp{ downward( one<R>() / y_upper ) , upward( one<R>() / y_lower ) } ;
+				return normal_accuracy::multi( x, tmp ) ;
 			}
 		}
 		template < typename L, typename R>
@@ -2366,10 +2350,10 @@ namespace Cranberries
 		{
 			typedef promotion_t<L,R> T ;
 
-			auto x_lower = x.lower();
-			auto x_upper = x.upper();
-			auto y_lower = y.lower();
-			auto y_upper = y.upper();
+			auto&& x_lower = x.lower();
+			auto&& x_upper = x.upper();
+			auto&& y_lower = y.lower();
+			auto&& y_upper = y.upper();
 
 			if (x_lower >= zero<T>() && y_lower >= zero<T>())
 			{
@@ -2413,10 +2397,11 @@ namespace Cranberries
 		template < typename T >
 		const interval<T> div(interval<T> const& x, interval<T> const& y)
 		{
-			if (&x == &y)
-				return interval<T>{ one<T>(), one<T>() };
-			auto y_lower = y.lower();
-			auto y_upper = y.upper();
+			if ( &x == &y )
+				return interval<T>{ one<T>(), one<T>() } ;
+
+			auto&& y_lower = y.lower();
+			auto&& y_upper = y.upper();
 
 			if (y_lower <= zero<T>() && y_upper >= zero<T>())
 			{
@@ -2436,13 +2421,13 @@ namespace Cranberries
 			auto y_lower = y.lower();
 			auto y_upper = y.upper();
 
-			if (y_lower <= zero<T>() && y_upper >= zero<T>())
+			if (y_lower <= zero<R>() && y_upper >= zero<R>())
 			{
 				throw logic_error("Divided by Cranberries which contains Zero!");
 			}
 			else
 			{
-				interval<T> tmp(downward(one<T>() / y_upper), upward(one<T>() / y_lower));
+				interval<T> tmp{ downward(one<T>() / y_upper), upward(one<T>() / y_lower) } ;
 				return normal_accuracy::multi(x, tmp);
 			}
 		}
@@ -2491,7 +2476,7 @@ namespace Cranberries
 		}
 
 		template < typename T >
-		interval<T>& multi_assign( interval<T> const& x, interval<T> const& y )
+		interval<T>& multi_assign( interval<T>& x, interval<T> const& y )
 		{
 			auto x_lower = x.lower() ;
 			auto x_upper = x.upper() ;
@@ -2502,14 +2487,14 @@ namespace Cranberries
 			{
 				if ( x_lower > zero<T>() )
 				{
-					x.set( std::pow( x_lower ), std::pow( x_upper ) ) ;
+					x.set( std::pow( x_lower, 2 ), std::pow( x_upper, 2 ) ) ;
 				}
 				else if ( x_upper < zero<T>() )
 				{
-					x.set( std::pow( x_upper ), std::pow( x_lower ) ) ;
+					x.set( std::pow( x_upper, 2 ), std::pow( x_lower, 2 ) ) ;
 				}
 				else {
-					x.set( zero<T>(), std::fmax( std::pow( x_lower ), std::pow( x_upper ) ) ) ;
+					x.set( zero<T>(), std::fmax( std::pow( x_lower, 2 ), std::pow( x_upper, 2 ) ) ) ;
 				}
 			}
 			else if ( x_lower >= zero<T>() && y_lower >= zero<T>() ) 
@@ -2550,7 +2535,7 @@ namespace Cranberries
 			return x ;
 		}
 		template < typename L, typename R >
-		interval<L>& multi_assign(interval<L> const& x, interval<R> const& y)
+		interval<L>& multi_assign(interval<L>& x, interval<R> const& y)
 		{
 			auto&& x_lower = x.lower();
 			auto&& x_upper = x.upper();
@@ -2619,20 +2604,19 @@ namespace Cranberries
 			auto&& y_lower = y.lower();
 			auto&& y_upper = y.upper();
 
-			if (y_lower <= zero<T>() && y_upper >= zero<T>())
+			if ( y_lower <= zero<T>() && y_upper >= zero<T>() )
 			{
 				throw logic_error("Divided by Cranberries which contains Zero!");
 			}
 			else
 			{
-				if (&x == &y)
+				if ( &x == &y )
 				{
-					x.set_lower(one<T>());
-					x.set_upper(one<T>());
+					x.set( one<T>() , one<T>() ) ;
 					return x;
 				}
-				interval<T> tmp( downward(one<T>() / y_upper), upward(one<T>() / y_lower) ) ;
-				return normal_accuracy::multi_assign(x, tmp);
+				interval<T> tmp( downward( one<T>() / y_upper ), upward( one<T>() / y_lower ) ) ;
+				return normal_accuracy::multi_assign( x, tmp ) ;
 			}
 		}
 
@@ -2685,18 +2669,40 @@ namespace Cranberries
 		}
 
 		template < typename L, typename R >
+		const interval<promotion_t<L, R>> div(interval<L> const& x, R const& y)
+		{
+			if (y < zero<R>())
+			{
+				return interval<promotion_t<L,R>>{ downward( x.upper() / y ), upward( x.lower() / y ) } ;
+			}
+			return interval<promotion_t<L, R>>{ downward(x.lower() / y), upward(x.upper() / y) };
+		}
+
+		template < typename L,typename R >
+		const interval<promotion_t<L, R>> div(L const& x, interval<R> const& y)
+		{
+			if (y.lower() < zero<R>() && y.upper() > zero<R>())
+			{
+				throw invalid_argument( "div(L const&, interval<R> const&)" ) ;
+			}
+			else if (y.lower() > zero<R>())
+			{
+				return interval<promotion_t<L,R>>{ downward( x / y.upper() ), upward( x / y.lower() ) } ;
+			}
+			return interval<promotion_t<L, R>>{ downward( x / y.lower() ), upward( x / y.upper() ) } ;
+		}
+
+		template < typename L, typename R >
 		interval<L>& add_assign( interval<L>& x, R const& y )
 		{
-			x.set_lower( downward( x.lower() + y ) ) ;
-			x.set_upper( upward( x.upper() + y ) ) ;
+			x.set( downward( x.lower() + y ), upward( x.upper() + y ) ) ;
 			return x ;
 		}
 
 		template < typename L, typename R >
 		interval<L>& sub_assign( interval<L>& x, R const& y )
 		{
-			x.set_lower( downward( x.lower() - y ) ) ;
-			x.set_upper( upward( x.upper() - y ) ) ;
+			x.set( downward( x.lower() - y ), upward( x.upper() - y ) ) ;
 			return x ;
 		}
 
@@ -2705,12 +2711,10 @@ namespace Cranberries
 		{
 			if ( y < zero<R>() )
 			{
-				x.set_lower( downward( x.upper() * y ) ) ;
-				x.set_upper( upward( x.lower() * y ) ) ;
+				x.set( downward( x.upper() * y ), upward( x.lower() * y ) ) ;
 			}
 			else{
-				x.set_lower( downward( x.lower() * y ) ) ;
-				x.set_upper( upward( x.upper() * y ) ) ;
+				x.set( downward( x.lower() * y ), upward( x.upper() * y ) ) ;
 			}
 			return x ;
 		}
@@ -2725,13 +2729,11 @@ namespace Cranberries
 			{
 				if ( y < zero<R>() )
 				{
-					x.set_lower( downward( x.upper() / y ) ) ;
-					x.set_upper( upward( x.lower() / y ) ) ;
+					x.set( downward( x.upper() / y ), upward( x.lower() / y ) ) ;
 				}
 				else
 				{
-					x.set_lower( downward( x.lower() / y ) ) ;
-					x.set_upper( upward( x.upper() / y ) ) ;
+					x.set( downward( x.lower() / y ), upward( x.upper() / y ) ) ;
 				}
 				return x ; 
 			}
@@ -2906,20 +2908,12 @@ namespace Cranberries
 	/*  It allows infer to type from arguments and returns interval object.   */
 	//------------------------------------------------------------------------//
 
-	// for Lvalue
-	template < typename T >
-	interval<T> hull( T& low, T& up )
-	{
-		if ( low > up) { throw invalid_argument( "upper_bound less than lower_bound!" ) ; }
-		return interval<T>(low, up) ;
-	}
 
-	// for Rvalue
 	template < typename T >
 	interval<T> hull( T&& low, T&& up )
 	{
 		if ( low > up) { throw invalid_argument( "upper_bound less than lower_bound!" ) ; }
-		return interval<T>( std::move(low), std::move(up) ) ;
+		return interval<T>( std::forward<T>(low), std::forward<T>(up) ) ;
 	}
 
 	/*  Unique_Ptr  */
@@ -3947,13 +3941,13 @@ namespace Cranberries
 	}
 
 	template <class InputRange, class BinaryFunction>
-	void adjacent_for_each( InputRange&& range, BinaryFunction f )
+	void adjacent_for_each( InputRange range, BinaryFunction f )
 	{
 		using std::begin ;
 		using std::end ;
 
-		auto const& first = begin( range ) ;
-		auto const& last = end( range ) ;
+		auto& first = begin( range ) ;
+		auto& last = end( range ) ;
 
 		if ( first == last )
 			return ;
