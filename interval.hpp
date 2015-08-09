@@ -122,7 +122,7 @@ namespace Cranberries
 
 
 
-	template < typename T >
+	template < typename T = long double >
 	class interval
 	{
 	public:
