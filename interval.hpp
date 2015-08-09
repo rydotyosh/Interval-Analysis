@@ -32,8 +32,9 @@ namespace Cranberries
 		v1_1_1,
 		v1_2_0 = 0x01020000,
 		v2_0_0 = 0x02000000,
+		v2_0_1,
 		v3_0_0 = 0x03000000,
-		now= v2_0_0,
+		now= v2_0_1,
 	} ;
 
 	/*  function default for meta programming  */
